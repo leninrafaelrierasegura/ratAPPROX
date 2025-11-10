@@ -1,0 +1,19 @@
+name: "my-website"
+output_dir: "docs"
+navbar:
+  title: "ratAPPROX"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+  right:
+    - icon: fa-file-pdf
+      href: https://arxiv.org/abs/0000.00000
+    - icon: fa-github
+      href: https://github.com/leninrafaelrierasegura/ratAPPROX
+output:
+  html_document:
+    highlight: textmate
+    theme: flatly
+    css: style.css

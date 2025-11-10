@@ -1,0 +1,61 @@
+name: "my-website"
+output_dir: "docs"
+navbar:
+  title: "NAFDEMG"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Contents"
+      href: about.html
+    - text: "Preliminaries"
+      href: preliminaries.html
+    - text: "Numerical Approximation"
+      menu:
+        - text: "Functionality"
+          href: functionality.html
+        - text: "Experiment"
+          href: exp1.html
+        - text: "Convergence in 𝘩"
+          href: conv_in_h.html
+        - text: "Convergence in τ"
+          href: conv_in_tau.html
+        - text: "Convergence in 𝑚"
+          href: conv_in_m.html
+    - text: "Optimal Control"
+      menu:
+        - text: "Control functionality"
+          href: control_functionality.html
+        - text: "Optimal Control"
+          href: control2.html
+        - text: "Convergence in 𝘩"
+          href: control_conv_h_with_iteration.html
+        - text: "Convergence in τ"
+          href: control_conv_tau_with_iteration.html
+        - text: "Convergence in 𝑚"
+          href: control_conv_m_with_iteration.html
+    - text: "Poster"
+      href: PosterLeninStatWorkshop2025.html
+    - text: "Presentation"
+      href: Presentation.html
+  right:
+    - icon: fa-file-pdf
+      href: https://arxiv.org/abs/0000.00000
+    - icon: fa-github
+      href: https://github.com/leninrafaelrierasegura/NAFDEMG
+output:
+  html_document:
+    highlight: textmate
+    theme: flatly
+    css: style.css
+
+exclude:
+  - PosterLeninStatWorkshop2025.Rmd
+  - PosterLeninStatWorkshop2025.html
+  - Presentation.Rmd
+  - Presentation.html
+  
+  
+  
+  
+  
+  
