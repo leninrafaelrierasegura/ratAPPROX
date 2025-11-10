@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,21 +10,21 @@ library(reshape2)
 library(plotly)
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
-gets.graph.tadpole <- function(h){
+gets.graph.tadpole <- function(){
   edge1 <- rbind(c(0,0),c(1,0))
   theta <- seq(from=-pi,to=pi,length.out = 10000)
   edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
   edges <- list(edge1, edge2)
   graph <- metric_graph$new(edges = edges, verbose = 0)
   graph$set_manual_edge_lengths(edge_lengths = c(1,2))
-  graph$build_mesh(h = h)
+  #graph$build_mesh(h = h)
   return(graph)
 }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -64,6 +64,8 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
       x_[count + 1] <- tanh(0.5 * kappa * l_e)
       count <- count + 1
     }
+  print(i_)
+  print(j_)
   }
   if(BC == 1){
     #does this work for circle?
@@ -73,6 +75,8 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
     j_ <- c(j_[1:count], index)
     x_ <- c(x_[1:count], rep(0.5, length(index)))
     count <- count + length(index)
+    print(i_)
+    print(j_)
   }else if(BC==2){
     
     dV <- graph$get_vertices()$degree
