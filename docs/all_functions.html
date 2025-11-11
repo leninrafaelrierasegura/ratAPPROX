@@ -64,8 +64,9 @@
   }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -76,7 +77,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -465,6 +466,9 @@ div.tocify {
 <li>
   <a href="about.html">About</a>
 </li>
+<li>
+  <a href="all_functions.html">All functions</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -499,7 +503,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Auxiliary Functions</h1>
-<h4 class="date">Last modified: 10-11-2025.</h4>
+<h4 class="date">Last modified: 11-11-2025.</h4>
 
 </div>
 
@@ -524,7 +528,7 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb1-1"><a hr
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">FALSE</span>,       </span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
 <span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
 <span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
@@ -552,12 +556,298 @@ class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb1-1"><a hr
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
-<div id="auxiliary_functions" class="section level2" number="1">
-<h2><span class="header-section-number">1</span> Auxiliary
+<div id="theoretical-stuff" class="section level2" number="1">
+<h2><span class="header-section-number">1</span> Theoretical stuff</h2>
+<p>We consider the equation</p>
+<p><span class="math display">\[
+\left(\kappa^{2}-\Delta\right)^{\alpha / 2}(\tau u)=\mathcal{W} \quad
+\text { on } \Gamma.
+\tag{0}
+\label{spde_equation}
+\]</span></p>
+<p>The Matérn covariance function is given by</p>
+<p><span class="math display">\[
+\varrho_M(h)=\frac{\tau^{-2}}{2^{\nu-1} \Gamma(\nu+n / 2)(4 \pi)^{n / 2}
+\kappa^{2 \nu}}(\kappa|h|)^\nu K_\nu(\kappa|h|),
+\tag{1}
+\label{matern_cov}
+\]</span></p>
+<p>where <span class="math inline">\(n=1\)</span> and the parameters
+<span class="math inline">\(\tau, \kappa&gt;0\)</span> and <span
+class="math inline">\(0&lt;\nu \leq 1 / 2\)</span> control the variance,
+practical correlation range, and the sample path regularity,
+respectively. Further, <span class="math inline">\(K_\nu(\cdot)\)</span>
+is a modified Bessel function of the second kind and <span
+class="math inline">\(\Gamma(\cdot)\)</span> denotes the gamma
+function.</p>
+<p>From <span class="citation">(Bolin, Simas, and Wallin 2023,
+Proposition 5)</span>, we know that</p>
+<p><span class="math display">\[
+\mathbf{r}: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\alpha
+\times \alpha}, \quad \mathbf{r}\left(t_1,
+t_2\right)=\left[\frac{\partial^{i-1}}{\partial t_2^{i-1}}
+\frac{\partial^{j-1}}{\partial t_1^{j-1}}
+\varrho_M\left(t_1-t_2\right)\right]_{i j \in\{1,2, \ldots, \alpha\}}
+\tag{2}
+\label{r_matrix}
+\]</span> is the covariance function of <span
+class="math inline">\(\mathbf{x}(t)=\left[x(t), x&#39;(t), \ldots,
+x^{(\alpha-1)}(t)\right]^{\top}\)</span> if <span
+class="math inline">\(x\)</span> is a centered Gaussian process on <span
+class="math inline">\(\mathbb{R}\)</span> with Matérn covariance
+function with <span class="math inline">\(\nu = \alpha-1/2\)</span> and
+<span class="math inline">\(\alpha \in \mathbb{N}\)</span>.</p>
+<p>Let <span class="math inline">\(\mathbf{r}(\cdot, \cdot)\)</span> be
+given by <span class="math inline">\(\eqref{r_matrix}\)</span> with
+<span class="math inline">\(\alpha \in \mathbb{N}\)</span>. Then, from
+<span class="citation">(Bolin, Simas, and Wallin 2023, Proposition
+6)</span>, for <span class="math inline">\(\ell&gt;0\)</span>,</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{r}}_{\ell}\left(t_1, t_2\right)=\mathbf{r}\left(t_1,
+t_2\right)+\left[\mathbf{r}\left(t_1, 0\right) \mathbf{r}\left(t_1,
+\ell\right)\right]\left[\begin{array}{cc}
+\mathbf{r}(0,0) &amp; -\mathbf{r}(0, \ell) \\
+-\mathbf{r}(\ell, 0) &amp; \mathbf{r}(0,0)
+\end{array}\right]^{-1}\left[\begin{array}{l}
+\mathbf{r}\left(t_2, 0\right) \\
+\mathbf{r}\left(t_2, \ell\right)
+\end{array}\right]
+\tag{3}
+\label{r_tilde_matrix}
+\]</span></p>
+<p>is the multivariate covariance function of the multivariate process
+<span
+class="math inline">\(\widetilde{\mathbf{x}}(t)=\left[\widetilde{x}(t),
+\widetilde{x}^{\prime}(t), \ldots,
+\widetilde{x}^{(\alpha-1)}(t)\right]^{\top}\)</span> on the interval
+<span class="math inline">\([0, \ell]\)</span>, where <span
+class="math inline">\(\widetilde{x}\)</span> is the boundaryless
+Whittle–Matérn process on <span class="math inline">\([0,
+\ell]\)</span>.</p>
+<p>Let</p>
+<p><span class="math display">\[
+\mathcal{K}_\alpha(x)=\left\{\omega \in \Omega: \forall v \in
+\mathcal{V} \text { and each pair } e, \widetilde{e} \in \mathcal{E}_v,
+x_e^{(2 k)}(v, \omega)=x_{\widetilde{e}}^{(2 k)}(v, \omega) \text {, and
+}
+\sum_{e \in \mathcal{E}_v} \partial_e x_e^{2 k+1}(v, \omega)=0, k=0,
+\ldots,\lceil\alpha-1 / 2\rceil-1\right\}
+\tag{4}
+\label{K_alpha}
+\]</span></p>
+<p>and <span class="math inline">\(\widetilde{u} =
+\{\widetilde{u}_e:e\in\mathcal{E}\}\)</span> be a family of independent
+boundaryless Whittle–Matérn process on the edges. Further, let</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{u}}(s)=\left[\widetilde{u}(s),
+\widetilde{u}^{\prime}(s),\ldots,
+\widetilde{u}^{(\alpha-1)}(s)\right]^{\top}=\sum_{e \in \mathcal{E}}
+\mathbb{I}(s \in e) \widetilde{\mathbf{u}}_e(s) \in\mathbb{R}^{\alpha}.
+\tag{5}
+\label{u_vector}
+\]</span> From <span class="citation">(Bolin, Simas, and Wallin 2023,
+Theorem 4)</span>, if we define</p>
+<p><span class="math display">\[
+\mathbf{u}(s) = \widetilde{\mathbf{u}}(s)|
+\mathcal{K}_\alpha(\widetilde{u}),
+\tag{6}
+\label{u_vector_constrained}
+\]</span></p>
+<p>then <span class="math inline">\(u(\cdot)\)</span>, the first entry
+of <span class="math inline">\(\mathbf{u}(\cdot)\)</span>, is a solution
+to <span class="math inline">\(\eqref{spde_equation}\)</span>.</p>
+<p>The precission matrix of <span
+class="math inline">\([\widetilde{\mathbf{u}}(0),
+\widetilde{\mathbf{u}}(\ell)]\)</span> is</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{Q}}_e=\mathbf{Q}_e-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}(0,0)^{-1} &amp; \mathbf{0} \\
+\mathbf{0} &amp; \mathbf{r}(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \alpha \times 2 \alpha},
+\tag{7}
+\label{Q_tilde_e}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{Q}_e\)</span> is the
+precision matrix of <span
+class="math inline">\([\widetilde{\mathbf{u}}(0),
+\widetilde{\mathbf{u}}(\ell)]\)</span>.</p>
+<p>Let <span class="math display">\[
+\mathbf{U}=\left[\mathbf{u}(\underline{e}_1)^{\top},
+\mathbf{u}(\overline{e}_1)^{\top}, \mathbf{u}(\underline{e}_2)^{\top},
+\mathbf{u}(\overline{e}_2)^{\top}, \ldots,
+\mathbf{u}(\underline{e}_{|\mathcal{E}|})^{\top},
+\mathbf{u}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2
+\alpha|\mathcal{E}|}
+\tag{8}
+\label{U_vector}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{U}}=\left[\widetilde{\mathbf{u}}_1(\underline{e}_1)^{\top},
+\widetilde{\mathbf{u}}_1(\overline{e}_1)^{\top},
+\widetilde{\mathbf{u}}_2(\underline{e}_2)^{\top},
+\widetilde{\mathbf{u}}_2(\overline{e}_2)^{\top}, \ldots,
+\widetilde{\mathbf{u}}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^{\top},
+\widetilde{\mathbf{u}}_{|\mathcal{E}|}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2
+\alpha|\mathcal{E}|}
+\tag{9}
+\label{U_vector_tilde}
+\]</span> We then have that</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{U}}\sim \mathrm{N}\left(\mathbf{0},
+\widetilde{\mathbf{Q}}^{-1}\right), \quad \widetilde{\mathbf{Q}} =
+\operatorname{diag}\left(\{\mathbf{Q}_e\}_{e\in\mathcal{E}}\right),
+\tag{10}
+\label{U_vector_tilde_distribution}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{Q}_e\)</span> is the
+precision matrix of <span
+class="math inline">\([\widetilde{\mathbf{u}}_e(\underline{e}),
+\widetilde{\mathbf{u}}_e(\overline{e})]\)</span>.</p>
+<p>The Kirchhoff conditions <span
+class="math inline">\(\eqref{K_alpha}\)</span> can be written as a
+system of linear equations</p>
+<p><span class="math display">\[
+\mathbf{K} \widetilde{\mathbf{U}}=\mathbf{0},
+\tag{11}
+\label{K_alpha_matrix}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{K}\in\mathbb{R}^{k\times
+2\alpha|\mathcal{E}|}\)</span> is a suitable matrix and <span
+class="math inline">\(k\)</span> is the number of linear constraints
+given by <span class="math inline">\(\eqref{K_alpha}\)</span>.</p>
+<p>Finally,</p>
+<p><span class="math display">\[
+\mathbf{U}=\widetilde{\mathbf{U}}| \{\mathbf{K}
+\widetilde{\mathbf{U}}=\mathbf{0}\}\sim\mathrm{N}\left(\mathbf{0},
+\widetilde{\mathbf{Q}}^{-1}-\widetilde{\mathbf{Q}}^{-1}
+\mathbf{K}^{\top}\left(\mathbf{K} \widetilde{\mathbf{Q}}^{-1}
+\mathbf{K}^{\top}\right)^{-1} \mathbf{K}
+\widetilde{\mathbf{Q}}^{-1}\right).
+\tag{12}
+\label{U_vector_constrained}
+\]</span></p>
+<p>Let <span class="math inline">\(\mathbf{A}\)</span> (which is not
+unique) be a <span class="math inline">\(|\mathcal{V}| \times
+2\alpha|\mathcal{E}|\)</span> matrix such that</p>
+<p><span class="math display">\[
+\mathbf{U}_v = [u(v_1),u(v_2), \dots, u(v_{|\mathcal{V}|})]^{\top} =
+\mathbf{A}
+\mathbf{U}\sim\mathrm{N}\left(\mathbf{0},\mathbf{A}\left(\widetilde{\mathbf{Q}}^{-1}-\widetilde{\mathbf{Q}}^{-1}
+\mathbf{K}^{\top}\left(\mathbf{K} \widetilde{\mathbf{Q}}^{-1}
+\mathbf{K}^{\top}\right)^{-1} \mathbf{K}
+\widetilde{\mathbf{Q}}^{-1}\right) \mathbf{A}^{\top}\right),
+\tag{13}
+\label{A_matrix}
+\]</span></p>
+<hr />
+<div id="case-alpha1" class="section level3" number="1.1">
+<h3><span class="header-section-number">1.1</span> Case <span
+class="math inline">\(\alpha=1\)</span></h3>
+<hr />
+<p>For <span class="math inline">\(\alpha=1, \mathbf{U}_v\)</span> in
+<span class="math inline">\(\eqref{A_matrix}\)</span> satisfies</p>
+<div class="custom-box">
+<p><span class="math display">\[
+\mathbf{U}_v \sim \mathrm{~N}\left(\mathbf{0}, \mathbf{Q}^{-1}\right),
+\tag{14}
+\label{U_v_distribution_alpha1}
+\]</span></p>
+</div>
+<p>where</p>
+<p><span class="math display">\[
+\mathbf{Q}_{i j}=2 \kappa \tau^2 . \begin{cases}\displaystyle\sum_{e \in
+\mathcal{E}_{v_i}}\left\{\left(\frac{1}{2}+\frac{e^{-2 \kappa
+\ell_e}}{1-e^{-2 \kappa \ell_e}}\right) \mathbb{I}(\bar{e} \neq
+\underline{e})+\tanh \left(\kappa \frac{l_e}{2}\right)
+\mathbb{I}(\bar{e}=\underline{e})\right\} &amp; \text { if } i=j \\
+\displaystyle\sum_{e \in \mathcal{E}_{v_i} \cap
+\mathcal{E}_{v_j}}-\frac{e^{-\kappa \ell_e}}{1-e^{-2 \kappa \ell_e}}
+&amp; \text { if } i \neq j\end{cases}
+\tag{15}
+\label{Q_matrix}
+\]</span></p>
+<hr />
+</div>
+<div id="case-alpha1-1" class="section level3" number="1.2">
+<h3><span class="header-section-number">1.2</span> Case <span
+class="math inline">\(\alpha&gt;1\)</span></h3>
+<hr />
+<p>Let <span class="math inline">\(\alpha&gt;0\)</span> and <span
+class="math inline">\(\mathbf{T}\)</span> be the change-of-basis matrix
+such that</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{U}}^\star = \mathbf{T} \widetilde{\mathbf{U}},
+\tag{16}
+\label{T_matrix}
+\]</span></p>
+<p>and the <span class="math inline">\(k\)</span> constraints of <span
+class="math inline">\(\mathbf{K}\)</span> are given by the first <span
+class="math inline">\(k\)</span> rows of <span
+class="math inline">\(\widetilde{\mathbf{U}}^\star\)</span>. That
+is,</p>
+<p><span class="math display">\[
+\widetilde{\mathbf{U}}^\star\sim \mathrm{N}\left(\mathbf{0},
+\mathbf{T}\widetilde{\mathbf{Q}}^{-1}\mathbf{T}^\top\right)
+\tag{17}
+\label{U_star_distribution}
+\]</span></p>
+<p>Let <span class="math inline">\(\widetilde{\mathbf{Q}}^*=\mathbf{T}
+\widetilde{\mathbf{Q}} \mathbf{T}^{\top}\)</span>. Further, let <span
+class="math inline">\(\mathbf{T}_{\mathcal{U}}\)</span> denote the
+matrix obtained by removing the first <span
+class="math inline">\(k\)</span> rows from <span
+class="math inline">\(\mathbf{T}\)</span>, and let <span
+class="math inline">\(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\)</span> denote the matrix obtained by removing the first
+<span class="math inline">\(k\)</span> rows and the first <span
+class="math inline">\(k\)</span> columns of <span
+class="math inline">\(\widetilde{\mathbf{Q}}^*\)</span>. Then</p>
+<p><span class="math display">\[
+\mathbf{U} \sim \mathrm{N}\left(\mathbf{0},
+\mathbf{T}_{\mathcal{U}}^{\top}\left(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\right)^{-1} \mathbf{T}_{\mathcal{U}}\right)
+\mathbb{I}(\mathbf{K} \mathbf{U}=\mathbf{0})
+\tag{18}
+\label{U_distribution_final}
+\]</span> and</p>
+<div class="custom-box">
+<p><span class="math display">\[
+\mathbf{U}_v \sim \mathrm{~N}\left(\mathbf{0}, \mathbf{A}
+\mathbf{T}_{\mathcal{U}}^{\top}\left(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\right)^{-1} \mathbf{T}_{\mathcal{U}}
+\mathbf{A}^{\top}\right).
+\tag{19}
+\label{U_v_distribution_final}
+\]</span></p>
+</div>
+<p>The matrices <span class="math inline">\(\mathbf{A},
+\mathbf{T}_{\mathcal{U}}\)</span> and <span
+class="math inline">\(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\)</span> in <span
+class="math inline">\(\eqref{U_v_distribution_final}\)</span> are
+sparse. Thus, we can simulate <span
+class="math inline">\(\mathbf{U}_v\)</span> efficiently by
+simulating</p>
+<p><span class="math display">\[
+\mathbf{v} \sim
+\mathrm{N}\left(\mathbf{0},\left(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\right)^{-1}\right)
+\tag{20}
+\label{v_distribution}
+\]</span> through sparse Cholesky factorization of <span
+class="math inline">\(\widetilde{\mathbf{Q}}_{\mathcal{U}
+\mathcal{U}}^*\)</span> and then computing the sparse matrix vector
+product <span class="math inline">\(\mathbf{U}_v=\mathbf{A
+T}_{\mathcal{U}}^{\top} \mathbf{v}\)</span>.</p>
+</div>
+</div>
+<div id="auxiliary_functions" class="section level2" number="2">
+<h2><span class="header-section-number">2</span> Auxiliary
 functions</h2>
 <div id="function-gets.graph.tadpole" class="section level3"
-number="1.1">
-<h3><span class="header-section-number">1.1</span> Function
+number="2.1">
+<h3><span class="header-section-number">2.1</span> Function
 <code>gets.graph.tadpole()</code></h3>
 <p>Given a mesh size <code>h</code>, function
 <code>gets.graph.tadpole()</code> builds a tadpole graph and creates a
@@ -623,8 +913,8 @@ mesh.</p>
 <span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>    j_ <span class="ot">&lt;-</span> <span class="fu">c</span>(j_[<span class="dv">1</span><span class="sc">:</span>count], index)</span>
 <span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a>    x_ <span class="ot">&lt;-</span> <span class="fu">c</span>(x_[<span class="dv">1</span><span class="sc">:</span>count], <span class="fu">rep</span>(<span class="fl">0.5</span>, <span class="fu">length</span>(index)))</span>
 <span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a>    count <span class="ot">&lt;-</span> count <span class="sc">+</span> <span class="fu">length</span>(index)</span>
-<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a>    <span class="fu">print</span>(i_)</span>
-<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a>    <span class="fu">print</span>(j_)</span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a>    <span class="co"># print(i_)</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a>    <span class="co"># print(j_)</span></span>
 <span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a>  }<span class="cf">else</span> <span class="cf">if</span>(BC<span class="sc">==</span><span class="dv">2</span>){</span>
 <span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a>    </span>
 <span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a>    dV <span class="ot">&lt;-</span> graph<span class="sc">$</span><span class="fu">get_vertices</span>()<span class="sc">$</span>degree</span>
@@ -652,165 +942,21 @@ mesh.</p>
 <span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
-<div id="references" class="section level2" number="2">
-<h2><span class="header-section-number">2</span> References</h2>
+<div id="references" class="section level2" number="3">
+<h2><span class="header-section-number">3</span> References</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>grateful<span class="sc">::</span><span class="fu">cite_packages</span>(<span class="at">output =</span> <span class="st">&quot;paragraph&quot;</span>, <span class="at">out.dir =</span> <span class="st">&quot;.&quot;</span>)</span></code></pre></div>
-<p>We used R v. 4.5.1 <span class="citation">(R Core Team 2025)</span>
-and the following R packages: here v. 1.0.2 <span
-class="citation">(Müller 2025)</span>, htmltools v. 0.5.8.1 <span
-class="citation">(Cheng et al. 2024)</span>, knitr v. 1.50 <span
-class="citation">(Xie 2014, 2015, 2025)</span>, Matrix v. 1.7.3 <span
-class="citation">(Bates, Maechler, and Jagan 2025)</span>, MetricGraph
-v. 1.5.0 <span class="citation">(Bolin, Simas, and Wallin 2023a, 2023b,
-2024, 2025; Bolin et al. 2024)</span>, plotly v. 4.11.0 <span
-class="citation">(Sievert 2020)</span>, renv v. 1.1.5 <span
-class="citation">(Ushey and Wickham 2025)</span>, reshape2 v. 1.4.4
-<span class="citation">(Wickham 2007)</span>, rmarkdown v. 2.30 <span
-class="citation">(Xie, Allaire, and Grolemund 2018; Xie, Dervieux, and
-Riederer 2020; Allaire et al. 2025)</span>, rSPDE v. 2.5.1 <span
-class="citation">(Bolin and Kirchner 2020; Bolin, Simas, and Xiong 2024;
-Bolin and Simas 2025)</span>, tidyverse v. 2.0.0 <span
-class="citation">(Wickham et al. 2019)</span>, xaringanExtra v. 0.8.0
-<span class="citation">(Aden-Buie and Warkentin 2024)</span>.</p>
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">
-<div id="ref-xaringanExtra" class="csl-entry">
-Aden-Buie, Garrick, and Matthew T. Warkentin. 2024. <em><span
-class="nocase">xaringanExtra</span>: Extras and Extensions for
-<span>“<span class="nocase">xaringan</span>”</span> Slides</em>. <a
-href="https://doi.org/10.32614/CRAN.package.xaringanExtra">https://doi.org/10.32614/CRAN.package.xaringanExtra</a>.
-</div>
-<div id="ref-rmarkdown2025" class="csl-entry">
-Allaire, JJ, Yihui Xie, Christophe Dervieux, Jonathan McPherson, Javier
-Luraschi, Kevin Ushey, Aron Atkins, et al. 2025. <em><span
-class="nocase">rmarkdown</span>: Dynamic Documents for r</em>. <a
-href="https://github.com/rstudio/rmarkdown">https://github.com/rstudio/rmarkdown</a>.
-</div>
-<div id="ref-Matrix" class="csl-entry">
-Bates, Douglas, Martin Maechler, and Mikael Jagan. 2025.
-<em><span>Matrix</span>: Sparse and Dense Matrix Classes and
-Methods</em>. <a
-href="https://doi.org/10.32614/CRAN.package.Matrix">https://doi.org/10.32614/CRAN.package.Matrix</a>.
-</div>
-<div id="ref-rSPDE2020" class="csl-entry">
-Bolin, David, and Kristin Kirchner. 2020. <span>“The Rational
-<span>SPDE</span> Approach for <span>Gaussian</span> Random Fields with
-General Smoothness.”</span> <em>Journal of Computational and Graphical
-Statistics</em> 29 (2): 274–85. <a
-href="https://doi.org/10.1080/10618600.2019.1665537">https://doi.org/10.1080/10618600.2019.1665537</a>.
-</div>
-<div id="ref-MetricGraph2024c" class="csl-entry">
-Bolin, David, Mihály Kovács, Vivek Kumar, and Alexandre B. Simas. 2024.
-<span>“Regularity and Numerical Approximation of Fractional Elliptic
-Differential Equations on Compact Metric Graphs.”</span> <em>Mathematics
-of Computation</em> 93 (349): 2439–72. <a
-href="https://doi.org/10.1090/mcom/3929">https://doi.org/10.1090/mcom/3929</a>.
-</div>
-<div id="ref-rSPDE2025" class="csl-entry">
-Bolin, David, and Alexandre B. Simas. 2025. <em><span
-class="nocase">rSPDE</span>: Rational Approximations of Fractional
-Stochastic Partial Differential Equations</em>. <a
-href="https://CRAN.R-project.org/package=rSPDE">https://CRAN.R-project.org/package=rSPDE</a>.
-</div>
-<div id="ref-MetricGraph2023a" class="csl-entry">
-Bolin, David, Alexandre B. Simas, and Jonas Wallin. 2023a.
-<em><span>MetricGraph</span>: Random Fields on Metric Graphs</em>. <a
-href="https://CRAN.R-project.org/package=MetricGraph">https://CRAN.R-project.org/package=MetricGraph</a>.
-</div>
-<div id="ref-MetricGraph2023e" class="csl-entry">
-———. 2023b. <span>“Statistical Inference for Gaussian Whittle-Matérn
-Fields on Metric Graphs.”</span> <em>arXiv Preprint
-arXiv:2304.10372</em>. <a
-href="https://doi.org/10.48550/arXiv.2304.10372">https://doi.org/10.48550/arXiv.2304.10372</a>.
-</div>
-<div id="ref-MetricGraph2024b" class="csl-entry">
-———. 2024. <span>“Gaussian Whittle-Matérn Fields on Metric
-Graphs.”</span> <em>Bernoulli</em> 30 (2): 1611–39. <a
-href="https://doi.org/10.3150/23-BEJ1647">https://doi.org/10.3150/23-BEJ1647</a>.
-</div>
-<div id="ref-MetricGraph2025d" class="csl-entry">
-———. 2025. <span>“Markov Properties of Gaussian Random Fields on Compact
-Metric Graphs.”</span> <em>Bernoulli</em>. <a
-href="https://doi.org/10.48550/arXiv.2304.03190">https://doi.org/10.48550/arXiv.2304.03190</a>.
-</div>
-<div id="ref-rSPDE2024" class="csl-entry">
-Bolin, David, Alexandre B. Simas, and Zhen Xiong. 2024.
-<span>“Covariance-Based Rational Approximations of Fractional SPDEs for
-Computationally Efficient Bayesian Inference.”</span> <em>Journal of
-Computational and Graphical Statistics</em> 33 (1): 64–74. <a
-href="https://doi.org/10.1080/10618600.2023.2231051">https://doi.org/10.1080/10618600.2023.2231051</a>.
-</div>
-<div id="ref-htmltools" class="csl-entry">
-Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie,
-and Jeff Allen. 2024. <em><span class="nocase">htmltools</span>: Tools
-for HTML</em>. <a
-href="https://doi.org/10.32614/CRAN.package.htmltools">https://doi.org/10.32614/CRAN.package.htmltools</a>.
-</div>
-<div id="ref-here" class="csl-entry">
-Müller, Kirill. 2025. <em><span class="nocase">here</span>: A Simpler
-Way to Find Your Files</em>. <a
-href="https://doi.org/10.32614/CRAN.package.here">https://doi.org/10.32614/CRAN.package.here</a>.
-</div>
-<div id="ref-base" class="csl-entry">
-R Core Team. 2025. <em><span>R</span>: A Language and Environment for
-Statistical Computing</em>. Vienna, Austria: R Foundation for
-Statistical Computing. <a
-href="https://www.R-project.org/">https://www.R-project.org/</a>.
-</div>
-<div id="ref-plotly" class="csl-entry">
-Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with
-r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a
-href="https://plotly-r.com">https://plotly-r.com</a>.
-</div>
-<div id="ref-renv" class="csl-entry">
-Ushey, Kevin, and Hadley Wickham. 2025. <em><span
-class="nocase">renv</span>: Project Environments</em>. <a
-href="https://doi.org/10.32614/CRAN.package.renv">https://doi.org/10.32614/CRAN.package.renv</a>.
-</div>
-<div id="ref-reshape2" class="csl-entry">
-Wickham, Hadley. 2007. <span>“Reshaping Data with the <span
-class="nocase">reshape</span> Package.”</span> <em>Journal of
-Statistical Software</em> 21 (12): 1–20. <a
-href="http://www.jstatsoft.org/v21/i12/">http://www.jstatsoft.org/v21/i12/</a>.
-</div>
-<div id="ref-tidyverse" class="csl-entry">
-Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy
-D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019.
-<span>“Welcome to the <span class="nocase">tidyverse</span>.”</span>
-<em>Journal of Open Source Software</em> 4 (43): 1686. <a
-href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
-</div>
-<div id="ref-knitr2014" class="csl-entry">
-Xie, Yihui. 2014. <span>“<span class="nocase">knitr</span>: A
-Comprehensive Tool for Reproducible Research in <span>R</span>.”</span>
-In <em>Implementing Reproducible Computational Research</em>, edited by
-Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman;
-Hall/CRC.
-</div>
-<div id="ref-knitr2015" class="csl-entry">
-———. 2015. <em>Dynamic Documents with <span>R</span> and Knitr</em>. 2nd
-ed. Boca Raton, Florida: Chapman; Hall/CRC. <a
-href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
-</div>
-<div id="ref-knitr2025" class="csl-entry">
-———. 2025. <em><span class="nocase">knitr</span>: A General-Purpose
-Package for Dynamic Report Generation in <span>R</span></em>. <a
-href="https://yihui.org/knitr/">https://yihui.org/knitr/</a>.
-</div>
-<div id="ref-rmarkdown2018" class="csl-entry">
-Xie, Yihui, J. J. Allaire, and Garrett Grolemund. 2018. <em>R Markdown:
-The Definitive Guide</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
-href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a>.
-</div>
-<div id="ref-rmarkdown2020" class="csl-entry">
-Xie, Yihui, Christophe Dervieux, and Emily Riederer. 2020. <em>R
-Markdown Cookbook</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a
-href="https://bookdown.org/yihui/rmarkdown-cookbook">https://bookdown.org/yihui/rmarkdown-cookbook</a>.
+<div id="ref-Bolin2023statistical" class="csl-entry">
+Bolin, David, Alexandre Simas, and Jonas Wallin. 2023.
+<span>“Statistical Inference for Gaussian Whittle-Matérn Fields on
+Metric Graphs.”</span> <a
+href="https://arxiv.org/abs/2304.10372">https://arxiv.org/abs/2304.10372</a>.
 </div>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXV4aWxpYXJ5IEZ1bmN0aW9ucyIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogc2hvdyAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IHRydWUKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtDb250ZW50c10oYWJvdXQuaHRtbCkgcGFnZS4KCjxkaXYgc3R5bGU9ImNvbG9yOiAjMmMzZTUwOyB0ZXh0LWFsaWduOiByaWdodDsiPgoqKioqKioqKiAgCjxzdHJvbmc+UHJlc3MgU2hvdyB0byByZXZlYWwgdGhlIGNvZGUgY2h1bmtzLjwvc3Ryb25nPiAgCgoqKioqKioqKgo8L2Rpdj4KCgpgYGB7ciwgcHVybCA9IEZBTFNFLCBlY2hvID0gRkFMU0V9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCmBgYAoKCmBgYHtyLCBwdXJsID0gRkFMU0UsIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUifQojIFNldCBzZWVkIGZvciByZXByb2R1Y2liaWxpdHkKc2V0LnNlZWQoMTk4MikgCiMgU2V0IGdsb2JhbCBvcHRpb25zIGZvciBhbGwgY29kZSBjaHVua3MKa25pdHI6Om9wdHNfY2h1bmskc2V0KAogICMgRGlzYWJsZSBtZXNzYWdlcyBwcmludGVkIGJ5IFIgY29kZSBjaHVua3MKICBtZXNzYWdlID0gRkFMU0UsICAgIAogICMgRGlzYWJsZSB3YXJuaW5ncyBwcmludGVkIGJ5IFIgY29kZSBjaHVua3MKICB3YXJuaW5nID0gRkFMU0UsICAgIAogICMgU2hvdyBSIGNvZGUgd2l0aGluIGNvZGUgY2h1bmtzIGluIG91dHB1dAogIGVjaG8gPSBUUlVFLCAgICAgICAgCiAgIyBJbmNsdWRlIGJvdGggUiBjb2RlIGFuZCBpdHMgcmVzdWx0cyBpbiBvdXRwdXQKICBpbmNsdWRlID0gVFJVRSwgICAgIAogICMgRXZhbHVhdGUgUiBjb2RlIGNodW5rcwogIGV2YWwgPSBUUlVFLCAgICAgICAKICAjIEVuYWJsZSBjYWNoaW5nIG9mIFIgY29kZSBjaHVua3MgZm9yIGZhc3RlciByZW5kZXJpbmcKICBjYWNoZSA9IEZBTFNFLCAgICAgIAogICMgQWxpZ24gZmlndXJlcyBpbiB0aGUgY2VudGVyIG9mIHRoZSBvdXRwdXQKICBmaWcuYWxpZ24gPSAiY2VudGVyIiwKICAjIEVuYWJsZSByZXRpbmEgZGlzcGxheSBmb3IgaGlnaC1yZXNvbHV0aW9uIGZpZ3VyZXMKICByZXRpbmEgPSAyLAogICMgU2hvdyBlcnJvcnMgaW4gdGhlIG91dHB1dCBpbnN0ZWFkIG9mIHN0b3BwaW5nIHJlbmRlcmluZwogIGVycm9yID0gVFJVRSwKICAjIERvIG5vdCBjb2xsYXBzZSBjb2RlIGFuZCBvdXRwdXQgaW50byBhIHNpbmdsZSBibG9jawogIGNvbGxhcHNlID0gRkFMU0UKKQojIFN0YXJ0IHRoZSBmaWd1cmUgY291bnRlcgpmaWdfY291bnQgPC0gMAojIERlZmluZSB0aGUgY2FwdGlvbmVyIGZ1bmN0aW9uCmNhcHRpb25lciA8LSBmdW5jdGlvbihjYXB0aW9uKSB7CiAgZmlnX2NvdW50IDw8LSBmaWdfY291bnQgKyAxCiAgcGFzdGUwKCJGaWd1cmUgIiwgZmlnX2NvdW50LCAiOiAiLCBjYXB0aW9uKQp9CmBgYAoKCgpgYGB7cn0KIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9yc3BkZSIsIHJlZiA9ICJkZXZlbCIpCiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vbWV0cmljZ3JhcGgiLCByZWYgPSAiZGV2ZWwiKQpsaWJyYXJ5KHJTUERFKQpsaWJyYXJ5KE1ldHJpY0dyYXBoKQpsaWJyYXJ5KGdyYXRlZnVsKQoKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgoKIyMgQXV4aWxpYXJ5IGZ1bmN0aW9ucyB7I2F1eGlsaWFyeV9mdW5jdGlvbnN9CgojIyMgRnVuY3Rpb24gYGdldHMuZ3JhcGgudGFkcG9sZSgpYAoKR2l2ZW4gYSBtZXNoIHNpemUgYGhgLCBmdW5jdGlvbiBgZ2V0cy5ncmFwaC50YWRwb2xlKClgIGJ1aWxkcyBhIHRhZHBvbGUgZ3JhcGggYW5kIGNyZWF0ZXMgYSBtZXNoLgoKCmBgYHtyfQojIEZ1bmN0aW9uIHRvIGJ1aWxkIGEgdGFkcG9sZSBncmFwaCBhbmQgY3JlYXRlIGEgbWVzaApnZXRzLmdyYXBoLnRhZHBvbGUgPC0gZnVuY3Rpb24oKXsKICBlZGdlMSA8LSByYmluZChjKDAsMCksYygxLDApKQogIHRoZXRhIDwtIHNlcShmcm9tPS1waSx0bz1waSxsZW5ndGgub3V0ID0gMTAwMDApCiAgZWRnZTIgPC0gY2JpbmQoMSsxL3BpK2Nvcyh0aGV0YSkvcGksc2luKHRoZXRhKS9waSkKICBlZGdlcyA8LSBsaXN0KGVkZ2UxLCBlZGdlMikKICBncmFwaCA8LSBtZXRyaWNfZ3JhcGgkbmV3KGVkZ2VzID0gZWRnZXMsIHZlcmJvc2UgPSAwKQogIGdyYXBoJHNldF9tYW51YWxfZWRnZV9sZW5ndGhzKGVkZ2VfbGVuZ3RocyA9IGMoMSwyKSkKICAjZ3JhcGgkYnVpbGRfbWVzaChoID0gaCkKICByZXR1cm4oZ3JhcGgpCn0KYGBgCgoKYGBge3J9ClFhbHBoYTEgPC0gZnVuY3Rpb24odGhldGEsIGdyYXBoLCBCQyA9IDEsIGJ1aWxkID0gVFJVRSkgewogIAogIGthcHBhIDwtIHRoZXRhWzJdCiAgdGF1IDwtIHRoZXRhWzFdCiAgaV8gPC0gal8gPC0geF8gPC0gcmVwKDAsIGRpbShncmFwaCRWKVsxXSo0KSAjIGl0IGhhcyBsZW5ndGggNCpuVgogIGNvdW50IDwtIDAKICBmb3IoaSBpbiAxOmdyYXBoJG5FKXsgIyBsb29wIG92ZXIgZWRnZXMKICAgIGxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHNbaV0KICAgIGMxIDwtIGV4cCgta2FwcGEqbF9lKQogICAgYzIgPC0gYzFeMgogICAgb25lX21fYzIgPSAxLWMyCiAgICBjXzEgPSAwLjUgKyBjMi9vbmVfbV9jMgogICAgY18yID0gLWMxL29uZV9tX2MyCiAgICAKICAgIGlmIChncmFwaCRFW2ksIDFdICE9IGdyYXBoJEVbaSwgMl0pIHsgIyBUaGlzIGlzIGZvciBub24tY2lyY3VsYXIgZWRnZXMgYW5kIGNvZGVzIEkob3ZlcmxpbmUoZSkgIT0gdW5kZXJsaW5lKGUpKQogICAgICAKICAgICAgaV9bY291bnQgKyAxXSA8LSBncmFwaCRFW2ksIDFdCiAgICAgIGpfW2NvdW50ICsgMV0gPC0gZ3JhcGgkRVtpLCAxXQogICAgICB4X1tjb3VudCArIDFdIDwtIGNfMQogICAgICAKICAgICAgaV9bY291bnQgKyAyXSA8LSBncmFwaCRFW2ksIDJdCiAgICAgIGpfW2NvdW50ICsgMl0gPC0gZ3JhcGgkRVtpLCAyXQogICAgICB4X1tjb3VudCArIDJdIDwtIGNfMQogICAgICAKICAgICAgCiAgICAgIGlfW2NvdW50ICsgM10gPC0gZ3JhcGgkRVtpLCAxXQogICAgICBqX1tjb3VudCArIDNdIDwtIGdyYXBoJEVbaSwgMl0KICAgICAgeF9bY291bnQgKyAzXSA8LSBjXzIKICAgICAgCiAgICAgIGlfW2NvdW50ICsgNF0gPC0gZ3JhcGgkRVtpLCAyXQogICAgICBqX1tjb3VudCArIDRdIDwtIGdyYXBoJEVbaSwgMV0KICAgICAgeF9bY291bnQgKyA0XSA8LSBjXzIKICAgICAgY291bnQgPC0gY291bnQgKyA0CiAgICB9ZWxzZXsgIyBUaGlzIGlzIGZvciBjaXJjdWxhciBlZGdlcyBhbmQgY29kZXMgSShvdmVybGluZShlKSA9IHVuZGVybGluZShlKSkKICAgICAgaV9bY291bnQgKyAxXSA8LSBncmFwaCRFW2ksIDFdCiAgICAgIGpfW2NvdW50ICsgMV0gPC0gZ3JhcGgkRVtpLCAxXQogICAgICB4X1tjb3VudCArIDFdIDwtIHRhbmgoMC41ICoga2FwcGEgKiBsX2UpCiAgICAgIGNvdW50IDwtIGNvdW50ICsgMQogICAgfQogIHByaW50KGlfKQogIHByaW50KGpfKQogIH0KICBpZihCQyA9PSAxKXsKICAgICNkb2VzIHRoaXMgd29yayBmb3IgY2lyY2xlPwogICAgaS50YWJsZSA8LSB0YWJsZShpX1sxOmNvdW50XSkKICAgIGluZGV4ID0gYXMuaW50ZWdlcihuYW1lcyh3aGljaChpLnRhYmxlIDwgMykpKQogICAgaV8gPC0gYyhpX1sxOmNvdW50XSwgaW5kZXgpCiAgICBqXyA8LSBjKGpfWzE6Y291bnRdLCBpbmRleCkKICAgIHhfIDwtIGMoeF9bMTpjb3VudF0sIHJlcCgwLjUsIGxlbmd0aChpbmRleCkpKQogICAgY291bnQgPC0gY291bnQgKyBsZW5ndGgoaW5kZXgpCiAgICBwcmludChpXykKICAgIHByaW50KGpfKQogIH1lbHNlIGlmKEJDPT0yKXsKICAgIAogICAgZFYgPC0gZ3JhcGgkZ2V0X3ZlcnRpY2VzKCkkZGVncmVlCiAgICBpbmRleCA8LSAxOmxlbmd0aChkVikKICAgIGlfIDwtIGMoaV9bMTpjb3VudF0sIGluZGV4KQogICAgal8gPC0gYyhqX1sxOmNvdW50XSwgaW5kZXgpCiAgICB4XyA8LSBjKHhfWzE6Y291bnRdLCAtMC41KmRWICsgMSkKICAgIGNvdW50IDwtIGNvdW50ICsgbGVuZ3RoKGluZGV4KQogICAgCiAgfQogIGlmKGJ1aWxkKXsKICAgIFEgPC0gTWF0cml4OjpzcGFyc2VNYXRyaXgoaSA9IGlfWzE6Y291bnRdLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICBqID0gal9bMTpjb3VudF0sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHggPSAoMiAqIGthcHBhICogdGF1XjIpICogeF9bMTpjb3VudF0sICMgVGhpcyBpcyB0aGUgMmthcHBhKnRhdV4yIGZhY3RvcgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkaW1zID0gYyhncmFwaCRuViwgZ3JhcGgkblYpKQogICAgCiAgICAKICAgIHJldHVybihRKQogIH0gZWxzZSB7CiAgICByZXR1cm4obGlzdChpID0gaV9bMTpjb3VudF0sCiAgICAgICAgICAgICAgICBqID0gal9bMTpjb3VudF0sCiAgICAgICAgICAgICAgICB4ID0gKDIgKiBrYXBwYSAqIHRhdV4yKSAqIHhfWzE6Y291bnRdLAogICAgICAgICAgICAgICAgZGltcyA9IGMoZ3JhcGgkblYsIGdyYXBoJG5WKSkpCiAgfQp9CmBgYAoKCgojIyBSZWZlcmVuY2VzCgpgYGB7ciwgcHVybCA9IEZBTFNFfQpncmF0ZWZ1bDo6Y2l0ZV9wYWNrYWdlcyhvdXRwdXQgPSAicGFyYWdyYXBoIiwgb3V0LmRpciA9ICIuIikKYGBgCgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQXV4aWxpYXJ5IEZ1bmN0aW9ucyIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogc2hvdyAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IHRydWUKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtDb250ZW50c10oYWJvdXQuaHRtbCkgcGFnZS4KCjxkaXYgc3R5bGU9ImNvbG9yOiAjMmMzZTUwOyB0ZXh0LWFsaWduOiByaWdodDsiPgoqKioqKioqKiAgCjxzdHJvbmc+UHJlc3MgU2hvdyB0byByZXZlYWwgdGhlIGNvZGUgY2h1bmtzLjwvc3Ryb25nPiAgCgoqKioqKioqKgo8L2Rpdj4KCgpgYGB7ciwgcHVybCA9IEZBTFNFLCBlY2hvID0gRkFMU0V9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVyZWQgSFRNTCBwYWdlCnNvdXJjZShoZXJlOjpoZXJlKCJjbGlwYm9hcmQuUiIpKTsgY2xpcGJvYXJkCmBgYAoKCmBgYHtyLCBwdXJsID0gRkFMU0UsIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUifQojIFNldCBzZWVkIGZvciByZXByb2R1Y2liaWxpdHkKc2V0LnNlZWQoMTk4MikgCiMgU2V0IGdsb2JhbCBvcHRpb25zIGZvciBhbGwgY29kZSBjaHVua3MKa25pdHI6Om9wdHNfY2h1bmskc2V0KAogICMgRGlzYWJsZSBtZXNzYWdlcyBwcmludGVkIGJ5IFIgY29kZSBjaHVua3MKICBtZXNzYWdlID0gRkFMU0UsICAgIAogICMgRGlzYWJsZSB3YXJuaW5ncyBwcmludGVkIGJ5IFIgY29kZSBjaHVua3MKICB3YXJuaW5nID0gRkFMU0UsICAgIAogICMgU2hvdyBSIGNvZGUgd2l0aGluIGNvZGUgY2h1bmtzIGluIG91dHB1dAogIGVjaG8gPSBUUlVFLCAgICAgICAgCiAgIyBJbmNsdWRlIGJvdGggUiBjb2RlIGFuZCBpdHMgcmVzdWx0cyBpbiBvdXRwdXQKICBpbmNsdWRlID0gVFJVRSwgICAgIAogICMgRXZhbHVhdGUgUiBjb2RlIGNodW5rcwogIGV2YWwgPSBGQUxTRSwgICAgICAgCiAgIyBFbmFibGUgY2FjaGluZyBvZiBSIGNvZGUgY2h1bmtzIGZvciBmYXN0ZXIgcmVuZGVyaW5nCiAgY2FjaGUgPSBGQUxTRSwgICAgICAKICAjIEFsaWduIGZpZ3VyZXMgaW4gdGhlIGNlbnRlciBvZiB0aGUgb3V0cHV0CiAgZmlnLmFsaWduID0gImNlbnRlciIsCiAgIyBFbmFibGUgcmV0aW5hIGRpc3BsYXkgZm9yIGhpZ2gtcmVzb2x1dGlvbiBmaWd1cmVzCiAgcmV0aW5hID0gMiwKICAjIFNob3cgZXJyb3JzIGluIHRoZSBvdXRwdXQgaW5zdGVhZCBvZiBzdG9wcGluZyByZW5kZXJpbmcKICBlcnJvciA9IFRSVUUsCiAgIyBEbyBub3QgY29sbGFwc2UgY29kZSBhbmQgb3V0cHV0IGludG8gYSBzaW5nbGUgYmxvY2sKICBjb2xsYXBzZSA9IEZBTFNFCikKIyBTdGFydCB0aGUgZmlndXJlIGNvdW50ZXIKZmlnX2NvdW50IDwtIDAKIyBEZWZpbmUgdGhlIGNhcHRpb25lciBmdW5jdGlvbgpjYXB0aW9uZXIgPC0gZnVuY3Rpb24oY2FwdGlvbikgewogIGZpZ19jb3VudCA8PC0gZmlnX2NvdW50ICsgMQogIHBhc3RlMCgiRmlndXJlICIsIGZpZ19jb3VudCwgIjogIiwgY2FwdGlvbikKfQpgYGAKCgoKYGBge3J9CiMgcmVtb3Rlczo6aW5zdGFsbF9naXRodWIoImRhdmlkYm9saW4vcnNwZGUiLCByZWYgPSAiZGV2ZWwiKQojIHJlbW90ZXM6Omluc3RhbGxfZ2l0aHViKCJkYXZpZGJvbGluL21ldHJpY2dyYXBoIiwgcmVmID0gImRldmVsIikKbGlicmFyeShyU1BERSkKbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShncmF0ZWZ1bCkKCmxpYnJhcnkoZ2dwbG90MikKbGlicmFyeShyZXNoYXBlMikKbGlicmFyeShwbG90bHkpCmBgYAoKIyMgVGhlb3JldGljYWwgc3R1ZmYKCldlIGNvbnNpZGVyIHRoZSBlcXVhdGlvbgoKJCQKXGxlZnQoXGthcHBhXnsyfS1cRGVsdGFccmlnaHQpXntcYWxwaGEgLyAyfShcdGF1IHUpPVxtYXRoY2Fse1d9IFxxdWFkIFx0ZXh0IHsgb24gfSBcR2FtbWEuClx0YWd7MH0KXGxhYmVse3NwZGVfZXF1YXRpb259CiQkCgpUaGUgTWF0w6lybiBjb3ZhcmlhbmNlIGZ1bmN0aW9uIGlzIGdpdmVuIGJ5CgokJApcdmFycmhvX00oaCk9XGZyYWN7XHRhdV57LTJ9fXsyXntcbnUtMX0gXEdhbW1hKFxudStuIC8gMikoNCBccGkpXntuIC8gMn0gXGthcHBhXnsyIFxudX19KFxrYXBwYXxofCleXG51IEtfXG51KFxrYXBwYXxofCksClx0YWd7MX0KXGxhYmVse21hdGVybl9jb3Z9CiQkCgp3aGVyZSAkbj0xJCBhbmQgdGhlIHBhcmFtZXRlcnMgJFx0YXUsIFxrYXBwYT4wJCBhbmQgJDA8XG51IFxsZXEgMSAvIDIkIGNvbnRyb2wgdGhlIHZhcmlhbmNlLCBwcmFjdGljYWwgY29ycmVsYXRpb24gcmFuZ2UsIGFuZCB0aGUgc2FtcGxlIHBhdGggcmVndWxhcml0eSwgcmVzcGVjdGl2ZWx5LiBGdXJ0aGVyLCAkS19cbnUoXGNkb3QpJCBpcyBhIG1vZGlmaWVkIEJlc3NlbCBmdW5jdGlvbiBvZiB0aGUgc2Vjb25kIGtpbmQgYW5kICRcR2FtbWEoXGNkb3QpJCBkZW5vdGVzIHRoZSBnYW1tYSBmdW5jdGlvbi4KCkZyb20gW0BCb2xpbjIwMjNzdGF0aXN0aWNhbCwgUHJvcG9zaXRpb24gNV0sIHdlIGtub3cgdGhhdCAKCgokJApcbWF0aGJme3J9OiBcbWF0aGJie1J9IFx0aW1lcyBcbWF0aGJie1J9IFxtYXBzdG8gXG1hdGhiYntSfV57XGFscGhhIFx0aW1lcyBcYWxwaGF9LCBccXVhZCBcbWF0aGJme3J9XGxlZnQodF8xLCB0XzJccmlnaHQpPVxsZWZ0W1xmcmFje1xwYXJ0aWFsXntpLTF9fXtccGFydGlhbCB0XzJee2ktMX19IFxmcmFje1xwYXJ0aWFsXntqLTF9fXtccGFydGlhbCB0XzFee2otMX19IFx2YXJyaG9fTVxsZWZ0KHRfMS10XzJccmlnaHQpXHJpZ2h0XV97aSBqIFxpblx7MSwyLCBcbGRvdHMsIFxhbHBoYVx9fQpcdGFnezJ9ClxsYWJlbHtyX21hdHJpeH0KJCQKaXMgdGhlIGNvdmFyaWFuY2UgZnVuY3Rpb24gb2YgJFxtYXRoYmZ7eH0odCk9XGxlZnRbeCh0KSwgeCcodCksIFxsZG90cywgeF57KFxhbHBoYS0xKX0odClccmlnaHRdXntcdG9wfSQgaWYgJHgkIGlzIGEgY2VudGVyZWQgR2F1c3NpYW4gcHJvY2VzcyBvbiAkXG1hdGhiYntSfSQgd2l0aCBNYXTDqXJuIGNvdmFyaWFuY2UgZnVuY3Rpb24gd2l0aCAkXG51ID0gXGFscGhhLTEvMiQgYW5kICRcYWxwaGEgXGluIFxtYXRoYmJ7Tn0kLgoKTGV0ICRcbWF0aGJme3J9KFxjZG90LCBcY2RvdCkkIGJlIGdpdmVuIGJ5IFxlcXJlZntyX21hdHJpeH0gd2l0aCAkXGFscGhhIFxpbiBcbWF0aGJie059JC4gVGhlbiwgZnJvbSBbQEJvbGluMjAyM3N0YXRpc3RpY2FsLCBQcm9wb3NpdGlvbiA2XSwgZm9yICRcZWxsPjAkLAoKJCQKXHdpZGV0aWxkZXtcbWF0aGJme3J9fV97XGVsbH1cbGVmdCh0XzEsIHRfMlxyaWdodCk9XG1hdGhiZntyfVxsZWZ0KHRfMSwgdF8yXHJpZ2h0KStcbGVmdFtcbWF0aGJme3J9XGxlZnQodF8xLCAwXHJpZ2h0KSBcbWF0aGJme3J9XGxlZnQodF8xLCBcZWxsXHJpZ2h0KVxyaWdodF1cbGVmdFtcYmVnaW57YXJyYXl9e2NjfQpcbWF0aGJme3J9KDAsMCkgJiAtXG1hdGhiZntyfSgwLCBcZWxsKSBcXAotXG1hdGhiZntyfShcZWxsLCAwKSAmIFxtYXRoYmZ7cn0oMCwwKQpcZW5ke2FycmF5fVxyaWdodF1eey0xfVxsZWZ0W1xiZWdpbnthcnJheX17bH0KXG1hdGhiZntyfVxsZWZ0KHRfMiwgMFxyaWdodCkgXFwKXG1hdGhiZntyfVxsZWZ0KHRfMiwgXGVsbFxyaWdodCkKXGVuZHthcnJheX1ccmlnaHRdClx0YWd7M30KXGxhYmVse3JfdGlsZGVfbWF0cml4fQokJAoKaXMgdGhlIG11bHRpdmFyaWF0ZSBjb3ZhcmlhbmNlIGZ1bmN0aW9uIG9mIHRoZSBtdWx0aXZhcmlhdGUgcHJvY2VzcyAkXHdpZGV0aWxkZXtcbWF0aGJme3h9fSh0KT1cbGVmdFtcd2lkZXRpbGRle3h9KHQpLCBcd2lkZXRpbGRle3h9XntccHJpbWV9KHQpLCBcbGRvdHMsIFx3aWRldGlsZGV7eH1eeyhcYWxwaGEtMSl9KHQpXHJpZ2h0XV57XHRvcH0kIG9uIHRoZSBpbnRlcnZhbCAkWzAsIFxlbGxdJCwgd2hlcmUgJFx3aWRldGlsZGV7eH0kIGlzIHRoZSBib3VuZGFyeWxlc3MgV2hpdHRsZS0tTWF0w6lybiBwcm9jZXNzIG9uICRbMCwgXGVsbF0kLgoKTGV0CgokJApcbWF0aGNhbHtLfV9cYWxwaGEoeCk9XGxlZnRce1xvbWVnYSBcaW4gXE9tZWdhOiBcZm9yYWxsIHYgXGluIFxtYXRoY2Fse1Z9IFx0ZXh0IHsgYW5kIGVhY2ggcGFpciB9IGUsIFx3aWRldGlsZGV7ZX0gXGluIFxtYXRoY2Fse0V9X3YsIHhfZV57KDIgayl9KHYsIFxvbWVnYSk9eF97XHdpZGV0aWxkZXtlfX1eeygyIGspfSh2LCBcb21lZ2EpIFx0ZXh0IHssIGFuZCB9ClxzdW1fe2UgXGluIFxtYXRoY2Fse0V9X3Z9IFxwYXJ0aWFsX2UgeF9lXnsyIGsrMX0odiwgXG9tZWdhKT0wLCBrPTAsIFxsZG90cyxcbGNlaWxcYWxwaGEtMSAvIDJccmNlaWwtMVxyaWdodFx9Clx0YWd7NH0KXGxhYmVse0tfYWxwaGF9CiQkCgphbmQgJFx3aWRldGlsZGV7dX0gPSBce1x3aWRldGlsZGV7dX1fZTplXGluXG1hdGhjYWx7RX1cfSQgYmUgYSBmYW1pbHkgb2YgaW5kZXBlbmRlbnQgYm91bmRhcnlsZXNzIFdoaXR0bGUtLU1hdMOpcm4gcHJvY2VzcyBvbiB0aGUgZWRnZXMuIEZ1cnRoZXIsIGxldAoKJCQKXHdpZGV0aWxkZXtcbWF0aGJme3V9fShzKT1cbGVmdFtcd2lkZXRpbGRle3V9KHMpLCBcd2lkZXRpbGRle3V9XntccHJpbWV9KHMpLFxsZG90cywgXHdpZGV0aWxkZXt1fV57KFxhbHBoYS0xKX0ocylccmlnaHRdXntcdG9wfT1cc3VtX3tlIFxpbiBcbWF0aGNhbHtFfX0gXG1hdGhiYntJfShzIFxpbiBlKSBcd2lkZXRpbGRle1xtYXRoYmZ7dX19X2UocykgXGluXG1hdGhiYntSfV57XGFscGhhfS4KXHRhZ3s1fQpcbGFiZWx7dV92ZWN0b3J9CiQkCkZyb20gW0BCb2xpbjIwMjNzdGF0aXN0aWNhbCwgVGhlb3JlbSA0XSwgaWYgd2UgZGVmaW5lCgokJApcbWF0aGJme3V9KHMpID0gXHdpZGV0aWxkZXtcbWF0aGJme3V9fShzKXwgXG1hdGhjYWx7S31fXGFscGhhKFx3aWRldGlsZGV7dX0pLApcdGFnezZ9ClxsYWJlbHt1X3ZlY3Rvcl9jb25zdHJhaW5lZH0KJCQKCnRoZW4gJHUoXGNkb3QpJCwgdGhlIGZpcnN0IGVudHJ5IG9mICRcbWF0aGJme3V9KFxjZG90KSQsIGlzIGEgc29sdXRpb24gdG8gXGVxcmVme3NwZGVfZXF1YXRpb259LgoKVGhlIHByZWNpc3Npb24gbWF0cml4IG9mICRbXHdpZGV0aWxkZXtcbWF0aGJme3V9fSgwKSwgXHdpZGV0aWxkZXtcbWF0aGJme3V9fShcZWxsKV0kIGlzIAoKJCQKXHdpZGV0aWxkZXtcbWF0aGJme1F9fV9lPVxtYXRoYmZ7UX1fZS1cZnJhY3sxfXsyfVxsZWZ0W1xiZWdpbnthcnJheX17Y2N9ClxtYXRoYmZ7cn0oMCwwKV57LTF9ICYgXG1hdGhiZnswfSBcXApcbWF0aGJmezB9ICYgXG1hdGhiZntyfSgwLDApXnstMX0KXGVuZHthcnJheX1ccmlnaHRdXGluXG1hdGhiYntSfV57MiBcYWxwaGEgXHRpbWVzIDIgXGFscGhhfSwKXHRhZ3s3fQpcbGFiZWx7UV90aWxkZV9lfQokJAoKd2hlcmUgJFxtYXRoYmZ7UX1fZSQgaXMgdGhlIHByZWNpc2lvbiBtYXRyaXggb2YgJFtcd2lkZXRpbGRle1xtYXRoYmZ7dX19KDApLCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19KFxlbGwpXSQuCgpMZXQgCiQkClxtYXRoYmZ7VX09XGxlZnRbXG1hdGhiZnt1fShcdW5kZXJsaW5le2V9XzEpXntcdG9wfSwgXG1hdGhiZnt1fShcb3ZlcmxpbmV7ZX1fMSlee1x0b3B9LCBcbWF0aGJme3V9KFx1bmRlcmxpbmV7ZX1fMilee1x0b3B9LCBcbWF0aGJme3V9KFxvdmVybGluZXtlfV8yKV57XHRvcH0sIFxsZG90cywgXG1hdGhiZnt1fShcdW5kZXJsaW5le2V9X3t8XG1hdGhjYWx7RX18fSlee1x0b3B9LCBcbWF0aGJme3V9KFxvdmVybGluZXtlfV97fFxtYXRoY2Fse0V9fH0pXntcdG9wfVxyaWdodF1ee1x0b3B9XGluXG1hdGhiYntSfV57MiBcYWxwaGF8XG1hdGhjYWx7RX18fQpcdGFnezh9ClxsYWJlbHtVX3ZlY3Rvcn0KJCQKCmFuZAoKCiQkClx3aWRldGlsZGV7XG1hdGhiZntVfX09XGxlZnRbXHdpZGV0aWxkZXtcbWF0aGJme3V9fV8xKFx1bmRlcmxpbmV7ZX1fMSlee1x0b3B9LCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19XzEoXG92ZXJsaW5le2V9XzEpXntcdG9wfSwgXHdpZGV0aWxkZXtcbWF0aGJme3V9fV8yKFx1bmRlcmxpbmV7ZX1fMilee1x0b3B9LCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19XzIoXG92ZXJsaW5le2V9XzIpXntcdG9wfSwgXGxkb3RzLCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19X3t8XG1hdGhjYWx7RX18fShcdW5kZXJsaW5le2V9X3t8XG1hdGhjYWx7RX18fSlee1x0b3B9LCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19X3t8XG1hdGhjYWx7RX18fShcb3ZlcmxpbmV7ZX1fe3xcbWF0aGNhbHtFfXx9KV57XHRvcH1ccmlnaHRdXntcdG9wfVxpblxtYXRoYmJ7Un1eezIgXGFscGhhfFxtYXRoY2Fse0V9fH0KXHRhZ3s5fQpcbGFiZWx7VV92ZWN0b3JfdGlsZGV9CiQkCldlIHRoZW4gaGF2ZSB0aGF0CgokJApcd2lkZXRpbGRle1xtYXRoYmZ7VX19XHNpbSBcbWF0aHJte059XGxlZnQoXG1hdGhiZnswfSwgXHdpZGV0aWxkZXtcbWF0aGJme1F9fV57LTF9XHJpZ2h0KSwgXHF1YWQgXHdpZGV0aWxkZXtcbWF0aGJme1F9fSA9IFxvcGVyYXRvcm5hbWV7ZGlhZ31cbGVmdChce1xtYXRoYmZ7UX1fZVx9X3tlXGluXG1hdGhjYWx7RX19XHJpZ2h0KSwKXHRhZ3sxMH0KXGxhYmVse1VfdmVjdG9yX3RpbGRlX2Rpc3RyaWJ1dGlvbn0KJCQKCndoZXJlICRcbWF0aGJme1F9X2UkIGlzIHRoZSBwcmVjaXNpb24gbWF0cml4IG9mICRbXHdpZGV0aWxkZXtcbWF0aGJme3V9fV9lKFx1bmRlcmxpbmV7ZX0pLCBcd2lkZXRpbGRle1xtYXRoYmZ7dX19X2UoXG92ZXJsaW5le2V9KV0kLgoKVGhlIEtpcmNoaG9mZiBjb25kaXRpb25zIFxlcXJlZntLX2FscGhhfSBjYW4gYmUgd3JpdHRlbiBhcyBhIHN5c3RlbSBvZiBsaW5lYXIgZXF1YXRpb25zCgokJApcbWF0aGJme0t9IFx3aWRldGlsZGV7XG1hdGhiZntVfX09XG1hdGhiZnswfSwKXHRhZ3sxMX0KXGxhYmVse0tfYWxwaGFfbWF0cml4fQokJAoKd2hlcmUgJFxtYXRoYmZ7S31caW5cbWF0aGJie1J9XntrXHRpbWVzIDJcYWxwaGF8XG1hdGhjYWx7RX18fSQgaXMgYSBzdWl0YWJsZSBtYXRyaXggYW5kICRrJCBpcyB0aGUgbnVtYmVyIG9mIGxpbmVhciBjb25zdHJhaW50cyBnaXZlbiBieSBcZXFyZWZ7S19hbHBoYX0uCgpGaW5hbGx5LAoKJCQKXG1hdGhiZntVfT1cd2lkZXRpbGRle1xtYXRoYmZ7VX19fCBce1xtYXRoYmZ7S30gXHdpZGV0aWxkZXtcbWF0aGJme1V9fT1cbWF0aGJmezB9XH1cc2ltXG1hdGhybXtOfVxsZWZ0KFxtYXRoYmZ7MH0sIFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfS1cd2lkZXRpbGRle1xtYXRoYmZ7UX19XnstMX0gXG1hdGhiZntLfV57XHRvcH1cbGVmdChcbWF0aGJme0t9IFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfSBcbWF0aGJme0t9XntcdG9wfVxyaWdodCleey0xfSBcbWF0aGJme0t9IFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfVxyaWdodCkuClx0YWd7MTJ9ClxsYWJlbHtVX3ZlY3Rvcl9jb25zdHJhaW5lZH0KJCQKCkxldCAkXG1hdGhiZntBfSQgKHdoaWNoIGlzIG5vdCB1bmlxdWUpIGJlIGEgJHxcbWF0aGNhbHtWfXwgXHRpbWVzIDJcYWxwaGF8XG1hdGhjYWx7RX18JCBtYXRyaXggc3VjaCB0aGF0CgokJApcbWF0aGJme1V9X3YgPSBbdSh2XzEpLHUodl8yKSwgXGRvdHMsIHUodl97fFxtYXRoY2Fse1Z9fH0pXV57XHRvcH0gPSBcbWF0aGJme0F9IFxtYXRoYmZ7VX1cc2ltXG1hdGhybXtOfVxsZWZ0KFxtYXRoYmZ7MH0sXG1hdGhiZntBfVxsZWZ0KFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfS1cd2lkZXRpbGRle1xtYXRoYmZ7UX19XnstMX0gXG1hdGhiZntLfV57XHRvcH1cbGVmdChcbWF0aGJme0t9IFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfSBcbWF0aGJme0t9XntcdG9wfVxyaWdodCleey0xfSBcbWF0aGJme0t9IFx3aWRldGlsZGV7XG1hdGhiZntRfX1eey0xfVxyaWdodCkgXG1hdGhiZntBfV57XHRvcH1ccmlnaHQpLApcdGFnezEzfQpcbGFiZWx7QV9tYXRyaXh9CiQkCgoKX19fX19fX19fX19fCgojIyMgQ2FzZSAkXGFscGhhPTEkCgpfX19fX19fX19fX18KCkZvciAkXGFscGhhPTEsIFxtYXRoYmZ7VX1fdiQgaW4gXGVxcmVme0FfbWF0cml4fSBzYXRpc2ZpZXMKCjo6OiB7LmN1c3RvbS1ib3h9CgokJApcbWF0aGJme1V9X3YgXHNpbSBcbWF0aHJte35OfVxsZWZ0KFxtYXRoYmZ7MH0sIFxtYXRoYmZ7UX1eey0xfVxyaWdodCksClx0YWd7MTR9ClxsYWJlbHtVX3ZfZGlzdHJpYnV0aW9uX2FscGhhMX0KJCQKOjo6Cgp3aGVyZQoKJCQKXG1hdGhiZntRfV97aSBqfT0yIFxrYXBwYSBcdGF1XjIgLiBcYmVnaW57Y2FzZXN9XGRpc3BsYXlzdHlsZVxzdW1fe2UgXGluIFxtYXRoY2Fse0V9X3t2X2l9fVxsZWZ0XHtcbGVmdChcZnJhY3sxfXsyfStcZnJhY3tlXnstMiBca2FwcGEgXGVsbF9lfX17MS1lXnstMiBca2FwcGEgXGVsbF9lfX1ccmlnaHQpIFxtYXRoYmJ7SX0oXGJhcntlfSBcbmVxIFx1bmRlcmxpbmV7ZX0pK1x0YW5oIFxsZWZ0KFxrYXBwYSBcZnJhY3tsX2V9ezJ9XHJpZ2h0KSBcbWF0aGJie0l9KFxiYXJ7ZX09XHVuZGVybGluZXtlfSlccmlnaHRcfSAmIFx0ZXh0IHsgaWYgfSBpPWogXFwgXGRpc3BsYXlzdHlsZVxzdW1fe2UgXGluIFxtYXRoY2Fse0V9X3t2X2l9IFxjYXAgXG1hdGhjYWx7RX1fe3Zfan19LVxmcmFje2Veey1ca2FwcGEgXGVsbF9lfX17MS1lXnstMiBca2FwcGEgXGVsbF9lfX0gJiBcdGV4dCB7IGlmIH0gaSBcbmVxIGpcZW5ke2Nhc2VzfQpcdGFnezE1fQpcbGFiZWx7UV9tYXRyaXh9CiQkCgpfX19fX19fX19fX18KCiMjIyBDYXNlICRcYWxwaGE+MSQKCl9fX19fX19fX19fCgpMZXQgJFxhbHBoYT4wJCBhbmQgJFxtYXRoYmZ7VH0kIGJlIHRoZSBjaGFuZ2Utb2YtYmFzaXMgbWF0cml4IHN1Y2ggdGhhdAoKJCQKXHdpZGV0aWxkZXtcbWF0aGJme1V9fV5cc3RhciA9IFxtYXRoYmZ7VH0gXHdpZGV0aWxkZXtcbWF0aGJme1V9fSwKXHRhZ3sxNn0KXGxhYmVse1RfbWF0cml4fQokJAoKYW5kIHRoZSAkayQgY29uc3RyYWludHMgb2YgJFxtYXRoYmZ7S30kIGFyZSBnaXZlbiBieSB0aGUgZmlyc3QgJGskIHJvd3Mgb2YgJFx3aWRldGlsZGV7XG1hdGhiZntVfX1eXHN0YXIkLiBUaGF0IGlzLAoKJCQKXHdpZGV0aWxkZXtcbWF0aGJme1V9fV5cc3RhclxzaW0gXG1hdGhybXtOfVxsZWZ0KFxtYXRoYmZ7MH0sIFxtYXRoYmZ7VH1cd2lkZXRpbGRle1xtYXRoYmZ7UX19XnstMX1cbWF0aGJme1R9Xlx0b3BccmlnaHQpClx0YWd7MTd9ClxsYWJlbHtVX3N0YXJfZGlzdHJpYnV0aW9ufQokJAoKTGV0ICRcd2lkZXRpbGRle1xtYXRoYmZ7UX19Xio9XG1hdGhiZntUfSBcd2lkZXRpbGRle1xtYXRoYmZ7UX19IFxtYXRoYmZ7VH1ee1x0b3B9JC4gRnVydGhlciwgbGV0ICRcbWF0aGJme1R9X3tcbWF0aGNhbHtVfX0kIGRlbm90ZSB0aGUgbWF0cml4IG9idGFpbmVkIGJ5IHJlbW92aW5nIHRoZSBmaXJzdCAkayQgcm93cyBmcm9tICRcbWF0aGJme1R9JCwgYW5kIGxldCAkXHdpZGV0aWxkZXtcbWF0aGJme1F9fV97XG1hdGhjYWx7VX0gXG1hdGhjYWx7VX19XiokIGRlbm90ZSB0aGUgbWF0cml4IG9idGFpbmVkIGJ5IHJlbW92aW5nIHRoZSBmaXJzdCAkayQgcm93cyBhbmQgdGhlIGZpcnN0ICRrJCBjb2x1bW5zIG9mICRcd2lkZXRpbGRle1xtYXRoYmZ7UX19XiokLiBUaGVuIAoKJCQKXG1hdGhiZntVfSBcc2ltIFxtYXRocm17Tn1cbGVmdChcbWF0aGJmezB9LCBcbWF0aGJme1R9X3tcbWF0aGNhbHtVfX1ee1x0b3B9XGxlZnQoXHdpZGV0aWxkZXtcbWF0aGJme1F9fV97XG1hdGhjYWx7VX0gXG1hdGhjYWx7VX19XipccmlnaHQpXnstMX0gXG1hdGhiZntUfV97XG1hdGhjYWx7VX19XHJpZ2h0KSBcbWF0aGJie0l9KFxtYXRoYmZ7S30gXG1hdGhiZntVfT1cbWF0aGJmezB9KQpcdGFnezE4fQpcbGFiZWx7VV9kaXN0cmlidXRpb25fZmluYWx9CiQkIAphbmQKCjo6OiB7LmN1c3RvbS1ib3h9CgokJApcbWF0aGJme1V9X3YgXHNpbSBcbWF0aHJte35OfVxsZWZ0KFxtYXRoYmZ7MH0sIFxtYXRoYmZ7QX0gXG1hdGhiZntUfV97XG1hdGhjYWx7VX19XntcdG9wfVxsZWZ0KFx3aWRldGlsZGV7XG1hdGhiZntRfX1fe1xtYXRoY2Fse1V9IFxtYXRoY2Fse1V9fV4qXHJpZ2h0KV57LTF9IFxtYXRoYmZ7VH1fe1xtYXRoY2Fse1V9fSBcbWF0aGJme0F9XntcdG9wfVxyaWdodCkuClx0YWd7MTl9ClxsYWJlbHtVX3ZfZGlzdHJpYnV0aW9uX2ZpbmFsfQokJAo6OjoKCgpUaGUgbWF0cmljZXMgJFxtYXRoYmZ7QX0sIFxtYXRoYmZ7VH1fe1xtYXRoY2Fse1V9fSQgYW5kICRcd2lkZXRpbGRle1xtYXRoYmZ7UX19X3tcbWF0aGNhbHtVfSBcbWF0aGNhbHtVfX1eKiQgaW4gXGVxcmVme1Vfdl9kaXN0cmlidXRpb25fZmluYWx9IGFyZSBzcGFyc2UuIFRodXMsIHdlIGNhbiBzaW11bGF0ZSAkXG1hdGhiZntVfV92JCBlZmZpY2llbnRseSBieSBzaW11bGF0aW5nIAoKJCQKXG1hdGhiZnt2fSBcc2ltIFxtYXRocm17Tn1cbGVmdChcbWF0aGJmezB9LFxsZWZ0KFx3aWRldGlsZGV7XG1hdGhiZntRfX1fe1xtYXRoY2Fse1V9IFxtYXRoY2Fse1V9fV4qXHJpZ2h0KV57LTF9XHJpZ2h0KQpcdGFnezIwfQpcbGFiZWx7dl9kaXN0cmlidXRpb259CiQkCnRocm91Z2ggc3BhcnNlIENob2xlc2t5IGZhY3Rvcml6YXRpb24gb2YgJFx3aWRldGlsZGV7XG1hdGhiZntRfX1fe1xtYXRoY2Fse1V9IFxtYXRoY2Fse1V9fV4qJCBhbmQgdGhlbiBjb21wdXRpbmcgdGhlIHNwYXJzZSBtYXRyaXggdmVjdG9yIHByb2R1Y3QgJFxtYXRoYmZ7VX1fdj1cbWF0aGJme0EgVH1fe1xtYXRoY2Fse1V9fV57XHRvcH0gXG1hdGhiZnt2fSQuCgoKIyMgQXV4aWxpYXJ5IGZ1bmN0aW9ucyB7I2F1eGlsaWFyeV9mdW5jdGlvbnN9CgojIyMgRnVuY3Rpb24gYGdldHMuZ3JhcGgudGFkcG9sZSgpYAoKR2l2ZW4gYSBtZXNoIHNpemUgYGhgLCBmdW5jdGlvbiBgZ2V0cy5ncmFwaC50YWRwb2xlKClgIGJ1aWxkcyBhIHRhZHBvbGUgZ3JhcGggYW5kIGNyZWF0ZXMgYSBtZXNoLgoKCmBgYHtyfQojIEZ1bmN0aW9uIHRvIGJ1aWxkIGEgdGFkcG9sZSBncmFwaCBhbmQgY3JlYXRlIGEgbWVzaApnZXRzLmdyYXBoLnRhZHBvbGUgPC0gZnVuY3Rpb24oKXsKICBlZGdlMSA8LSByYmluZChjKDAsMCksYygxLDApKQogIHRoZXRhIDwtIHNlcShmcm9tPS1waSx0bz1waSxsZW5ndGgub3V0ID0gMTAwMDApCiAgZWRnZTIgPC0gY2JpbmQoMSsxL3BpK2Nvcyh0aGV0YSkvcGksc2luKHRoZXRhKS9waSkKICBlZGdlcyA8LSBsaXN0KGVkZ2UxLCBlZGdlMikKICBncmFwaCA8LSBtZXRyaWNfZ3JhcGgkbmV3KGVkZ2VzID0gZWRnZXMsIHZlcmJvc2UgPSAwKQogIGdyYXBoJHNldF9tYW51YWxfZWRnZV9sZW5ndGhzKGVkZ2VfbGVuZ3RocyA9IGMoMSwyKSkKICAjZ3JhcGgkYnVpbGRfbWVzaChoID0gaCkKICByZXR1cm4oZ3JhcGgpCn0KYGBgCgoKYGBge3J9ClFhbHBoYTEgPC0gZnVuY3Rpb24odGhldGEsIGdyYXBoLCBCQyA9IDEsIGJ1aWxkID0gVFJVRSkgewogIAogIGthcHBhIDwtIHRoZXRhWzJdCiAgdGF1IDwtIHRoZXRhWzFdCiAgaV8gPC0gal8gPC0geF8gPC0gcmVwKDAsIGRpbShncmFwaCRWKVsxXSo0KSAjIGl0IGhhcyBsZW5ndGggNCpuVgogIGNvdW50IDwtIDAKICBmb3IoaSBpbiAxOmdyYXBoJG5FKXsgIyBsb29wIG92ZXIgZWRnZXMKICAgIGxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHNbaV0KICAgIGMxIDwtIGV4cCgta2FwcGEqbF9lKQogICAgYzIgPC0gYzFeMgogICAgb25lX21fYzIgPSAxLWMyCiAgICBjXzEgPSAwLjUgKyBjMi9vbmVfbV9jMgogICAgY18yID0gLWMxL29uZV9tX2MyCiAgICAKICAgIGlmIChncmFwaCRFW2ksIDFdICE9IGdyYXBoJEVbaSwgMl0pIHsgIyBUaGlzIGlzIGZvciBub24tY2lyY3VsYXIgZWRnZXMgYW5kIGNvZGVzIEkob3ZlcmxpbmUoZSkgIT0gdW5kZXJsaW5lKGUpKQogICAgICAKICAgICAgaV9bY291bnQgKyAxXSA8LSBncmFwaCRFW2ksIDFdCiAgICAgIGpfW2NvdW50ICsgMV0gPC0gZ3JhcGgkRVtpLCAxXQogICAgICB4X1tjb3VudCArIDFdIDwtIGNfMQogICAgICAKICAgICAgaV9bY291bnQgKyAyXSA8LSBncmFwaCRFW2ksIDJdCiAgICAgIGpfW2NvdW50ICsgMl0gPC0gZ3JhcGgkRVtpLCAyXQogICAgICB4X1tjb3VudCArIDJdIDwtIGNfMQogICAgICAKICAgICAgCiAgICAgIGlfW2NvdW50ICsgM10gPC0gZ3JhcGgkRVtpLCAxXQogICAgICBqX1tjb3VudCArIDNdIDwtIGdyYXBoJEVbaSwgMl0KICAgICAgeF9bY291bnQgKyAzXSA8LSBjXzIKICAgICAgCiAgICAgIGlfW2NvdW50ICsgNF0gPC0gZ3JhcGgkRVtpLCAyXQogICAgICBqX1tjb3VudCArIDRdIDwtIGdyYXBoJEVbaSwgMV0KICAgICAgeF9bY291bnQgKyA0XSA8LSBjXzIKICAgICAgY291bnQgPC0gY291bnQgKyA0CiAgICB9ZWxzZXsgIyBUaGlzIGlzIGZvciBjaXJjdWxhciBlZGdlcyBhbmQgY29kZXMgSShvdmVybGluZShlKSA9IHVuZGVybGluZShlKSkKICAgICAgaV9bY291bnQgKyAxXSA8LSBncmFwaCRFW2ksIDFdCiAgICAgIGpfW2NvdW50ICsgMV0gPC0gZ3JhcGgkRVtpLCAxXQogICAgICB4X1tjb3VudCArIDFdIDwtIHRhbmgoMC41ICoga2FwcGEgKiBsX2UpCiAgICAgIGNvdW50IDwtIGNvdW50ICsgMQogICAgfQogIHByaW50KGlfKQogIHByaW50KGpfKQogIH0KICBpZihCQyA9PSAxKXsKICAgICNkb2VzIHRoaXMgd29yayBmb3IgY2lyY2xlPwogICAgaS50YWJsZSA8LSB0YWJsZShpX1sxOmNvdW50XSkKICAgIGluZGV4ID0gYXMuaW50ZWdlcihuYW1lcyh3aGljaChpLnRhYmxlIDwgMykpKQogICAgaV8gPC0gYyhpX1sxOmNvdW50XSwgaW5kZXgpCiAgICBqXyA8LSBjKGpfWzE6Y291bnRdLCBpbmRleCkKICAgIHhfIDwtIGMoeF9bMTpjb3VudF0sIHJlcCgwLjUsIGxlbmd0aChpbmRleCkpKQogICAgY291bnQgPC0gY291bnQgKyBsZW5ndGgoaW5kZXgpCiAgICAjIHByaW50KGlfKQogICAgIyBwcmludChqXykKICB9ZWxzZSBpZihCQz09Mil7CiAgICAKICAgIGRWIDwtIGdyYXBoJGdldF92ZXJ0aWNlcygpJGRlZ3JlZQogICAgaW5kZXggPC0gMTpsZW5ndGgoZFYpCiAgICBpXyA8LSBjKGlfWzE6Y291bnRdLCBpbmRleCkKICAgIGpfIDwtIGMoal9bMTpjb3VudF0sIGluZGV4KQogICAgeF8gPC0gYyh4X1sxOmNvdW50XSwgLTAuNSpkViArIDEpCiAgICBjb3VudCA8LSBjb3VudCArIGxlbmd0aChpbmRleCkKICAgIAogIH0KICBpZihidWlsZCl7CiAgICBRIDwtIE1hdHJpeDo6c3BhcnNlTWF0cml4KGkgPSBpX1sxOmNvdW50XSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaiA9IGpfWzE6Y291bnRdLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICB4ID0gKDIgKiBrYXBwYSAqIHRhdV4yKSAqIHhfWzE6Y291bnRdLCAjIFRoaXMgaXMgdGhlIDJrYXBwYSp0YXVeMiBmYWN0b3IKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGltcyA9IGMoZ3JhcGgkblYsIGdyYXBoJG5WKSkKICAgIAogICAgCiAgICByZXR1cm4oUSkKICB9IGVsc2UgewogICAgcmV0dXJuKGxpc3QoaSA9IGlfWzE6Y291bnRdLAogICAgICAgICAgICAgICAgaiA9IGpfWzE6Y291bnRdLAogICAgICAgICAgICAgICAgeCA9ICgyICoga2FwcGEgKiB0YXVeMikgKiB4X1sxOmNvdW50XSwKICAgICAgICAgICAgICAgIGRpbXMgPSBjKGdyYXBoJG5WLCBncmFwaCRuVikpKQogIH0KfQpgYGAKCgoKIyMgUmVmZXJlbmNlcwoKYGBge3IsIHB1cmwgPSBGQUxTRX0KZ3JhdGVmdWw6OmNpdGVfcGFja2FnZXMob3V0cHV0ID0gInBhcmFncmFwaCIsIG91dC5kaXIgPSAiLiIpCmBgYAoKCg==</div>
 
 
 </div>

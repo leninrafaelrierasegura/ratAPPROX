@@ -31,3 +31,6 @@ Q <- Qalpha1(theta = c(1,1), graph = graph_copy, BC = 1, build = TRUE)
 Q
 
 graph_copy$plot()
+graph_copy$plot_connections()
+graph_copy$nE
+

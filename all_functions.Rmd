@@ -60,7 +60,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -94,6 +94,218 @@ library(ggplot2)
 library(reshape2)
 library(plotly)
 ```
+
+## Theoretical stuff
+
+We consider the equation
+
+$$
+\left(\kappa^{2}-\Delta\right)^{\alpha / 2}(\tau u)=\mathcal{W} \quad \text { on } \Gamma.
+\tag{0}
+\label{spde_equation}
+$$
+
+The Matérn covariance function is given by
+
+$$
+\varrho_M(h)=\frac{\tau^{-2}}{2^{\nu-1} \Gamma(\nu+n / 2)(4 \pi)^{n / 2} \kappa^{2 \nu}}(\kappa|h|)^\nu K_\nu(\kappa|h|),
+\tag{1}
+\label{matern_cov}
+$$
+
+where $n=1$ and the parameters $\tau, \kappa>0$ and $0<\nu \leq 1 / 2$ control the variance, practical correlation range, and the sample path regularity, respectively. Further, $K_\nu(\cdot)$ is a modified Bessel function of the second kind and $\Gamma(\cdot)$ denotes the gamma function.
+
+From [@Bolin2023statistical, Proposition 5], we know that 
+
+
+$$
+\mathbf{r}: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\alpha \times \alpha}, \quad \mathbf{r}\left(t_1, t_2\right)=\left[\frac{\partial^{i-1}}{\partial t_2^{i-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \varrho_M\left(t_1-t_2\right)\right]_{i j \in\{1,2, \ldots, \alpha\}}
+\tag{2}
+\label{r_matrix}
+$$
+is the covariance function of $\mathbf{x}(t)=\left[x(t), x'(t), \ldots, x^{(\alpha-1)}(t)\right]^{\top}$ if $x$ is a centered Gaussian process on $\mathbb{R}$ with Matérn covariance function with $\nu = \alpha-1/2$ and $\alpha \in \mathbb{N}$.
+
+Let $\mathbf{r}(\cdot, \cdot)$ be given by \eqref{r_matrix} with $\alpha \in \mathbb{N}$. Then, from [@Bolin2023statistical, Proposition 6], for $\ell>0$,
+
+$$
+\widetilde{\mathbf{r}}_{\ell}\left(t_1, t_2\right)=\mathbf{r}\left(t_1, t_2\right)+\left[\mathbf{r}\left(t_1, 0\right) \mathbf{r}\left(t_1, \ell\right)\right]\left[\begin{array}{cc}
+\mathbf{r}(0,0) & -\mathbf{r}(0, \ell) \\
+-\mathbf{r}(\ell, 0) & \mathbf{r}(0,0)
+\end{array}\right]^{-1}\left[\begin{array}{l}
+\mathbf{r}\left(t_2, 0\right) \\
+\mathbf{r}\left(t_2, \ell\right)
+\end{array}\right]
+\tag{3}
+\label{r_tilde_matrix}
+$$
+
+is the multivariate covariance function of the multivariate process $\widetilde{\mathbf{x}}(t)=\left[\widetilde{x}(t), \widetilde{x}^{\prime}(t), \ldots, \widetilde{x}^{(\alpha-1)}(t)\right]^{\top}$ on the interval $[0, \ell]$, where $\widetilde{x}$ is the boundaryless Whittle--Matérn process on $[0, \ell]$.
+
+Let
+
+$$
+\mathcal{K}_\alpha(x)=\left\{\omega \in \Omega: \forall v \in \mathcal{V} \text { and each pair } e, \widetilde{e} \in \mathcal{E}_v, x_e^{(2 k)}(v, \omega)=x_{\widetilde{e}}^{(2 k)}(v, \omega) \text {, and }
+\sum_{e \in \mathcal{E}_v} \partial_e x_e^{2 k+1}(v, \omega)=0, k=0, \ldots,\lceil\alpha-1 / 2\rceil-1\right\}
+\tag{4}
+\label{K_alpha}
+$$
+
+and $\widetilde{u} = \{\widetilde{u}_e:e\in\mathcal{E}\}$ be a family of independent boundaryless Whittle--Matérn process on the edges. Further, let
+
+$$
+\widetilde{\mathbf{u}}(s)=\left[\widetilde{u}(s), \widetilde{u}^{\prime}(s),\ldots, \widetilde{u}^{(\alpha-1)}(s)\right]^{\top}=\sum_{e \in \mathcal{E}} \mathbb{I}(s \in e) \widetilde{\mathbf{u}}_e(s) \in\mathbb{R}^{\alpha}.
+\tag{5}
+\label{u_vector}
+$$
+From [@Bolin2023statistical, Theorem 4], if we define
+
+$$
+\mathbf{u}(s) = \widetilde{\mathbf{u}}(s)| \mathcal{K}_\alpha(\widetilde{u}),
+\tag{6}
+\label{u_vector_constrained}
+$$
+
+then $u(\cdot)$, the first entry of $\mathbf{u}(\cdot)$, is a solution to \eqref{spde_equation}.
+
+The precission matrix of $[\widetilde{\mathbf{u}}(0), \widetilde{\mathbf{u}}(\ell)]$ is 
+
+$$
+\widetilde{\mathbf{Q}}_e=\mathbf{Q}_e-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}(0,0)^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{r}(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \alpha \times 2 \alpha},
+\tag{7}
+\label{Q_tilde_e}
+$$
+
+where $\mathbf{Q}_e$ is the precision matrix of $[\widetilde{\mathbf{u}}(0), \widetilde{\mathbf{u}}(\ell)]$.
+
+Let 
+$$
+\mathbf{U}=\left[\mathbf{u}(\underline{e}_1)^{\top}, \mathbf{u}(\overline{e}_1)^{\top}, \mathbf{u}(\underline{e}_2)^{\top}, \mathbf{u}(\overline{e}_2)^{\top}, \ldots, \mathbf{u}(\underline{e}_{|\mathcal{E}|})^{\top}, \mathbf{u}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2 \alpha|\mathcal{E}|}
+\tag{8}
+\label{U_vector}
+$$
+
+and
+
+
+$$
+\widetilde{\mathbf{U}}=\left[\widetilde{\mathbf{u}}_1(\underline{e}_1)^{\top}, \widetilde{\mathbf{u}}_1(\overline{e}_1)^{\top}, \widetilde{\mathbf{u}}_2(\underline{e}_2)^{\top}, \widetilde{\mathbf{u}}_2(\overline{e}_2)^{\top}, \ldots, \widetilde{\mathbf{u}}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^{\top}, \widetilde{\mathbf{u}}_{|\mathcal{E}|}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2 \alpha|\mathcal{E}|}
+\tag{9}
+\label{U_vector_tilde}
+$$
+We then have that
+
+$$
+\widetilde{\mathbf{U}}\sim \mathrm{N}\left(\mathbf{0}, \widetilde{\mathbf{Q}}^{-1}\right), \quad \widetilde{\mathbf{Q}} = \operatorname{diag}\left(\{\mathbf{Q}_e\}_{e\in\mathcal{E}}\right),
+\tag{10}
+\label{U_vector_tilde_distribution}
+$$
+
+where $\mathbf{Q}_e$ is the precision matrix of $[\widetilde{\mathbf{u}}_e(\underline{e}), \widetilde{\mathbf{u}}_e(\overline{e})]$.
+
+The Kirchhoff conditions \eqref{K_alpha} can be written as a system of linear equations
+
+$$
+\mathbf{K} \widetilde{\mathbf{U}}=\mathbf{0},
+\tag{11}
+\label{K_alpha_matrix}
+$$
+
+where $\mathbf{K}\in\mathbb{R}^{k\times 2\alpha|\mathcal{E}|}$ is a suitable matrix and $k$ is the number of linear constraints given by \eqref{K_alpha}.
+
+Finally,
+
+$$
+\mathbf{U}=\widetilde{\mathbf{U}}| \{\mathbf{K} \widetilde{\mathbf{U}}=\mathbf{0}\}\sim\mathrm{N}\left(\mathbf{0}, \widetilde{\mathbf{Q}}^{-1}-\widetilde{\mathbf{Q}}^{-1} \mathbf{K}^{\top}\left(\mathbf{K} \widetilde{\mathbf{Q}}^{-1} \mathbf{K}^{\top}\right)^{-1} \mathbf{K} \widetilde{\mathbf{Q}}^{-1}\right).
+\tag{12}
+\label{U_vector_constrained}
+$$
+
+Let $\mathbf{A}$ (which is not unique) be a $|\mathcal{V}| \times 2\alpha|\mathcal{E}|$ matrix such that
+
+$$
+\mathbf{U}_v = [u(v_1),u(v_2), \dots, u(v_{|\mathcal{V}|})]^{\top} = \mathbf{A} \mathbf{U}\sim\mathrm{N}\left(\mathbf{0},\mathbf{A}\left(\widetilde{\mathbf{Q}}^{-1}-\widetilde{\mathbf{Q}}^{-1} \mathbf{K}^{\top}\left(\mathbf{K} \widetilde{\mathbf{Q}}^{-1} \mathbf{K}^{\top}\right)^{-1} \mathbf{K} \widetilde{\mathbf{Q}}^{-1}\right) \mathbf{A}^{\top}\right),
+\tag{13}
+\label{A_matrix}
+$$
+
+
+____________
+
+### Case $\alpha=1$
+
+____________
+
+For $\alpha=1, \mathbf{U}_v$ in \eqref{A_matrix} satisfies
+
+::: {.custom-box}
+
+$$
+\mathbf{U}_v \sim \mathrm{~N}\left(\mathbf{0}, \mathbf{Q}^{-1}\right),
+\tag{14}
+\label{U_v_distribution_alpha1}
+$$
+:::
+
+where
+
+$$
+\mathbf{Q}_{i j}=2 \kappa \tau^2 . \begin{cases}\displaystyle\sum_{e \in \mathcal{E}_{v_i}}\left\{\left(\frac{1}{2}+\frac{e^{-2 \kappa \ell_e}}{1-e^{-2 \kappa \ell_e}}\right) \mathbb{I}(\bar{e} \neq \underline{e})+\tanh \left(\kappa \frac{l_e}{2}\right) \mathbb{I}(\bar{e}=\underline{e})\right\} & \text { if } i=j \\ \displaystyle\sum_{e \in \mathcal{E}_{v_i} \cap \mathcal{E}_{v_j}}-\frac{e^{-\kappa \ell_e}}{1-e^{-2 \kappa \ell_e}} & \text { if } i \neq j\end{cases}
+\tag{15}
+\label{Q_matrix}
+$$
+
+____________
+
+### Case $\alpha>1$
+
+___________
+
+Let $\alpha>0$ and $\mathbf{T}$ be the change-of-basis matrix such that
+
+$$
+\widetilde{\mathbf{U}}^\star = \mathbf{T} \widetilde{\mathbf{U}},
+\tag{16}
+\label{T_matrix}
+$$
+
+and the $k$ constraints of $\mathbf{K}$ are given by the first $k$ rows of $\widetilde{\mathbf{U}}^\star$. That is,
+
+$$
+\widetilde{\mathbf{U}}^\star\sim \mathrm{N}\left(\mathbf{0}, \mathbf{T}\widetilde{\mathbf{Q}}^{-1}\mathbf{T}^\top\right)
+\tag{17}
+\label{U_star_distribution}
+$$
+
+Let $\widetilde{\mathbf{Q}}^*=\mathbf{T} \widetilde{\mathbf{Q}} \mathbf{T}^{\top}$. Further, let $\mathbf{T}_{\mathcal{U}}$ denote the matrix obtained by removing the first $k$ rows from $\mathbf{T}$, and let $\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*$ denote the matrix obtained by removing the first $k$ rows and the first $k$ columns of $\widetilde{\mathbf{Q}}^*$. Then 
+
+$$
+\mathbf{U} \sim \mathrm{N}\left(\mathbf{0}, \mathbf{T}_{\mathcal{U}}^{\top}\left(\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*\right)^{-1} \mathbf{T}_{\mathcal{U}}\right) \mathbb{I}(\mathbf{K} \mathbf{U}=\mathbf{0})
+\tag{18}
+\label{U_distribution_final}
+$$ 
+and
+
+::: {.custom-box}
+
+$$
+\mathbf{U}_v \sim \mathrm{~N}\left(\mathbf{0}, \mathbf{A} \mathbf{T}_{\mathcal{U}}^{\top}\left(\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*\right)^{-1} \mathbf{T}_{\mathcal{U}} \mathbf{A}^{\top}\right).
+\tag{19}
+\label{U_v_distribution_final}
+$$
+:::
+
+
+The matrices $\mathbf{A}, \mathbf{T}_{\mathcal{U}}$ and $\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*$ in \eqref{U_v_distribution_final} are sparse. Thus, we can simulate $\mathbf{U}_v$ efficiently by simulating 
+
+$$
+\mathbf{v} \sim \mathrm{N}\left(\mathbf{0},\left(\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*\right)^{-1}\right)
+\tag{20}
+\label{v_distribution}
+$$
+through sparse Cholesky factorization of $\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*$ and then computing the sparse matrix vector product $\mathbf{U}_v=\mathbf{A T}_{\mathcal{U}}^{\top} \mathbf{v}$.
 
 
 ## Auxiliary functions {#auxiliary_functions}
@@ -169,8 +381,8 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
     j_ <- c(j_[1:count], index)
     x_ <- c(x_[1:count], rep(0.5, length(index)))
     count <- count + length(index)
-    print(i_)
-    print(j_)
+    # print(i_)
+    # print(j_)
   }else if(BC==2){
     
     dV <- graph$get_vertices()$degree

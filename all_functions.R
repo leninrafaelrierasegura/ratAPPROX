@@ -75,8 +75,8 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
     j_ <- c(j_[1:count], index)
     x_ <- c(x_[1:count], rep(0.5, length(index)))
     count <- count + length(index)
-    print(i_)
-    print(j_)
+    # print(i_)
+    # print(j_)
   }else if(BC==2){
     
     dV <- graph$get_vertices()$degree
