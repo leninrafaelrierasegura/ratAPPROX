@@ -33,4 +33,9 @@ Q
 graph_copy$plot()
 graph_copy$plot_connections()
 graph_copy$nE
+graph$buildDirectionalConstraints(alpha = 1)
+CoB <- graph$buildC(alpha = 2)
 
+aux <- graph$CoB
+aux
+CoB

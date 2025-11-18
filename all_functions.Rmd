@@ -167,7 +167,7 @@ $$
 
 then $u(\cdot)$, the first entry of $\mathbf{u}(\cdot)$, is a solution to \eqref{spde_equation}.
 
-The precission matrix of $[\widetilde{\mathbf{u}}(0), \widetilde{\mathbf{u}}(\ell)]$ is 
+The precision matrix of $[\widetilde{\mathbf{u}}(0), \widetilde{\mathbf{u}}(\ell)]$ is 
 
 $$
 \widetilde{\mathbf{Q}}_e=\mathbf{Q}_e-\frac{1}{2}\left[\begin{array}{cc}
@@ -178,7 +178,7 @@ $$
 \label{Q_tilde_e}
 $$
 
-where $\mathbf{Q}_e$ is the precision matrix of $[\widetilde{\mathbf{u}}(0), \widetilde{\mathbf{u}}(\ell)]$.
+where $\mathbf{Q}_e$ is the precision matrix of $[\mathbf{u}(0), \mathbf{u}(\ell)]$.
 
 Let 
 $$
@@ -252,10 +252,12 @@ $$
 where
 
 $$
-\mathbf{Q}_{i j}=2 \kappa \tau^2 . \begin{cases}\displaystyle\sum_{e \in \mathcal{E}_{v_i}}\left\{\left(\frac{1}{2}+\frac{e^{-2 \kappa \ell_e}}{1-e^{-2 \kappa \ell_e}}\right) \mathbb{I}(\bar{e} \neq \underline{e})+\tanh \left(\kappa \frac{l_e}{2}\right) \mathbb{I}(\bar{e}=\underline{e})\right\} & \text { if } i=j \\ \displaystyle\sum_{e \in \mathcal{E}_{v_i} \cap \mathcal{E}_{v_j}}-\frac{e^{-\kappa \ell_e}}{1-e^{-2 \kappa \ell_e}} & \text { if } i \neq j\end{cases}
+\mathbf{Q}_{i j}=2 \kappa \tau^2 . \begin{cases}\dfrac{1}{2}\mathbb{I}(\text{deg}(v_i) = 1) + \displaystyle\sum_{e \in \mathcal{E}_{v_i}}\left\{\left(\frac{1}{2}+\frac{e^{-2 \kappa \ell_e}}{1-e^{-2 \kappa \ell_e}}\right) \mathbb{I}(\bar{e} \neq \underline{e})+\tanh \left(\kappa \frac{l_e}{2}\right) \mathbb{I}(\bar{e}=\underline{e})\right\} & \text { if } i=j \\ \displaystyle\sum_{e \in \mathcal{E}_{v_i} \cap \mathcal{E}_{v_j}}-\frac{e^{-\kappa \ell_e}}{1-e^{-2 \kappa \ell_e}} & \text { if } i \neq j\end{cases}
 \tag{15}
 \label{Q_matrix}
 $$
+
+and we have added $\dfrac{1}{2}\mathbb{I}(\text{deg}(v_i) = 1)$ to correct for stationarity at vertices with degree one (see [@Bolin2023statistical, Section 7]).
 
 ____________
 
@@ -307,6 +309,311 @@ $$
 $$
 through sparse Cholesky factorization of $\widetilde{\mathbf{Q}}_{\mathcal{U} \mathcal{U}}^*$ and then computing the sparse matrix vector product $\mathbf{U}_v=\mathbf{A T}_{\mathcal{U}}^{\top} \mathbf{v}$.
 
+
+
+
+____________
+
+## Likelihood evaluation
+
+___________
+
+Assume we have observations $\mathbf{y} = [y_1,\dots,y_n]$ at locations $s_1,\dots,s_n\in\Gamma$ such that (1) $y_i = u(s_i)$ or (2) $y_i|u(\cdot)\sim \mathrm{N}(u(s_i), \sigma^2)$.
+
+
+____________
+
+### Case $\alpha=1$
+
+____________
+
+We add the locations $s_1,\dots,s_n$ as vertices and called the extended graph as $\overline{\Gamma}$. Let $\mathbf{v} = (v_1, \dots, v_m)$ be the indices of the original vertices and $\mathbf{s} = (s_1, \dots, s_n)$  the indices of the added locations.
+
+
+## Fractional case
+
+We consider the covariance operator $\mathcal{C} = \tau^{-2}L^{-\alpha}$, where $L = \kappa^2 - \Delta_\Gamma$ and $\alpha > 0$ is not necessarily an integer. 
+
+<!-- The precision operator is then given by $\mathcal{Q} = \tau^2 L^{\alpha}$. -->
+
+
+We consider an approximation 
+
+$$
+\mathcal{C}_{m,\alpha} = \tau^{-2}L^{-\lfloor \alpha \rfloor} p(L^{-1})q(L^{-1})^{-1} = \tau^{-2}L^{-\lfloor \alpha \rfloor} \left(\sum_{i=1}^m r_i (L-p_iI)^{-1} + kI\right) = \tau^{-2}\left(kL^{-\lfloor \alpha \rfloor} + \sum_{i=1}^m r_i L^{-\lfloor \alpha \rfloor}(L-p_iI)^{-1}\right),
+\tag{21}
+\label{C_fractional_approx}
+$$
+So $u(s) = u_0(s) + \sum_{i=1}^m u_i(s)$, where $u_0$ and $u_i$ satisfy
+
+$$
+\dfrac{1}{\sqrt{k}}(\kappa^2 - \Delta_\Gamma)^{\lfloor \alpha \rfloor / 2} (\tau u_0) = \mathcal{W},\text{ on }\Gamma
+\tag{22}  
+\label{u0_equation}
+$$
+
+and 
+
+$$
+\dfrac{1}{\sqrt{r_i}}((\kappa^2 - \Delta_\Gamma)^{\lfloor \alpha \rfloor}(\kappa^2 - p_i-\Delta_\Gamma))^{1/2} (\tau u_i) = \mathcal{W}, \text{ on }\Gamma, \quad i = 1, \dots, m.
+\tag{23}
+\label{ui_equation}
+$$
+
+
+### Case $\alpha \in (0,1)$
+
+In this case, \eqref{u0_equation} reduces to 
+
+$$
+\dfrac{1}{\sqrt{k}}\tau u_0 = \mathcal{W},\text{ on }\Gamma
+\tag{24}
+\label{u0_equation_alpha01}
+$$
+
+and \eqref{ui_equation} reduces to
+
+$$
+\dfrac{1}{\sqrt{r_i}}(\kappa^2 - p_i - \Delta_\Gamma)^{1/2} (\tau u_i) = \mathcal{W}, \text{ on }\Gamma, \quad i = 1, \dots, m.
+\tag{25}
+\label{ui_equation_alpha01}   
+$$
+
+Equation \eqref{ui_equation_alpha01} is just the case $\alpha=1$ in the original setting but now with shifted parameter $\kappa^2 - p_i$ instead of $\kappa^2$ and with a constant factor $1/\sqrt{r_i}$.
+
+### Case $\alpha \in (1,2)$
+
+In this case, \eqref{u0_equation} reduces to
+$$
+\dfrac{1}{\sqrt{k}}(\kappa^2 - \Delta_\Gamma)^{1/2}(\tau u_0) = \mathcal{W},\text{ on }\Gamma
+\tag{26}
+\label{u0_equation_alpha12}
+$$
+
+and \eqref{ui_equation} reduces to
+
+$$
+\dfrac{1}{\sqrt{r_i}}((\kappa^2 - \Delta_\Gamma)(\kappa^2 - p_i - \Delta_\Gamma))^{1/2} (\tau u_i) = \mathcal{W}, \text{ on }\Gamma,\quad i = 1, \dots, m.
+\tag{27}
+\label{ui_equation_alpha12}   
+$$
+Equation \eqref{u0_equation_alpha12} is just the case $\alpha=1$ in the original setting but now with a constant factor $1/\sqrt{k}$.
+
+### Case $\alpha \in (2,3)$
+
+In this case, \eqref{u0_equation} reduces to
+
+$$
+\dfrac{1}{\sqrt{k}}(\kappa^2 - \Delta_\Gamma)(\tau u_0) = \mathcal{W},
+\tag{28}
+\label{u0_equation_alpha23}
+$$
+and \eqref{ui_equation} reduces to
+$$
+\dfrac{1}{\sqrt{r_i}}((\kappa^2 - \Delta_\Gamma)^2(\kappa^2 - p_i - \Delta_\Gamma))^{1/2} (\tau u_i) = \mathcal{W}, \quad i = 1, \dots, m.
+\tag{29}
+\label{ui_equation_alpha23}   
+$$
+
+Equation \eqref{u0_equation_alpha23} is just the case $\alpha=2$ in the original setting but now with a constant factor $1/\sqrt{k}$.
+
+
+### Matrix version
+
+Let 
+
+$$
+\mathbf{u}(s) = [u(s), u'(s), \dots, u^{(\lfloor \alpha \rfloor)}(s)]^\top\in\mathbb{R}^{\lfloor \alpha \rfloor + 1}
+\tag{30}
+\label{u_vector_fractional}
+$$
+
+and 
+
+$$
+\widetilde{\mathbf{u}}(s)=\left[\widetilde{u}(s), \widetilde{u}^{\prime}(s),\ldots, \widetilde{u}^{(\lfloor \alpha \rfloor)}(s)\right]^{\top} \in\mathbb{R}^{\lfloor \alpha \rfloor + 1}
+\tag{31}
+$$
+
+and
+
+
+$$
+\mathbf{u}(\mathbf{s}) = \widetilde{\mathbf{u}}(\mathbf{s})| \mathcal{K}_{\lfloor\alpha\rfloor}(\widetilde{u}),
+\tag{32}
+$$
+
+and 
+
+$$
+\mathbf{u}(\mathbf{s}) = [\mathbf{u}(s_1), \mathbf{u}(s_2), \dots, \mathbf{u}(s_n)]^\top \in\mathbb{R}^{n(\lfloor \alpha \rfloor + 1)}
+$$
+
+and
+
+$$
+\widetilde{\mathbf{u}}(\mathbf{s}) = [\widetilde{\mathbf{u}}(s_1), \widetilde{\mathbf{u}}(s_2), \dots, \widetilde{\mathbf{u}}(s_n)]^\top \in\mathbb{R}^{n(\lfloor \alpha \rfloor + 1)}
+$$
+and 
+
+$$
+\mathbf{s} = [s_1, s_2, \dots, s_n]^\top\in\mathbb{R}^n,\quad s_1,s_2,\dots,s_n\in\Gamma
+$$
+
+and 
+
+$$
+\mathbf{U}=\left[\mathbf{u}(\underline{e}_1)^{\top}, \mathbf{u}(\overline{e}_1)^{\top}, \mathbf{u}(\underline{e}_2)^{\top}, \mathbf{u}(\overline{e}_2)^{\top}, \ldots, \mathbf{u}(\underline{e}_{|\mathcal{E}|})^{\top}, \mathbf{u}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2(\lfloor \alpha \rfloor + 1)|\mathcal{E}|}
+\tag{33}
+$$
+
+and
+
+
+$$
+\widetilde{\mathbf{U}}=\left[\widetilde{\mathbf{u}}_1(\underline{e}_1)^{\top}, \widetilde{\mathbf{u}}_1(\overline{e}_1)^{\top}, \widetilde{\mathbf{u}}_2(\underline{e}_2)^{\top}, \widetilde{\mathbf{u}}_2(\overline{e}_2)^{\top}, \ldots, \widetilde{\mathbf{u}}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^{\top}, \widetilde{\mathbf{u}}_{|\mathcal{E}|}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2(\lfloor \alpha \rfloor + 1)|\mathcal{E}|}
+\tag{34}
+$$
+
+We then have that
+
+$$
+\mathbf{u}_0(s) = \widetilde{\mathbf{u}}_0(s)| \mathcal{K}_{\lfloor\alpha\rfloor-1}(\widetilde{u}_0),
+\tag{35}
+$$
+
+and 
+
+$$
+\mathbf{u}_i(s) = \widetilde{\mathbf{u}}_i(s)| \mathcal{K}_{\lfloor\alpha\rfloor}(\widetilde{u}_i),\quad i=1,\dots,m,
+\tag{35}
+$$
+
+where
+
+$$
+\widetilde{\mathbf{u}}_0(s)=\left[\widetilde{u}_0(s), \widetilde{u}_0^{\prime}(s),\ldots, \widetilde{u}_0^{(\lfloor \alpha \rfloor-1)}(s)\right]^{\top} \in\mathbb{R}^{\lfloor \alpha \rfloor}
+\tag{36}
+$$
+
+has covariance function 
+
+
+::: {.custom-box}
+
+Covariance of the boundaryless process on an interval $[0, \ell]$
+
+$$
+\widetilde{\mathbf{r}}\left(t_1, t_2\right)=\mathbf{r}\left(t_1, t_2\right)+\left[\mathbf{r}\left(t_1, 0\right) \mathbf{r}\left(t_1, \ell\right)\right]\left[\begin{array}{cc}
+\mathbf{r}(0,0) & -\mathbf{r}(0, \ell) \\
+-\mathbf{r}(\ell, 0) & \mathbf{r}(0,0)
+\end{array}\right]^{-1}\left[\begin{array}{l}
+\mathbf{r}\left(t_2, 0\right) \\
+\mathbf{r}\left(t_2, \ell\right)
+\end{array}\right]
+\tag{37}
+$$
+
+:::
+
+::: {.custom-box}
+
+Covariance of the corresponding unrestricted process on $\mathbb{R}$
+
+$$
+\mathbf{r}: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\lfloor\alpha \rfloor\times \lfloor\alpha\rfloor}, \quad \mathbf{r}\left(t_1, t_2\right)=\left[\frac{\partial^{i-1}}{\partial t_2^{i-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \varrho_M\left(t_1-t_2\right)\right]_{i j \in\{1,2, \ldots, \lfloor\alpha\rfloor\}}
+\tag{38}
+$$
+:::
+
+and 
+
+$$
+\widetilde{\mathbf{u}}_i(s)=\left[\widetilde{u}_i(s), \widetilde{u}_i^{\prime}(s),\ldots, \widetilde{u}_i^{(\lfloor \alpha \rfloor)}(s)\right]^{\top} \in\mathbb{R}^{\lfloor \alpha \rfloor+1}
+\tag{39}
+$$
+has covariance function 
+
+
+::: {.custom-box}
+
+Covariance of the shifted boundaryless process on an interval $[0, \ell]$
+
+$$
+\widetilde{\mathbf{r}}_i\left(t_1, t_2\right)=\mathbf{r}_i\left(t_1, t_2\right)+\left[\mathbf{r}_i\left(t_1, 0\right) \mathbf{r}_i\left(t_1, \ell\right)\right]\left[\begin{array}{cc}
+\mathbf{r}_i(0,0) & -\mathbf{r}_i(0, \ell) \\
+-\mathbf{r}_i(\ell, 0) & \mathbf{r}_i(0,0)
+\end{array}\right]^{-1}\left[\begin{array}{l}
+\mathbf{r}_i\left(t_2, 0\right) \\
+\mathbf{r}_i\left(t_2, \ell\right)
+\end{array}\right]
+\tag{40}
+$$
+
+:::
+
+
+::: {.custom-box}
+
+Covariance of the corresponding unrestricted process on $\mathbb{R}$
+
+$$
+\mathbf{r}_i: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\lceil\alpha\rceil\times \lceil\alpha\rceil}, \quad \mathbf{r}_i\left(t_1, t_2\right)=\left[\frac{\partial^{i-1}}{\partial t_2^{i-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \dfrac{\varrho_{m, i}^\alpha\left(t_1-t_2\right)}{r_i\sigma^2}\right]_{i j \in\{1,2, \ldots, \lceil\alpha\rceil\}}
+\tag{41}
+$$
+
+:::
+
+The precision matrix of $[\widetilde{\mathbf{u}}_{0,e}(0), \widetilde{\mathbf{u}}_{0,e}(\ell)]$ is 
+
+$$
+\widetilde{\mathbf{Q}}_{0,e}=\mathbf{Q}_{0,e}-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}(0,0)^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{r}(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \lfloor\alpha\rfloor \times 2 \lfloor\alpha\rfloor},
+$$
+
+where $\mathbf{Q}_{0,e}$ is the precision matrix of $[\mathbf{u}_{0,e}(0), \mathbf{u}_{0,e}(\ell)]$.
+
+
+The precision matrix of $[\widetilde{\mathbf{u}}_{i,e}(0), \widetilde{\mathbf{u}}_{i,e}(\ell)]$ is 
+
+$$
+\widetilde{\mathbf{Q}}_{i,e}=\mathbf{Q}_{i,e}-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}_i(0,0)^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{r}_i(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \lceil\alpha\rceil \times 2 \lceil\alpha\rceil},
+$$
+
+where $\mathbf{Q}_{i,e}$ is the precision matrix of $[\mathbf{u}_{i,e}(0), \mathbf{u}_{i,e}(\ell)]$.
+
+
+Define 
+
+$$
+\widetilde{\mathbf{U}}_0=\left[\widetilde{\mathbf{u}}_{0,1}(\underline{e}_1)^{\top}, \widetilde{\mathbf{u}}_{0,1}(\overline{e}_1)^{\top}, \widetilde{\mathbf{u}}_{i,2}(\underline{e}_2)^{\top}, \widetilde{\mathbf{u}}_{0,2}(\overline{e}_2)^{\top}, \ldots, \widetilde{\mathbf{u}}_{0,|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^{\top}, \widetilde{\mathbf{u}}_{0,|\mathcal{E}|}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2\lfloor \alpha \rfloor|\mathcal{E}|}
+\tag{42}
+$$
+
+and
+
+
+$$
+\widetilde{\mathbf{U}}_i=\left[\widetilde{\mathbf{u}}_{i,1}(\underline{e}_1)^{\top}, \widetilde{\mathbf{u}}_{i,1}(\overline{e}_1)^{\top}, \widetilde{\mathbf{u}}_{i,2}(\underline{e}_2)^{\top}, \widetilde{\mathbf{u}}_{i,2}(\overline{e}_2)^{\top}, \ldots, \widetilde{\mathbf{u}}_{i,|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^{\top}, \widetilde{\mathbf{u}}_{i,|\mathcal{E}|}(\overline{e}_{|\mathcal{E}|})^{\top}\right]^{\top}\in\mathbb{R}^{2(\lfloor \alpha \rfloor + 1)|\mathcal{E}|},\quad i=0,\dots,m,
+\tag{43}
+$$
+
+Then 
+
+$$
+\widetilde{\mathbf{U}}_0\sim \mathrm{N}\left(\mathbf{0}, \widetilde{\mathbf{Q}}_0^{-1}\right), \quad \widetilde{\mathbf{Q}}_0 = \operatorname{diag}\left(\{\widetilde{\mathbf{Q}}_{0,e}\}_{e\in\mathcal{E}}\right),
+$$ 
+
+and 
+
+$$
+\widetilde{\mathbf{U}}_i\sim \mathrm{N}\left(\mathbf{0}, \widetilde{\mathbf{Q}}_i^{-1}\right), \quad\widetilde{\mathbf{Q}}_i = \operatorname{diag}\left(\{\widetilde{\mathbf{Q}}_{i,e}\}_{e\in\mathcal{E}}\right),\quad i=1,\dots,m.
+$$
 
 ## Auxiliary functions {#auxiliary_functions}
 
@@ -379,7 +686,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
     index = as.integer(names(which(i.table < 3)))
     i_ <- c(i_[1:count], index)
     j_ <- c(j_[1:count], index)
-    x_ <- c(x_[1:count], rep(0.5, length(index)))
+    x_ <- c(x_[1:count], rep(0.5, length(index))) # here is where we add the 0.5 for degree one vertices
     count <- count + length(index)
     # print(i_)
     # print(j_)

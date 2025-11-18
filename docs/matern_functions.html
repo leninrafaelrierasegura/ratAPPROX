@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Matérn Functions</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/clipboard-2.0.6/clipboard.min.js"></script>
+<link href="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+<script src="site_libs/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+<script>window.xaringanExtraClipboard(null, {"button":"<i class=\"fa-solid fa-clipboard\" style=\"color: #00008B\"><\/i>","success":"<i class=\"fa fa-check\" style=\"color: #90BE6D\"><\/i>","error":"<i class=\"fa fa-times-circle\" style=\"color: #F94144\"><\/i>"})</script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="visual.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ratAPPROX</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="all_functions.html">All functions</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://arxiv.org/abs/0000.00000">
+    <span class="fa fa-file-pdf"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/leninrafaelrierasegura/ratAPPROX">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Matérn Functions</h1>
+<h4 class="date">Last modified: 18-11-2025.</h4>
+
+</div>
+
+
+<p>Go back to the <a href="about.html">Contents</a> page.</p>
+<div style="color: #2c3e50; text-align: right;">
+<hr />
+<p><strong>Press Show to reveal the code chunks.</strong></p>
+<hr />
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode r fold-hide"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Set seed for reproducibility</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1982</span>) </span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Set global options for all code chunks</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="co"># Disable messages printed by R code chunks</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="co"># Disable warnings printed by R code chunks</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,    </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="co"># Show R code within code chunks in output</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,        </span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">FALSE</span>,       </span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="at">fig.align =</span> <span class="st">&quot;center&quot;</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="co"># Enable retina display for high-resolution figures</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="at">retina =</span> <span class="dv">2</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="co"># Show errors in the output instead of stopping rendering</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="at">error =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="co"># Do not collapse code and output into a single block</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="at">collapse =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>)</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co"># Start the figure counter</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>fig_count <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co"># Define the captioner function</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>captioner <span class="ot">&lt;-</span> <span class="cf">function</span>(caption) {</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  fig_count <span class="ot">&lt;&lt;-</span> fig_count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;Figure &quot;</span>, fig_count, <span class="st">&quot;: &quot;</span>, caption)</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/rspde&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># remotes::install_github(&quot;davidbolin/metricgraph&quot;, ref = &quot;devel&quot;)</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(rSPDE)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">library</span>(MetricGraph)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">library</span>(grateful)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
+<p>The Matérn covariance function is given by</p>
+<p><span class="math display">\[
+\varrho(h; \nu, \kappa, \sigma)=\dfrac{\sigma^{2}}{2^{\nu-1}
+\Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 =
+\dfrac{\Gamma(\nu)}{\Gamma(\nu+1/2)(4\pi)^{1/2}\kappa^{2\nu}\tau^2}
+\tag{1}
+\label{materncovariance}
+\]</span></p>
+<p>and it is coded below as <code>matern.covariance()</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>matern.covariance <span class="ot">&lt;-</span> <span class="cf">function</span>(h, kappa, nu, sigma) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="cf">if</span> (nu <span class="sc">==</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">2</span>) {</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>        C <span class="ot">&lt;-</span> sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>kappa <span class="sc">*</span> <span class="fu">abs</span>(h))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>        C <span class="ot">&lt;-</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">2</span><span class="sc">^</span>(nu <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu))) <span class="sc">*</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>            ((kappa <span class="sc">*</span> <span class="fu">abs</span>(h))<span class="sc">^</span>nu) <span class="sc">*</span> <span class="fu">besselK</span>(kappa <span class="sc">*</span> <span class="fu">abs</span>(h), nu)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>        C[h <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> sigma<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    }</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    <span class="fu">return</span>(C)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>}</span></code></pre></div>
+<p>The derivatives of the Matérn covariance function can be computed
+using the following recursive relation. For example, the first
+derivative is given by</p>
+<p><span class="math display">\[
+\varrho&#39;(h; \nu, \kappa, \sigma) =
+\begin{cases}
+0, &amp; h = 0 \\
+-\dfrac{\kappa^2}{2(\nu - 1)} h \varrho(h; \nu - 1, \kappa, \sigma),
+&amp; h \neq 0
+\end{cases}
+\tag{2}
+\label{matern_derivative}
+\]</span></p>
+<p>and it can be obtained by setting <code>deriv = 1</code> in the
+function <code>matern.derivative()</code> below.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>matern.derivative <span class="ot">&lt;-</span> <span class="cf">function</span>(h, kappa, nu, sigma, <span class="at">deriv =</span> <span class="dv">1</span>) </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>{</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="cf">if</span>(deriv <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>        C <span class="ot">=</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu, <span class="at">sigma =</span> sigma)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>        <span class="fu">return</span>(C)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (deriv <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>        C <span class="ot">=</span> h <span class="sc">*</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu <span class="sc">-</span> <span class="dv">1</span>, <span class="at">sigma =</span> sigma)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>        C[h <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>        <span class="fu">return</span>(<span class="sc">-</span>(kappa<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span> <span class="sc">*</span> (nu <span class="sc">-</span> <span class="dv">1</span>))) <span class="sc">*</span> C)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>    }</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> (deriv <span class="sc">==</span> <span class="dv">2</span>) {</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>        C <span class="ot">=</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu <span class="sc">-</span> <span class="dv">1</span>, <span class="at">sigma =</span> sigma) <span class="sc">+</span> </span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>            h <span class="sc">*</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu <span class="sc">-</span> <span class="dv">1</span>, </span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>                                  <span class="at">sigma =</span> sigma, <span class="at">deriv =</span> <span class="dv">1</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>        <span class="fu">return</span>(<span class="sc">-</span>(kappa<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span> <span class="sc">*</span> (nu <span class="sc">-</span> <span class="dv">1</span>))) <span class="sc">*</span> C)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    }</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    <span class="cf">else</span> {</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>        C <span class="ot">=</span> (deriv <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, </span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>                                            <span class="at">nu =</span> nu <span class="sc">-</span> <span class="dv">1</span>, <span class="at">sigma =</span> sigma, </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>                                            <span class="at">deriv =</span> deriv <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>            h <span class="sc">*</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu <span class="sc">-</span> </span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>                                      <span class="dv">1</span>, <span class="at">sigma =</span> sigma, <span class="at">deriv =</span> deriv <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>        <span class="fu">return</span>(<span class="sc">-</span>(kappa<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span> <span class="sc">*</span> (nu <span class="sc">-</span> <span class="dv">1</span>))) <span class="sc">*</span> C)</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>    }</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>    </span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>}</span></code></pre></div>
+<p>From <span class="citation">(Bolin, Mehandiratta, and Simas 2025,
+Proposition 1)</span>, we have the following decomposition</p>
+<p><span class="math display">\[
+\varrho_m^\alpha(h)=\varrho_{m, 0}^\alpha(h)+\sum_{i=1}^m \varrho_{m,
+i}^\alpha(h)
+\tag{3}
+\label{matern_p_decomposition}
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha
+\sqrt{4 \pi}}{\kappa} 1_{[h=0]}, &amp; 0&lt;\alpha&lt;1 \\
+\varrho\left(h ;\lfloor\alpha\rfloor-\frac{1}{2}, \kappa,
+\frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), &amp; \alpha \geq
+1\end{cases}
+\tag{4}
+\label{matern_0_covariance}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h
+; \frac{1}{2}, \kappa_i, \frac{c_\alpha
+\sqrt{\pi}}{\sqrt{1-p_i}}\right), &amp; 0&lt;\alpha&lt;1 \\
+\frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \frac{1}{2},
+\kappa_i, \frac{c_\alpha
+\sqrt{\pi}}{\sqrt{1-p_i}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor}
+\frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; j-\frac{1}{2},
+\kappa, \frac{c_\alpha}{c_j}\right), &amp; \alpha \geq 1\end{cases}
+\tag{5}
+\label{matern_p_covariance}
+\]</span></p>
+<p>and <span class="math inline">\(c_a:=\Gamma(a) / \Gamma(a-1 / 2),
+\kappa_i=\kappa \sqrt{1-p_i}\)</span>, and <span
+class="math inline">\(\varrho\)</span> is the Matérn covariance <span
+class="math inline">\(\eqref{materncovariance}\)</span>.</p>
+<p>Function <code>matern.p()</code> implements</p>
+<p><span class="math display">\[
+\dfrac{\varrho_{m, i}^\alpha(h)}{r_i\sigma^2}
+\]</span> as given below. Function <code>matern.p.deriv()</code>
+implements the derivatives of this function.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>matern.p <span class="ot">&lt;-</span> <span class="cf">function</span>(s,t,kappa,p,alpha){</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    h <span class="ot">&lt;-</span> s<span class="sc">-</span>t</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="cf">if</span>(p<span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> alpha <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">sigma =</span> <span class="dv">1</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>        ca <span class="ot">&lt;-</span> <span class="fu">gamma</span>(alpha)<span class="sc">/</span><span class="fu">gamma</span>(alpha<span class="fl">-0.5</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>        fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>        kp <span class="ot">&lt;-</span> kappa<span class="sc">*</span><span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">-</span>p)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>        out <span class="ot">&lt;-</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kp, <span class="at">nu =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>                                 <span class="at">sigma =</span> <span class="fu">sqrt</span>(ca<span class="sc">*</span><span class="fu">sqrt</span>(pi)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">-</span>p)))</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>        <span class="cf">if</span>(alpha <span class="sc">&lt;</span> <span class="dv">1</span>) {</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>            <span class="fu">return</span>(out)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>            </span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>            <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa) {</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>                out <span class="ot">&lt;-</span> out <span class="sc">-</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> j<span class="dv">-1</span><span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>                                               <span class="at">sigma =</span> <span class="fu">sqrt</span>(ca<span class="sc">*</span><span class="fu">gamma</span>(j<span class="fl">-0.5</span>)<span class="sc">/</span><span class="fu">gamma</span>(j)))<span class="sc">/</span>p<span class="sc">^</span>(<span class="dv">1</span> <span class="sc">-</span> j)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>            }</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>            out <span class="ot">&lt;-</span> out<span class="sc">/</span>p<span class="sc">^</span>fa</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>            <span class="fu">return</span>(out)    </span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>        }</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    }</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>}</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>matern.p.deriv <span class="ot">&lt;-</span> <span class="cf">function</span>(s,t,kappa,p,alpha,<span class="at">deriv =</span> <span class="dv">0</span>){</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>    h <span class="ot">&lt;-</span> s<span class="sc">-</span>t</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>    <span class="cf">if</span>(deriv <span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">matern.p</span>(s,t,kappa,p,alpha))</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>        <span class="cf">if</span>(p<span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>            <span class="fu">return</span>(<span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> alpha <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>                                     <span class="at">sigma =</span> <span class="dv">1</span>, <span class="at">deriv =</span> deriv))</span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>            ca <span class="ot">&lt;-</span> <span class="fu">gamma</span>(alpha)<span class="sc">/</span><span class="fu">gamma</span>(alpha<span class="fl">-0.5</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>            fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>            kp <span class="ot">&lt;-</span> kappa<span class="sc">*</span><span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">-</span>p)</span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>            out <span class="ot">&lt;-</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kp, <span class="at">nu =</span>  <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>                                     <span class="at">sigma =</span> <span class="fu">sqrt</span>(ca<span class="sc">*</span><span class="fu">sqrt</span>(pi)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">-</span>p)), <span class="at">deriv =</span> deriv)</span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>            <span class="cf">if</span>(alpha <span class="sc">&lt;</span> <span class="dv">1</span>) {</span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a>                <span class="fu">return</span>(out)</span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>                out <span class="ot">&lt;-</span> out<span class="sc">/</span>p<span class="sc">^</span>fa</span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>                <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa) {</span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a>                    out <span class="ot">&lt;-</span> out <span class="sc">-</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> j<span class="dv">-1</span><span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>                                                   <span class="at">sigma =</span> <span class="fu">sqrt</span>(ca<span class="sc">*</span><span class="fu">gamma</span>(j<span class="fl">-0.5</span>)<span class="sc">/</span><span class="fu">gamma</span>(j)), </span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>                                                   <span class="at">deriv =</span> deriv)<span class="sc">/</span>p<span class="sc">^</span>(fa <span class="sc">+</span> <span class="dv">1</span> <span class="sc">-</span> j)</span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a>                }</span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a>            }</span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a>            <span class="fu">return</span>(out)</span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a>        }    </span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a>    }</span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a>    </span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>}</span></code></pre></div>
+<p>Function <code>matern.p.joint()</code> computes the joint covariance
+matrix of the process and its derivatives up to order
+<code>floor(alpha)</code> for the shifted Matérn covariance. That is, it
+computes</p>
+<p><span class="math display">\[
+\mathbf{r}_i: \mathbb{R} \times \mathbb{R} \mapsto
+\mathbb{R}^{\lceil\alpha\rceil\times \lceil\alpha\rceil}, \quad
+\mathbf{r}_i\left(t_1, t_2\right)=\left[\frac{\partial^{i-1}}{\partial
+t_2^{i-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \dfrac{\varrho_{m,
+i}^\alpha\left(t_1-t_2\right)}{r_i\sigma^2}\right]_{i j \in\{1,2,
+\ldots, \lceil\alpha\rceil\}}
+\tag{2}
+\label{r_matrix}
+\]</span> which is the multivariate covariance function of <span
+class="math inline">\((u_i(t), u_i&#39;(t), \ldots,
+u_i^{(\lfloor\alpha\rfloor)}(t))\)</span> and <span
+class="math inline">\(u_i\)</span> is a shifted Whittle–Matérn bridge
+process with covariance function <span class="math inline">\(\varrho_{m,
+i}^\alpha(h)/(r_i\sigma^2)\)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#Joint covariance of process and derivative for shifted Matern</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>matern.p.joint <span class="ot">&lt;-</span> <span class="cf">function</span>(s,t,kappa,p, <span class="at">alpha =</span> <span class="dv">1</span>){</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    </span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="cf">if</span>(alpha<span class="sc">%%</span><span class="dv">1</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>        fa <span class="ot">&lt;-</span> alpha</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>        fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha) <span class="sc">+</span> <span class="dv">1</span>    </span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    }</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> fa, <span class="at">ncol =</span> fa)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa) {</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>        <span class="cf">for</span>(j <span class="cf">in</span> i<span class="sc">:</span>fa) {</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>            <span class="cf">if</span>(i<span class="sc">==</span>j) {</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                mat[i,i] <span class="ot">&lt;-</span> ((<span class="sc">-</span><span class="dv">1</span>)<span class="sc">^</span>(i<span class="dv">-1</span>))<span class="sc">*</span><span class="fu">matern.p.deriv</span>(s,t,kappa,p,alpha, <span class="at">deriv =</span> <span class="dv">2</span><span class="sc">*</span>(i<span class="dv">-1</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>                tmp <span class="ot">&lt;-</span> <span class="fu">matern.p.deriv</span>(s,t,kappa,p,alpha, <span class="at">deriv =</span> i<span class="dv">-1</span> <span class="sc">+</span> j <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>                mat[i,j] <span class="ot">&lt;-</span> (<span class="sc">-</span><span class="dv">1</span>)<span class="sc">^</span>(j<span class="dv">-1</span>)<span class="sc">*</span>tmp</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>                mat[j,i] <span class="ot">&lt;-</span> (<span class="sc">-</span><span class="dv">1</span>)<span class="sc">^</span>(i<span class="dv">-1</span>)<span class="sc">*</span>tmp</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>            }</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>        }</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    }</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>    </span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>    <span class="fu">return</span>(mat)</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>mat1 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(<span class="at">s =</span> <span class="fl">0.6</span>, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> <span class="dv">10</span>, <span class="at">p =</span> <span class="fl">0.3</span>, <span class="at">alpha =</span> <span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>mat2 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(<span class="at">s =</span> <span class="fl">0.6</span>, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> <span class="dv">10</span>, <span class="at">p =</span> <span class="fl">0.3</span>, <span class="at">alpha =</span> <span class="dv">3</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>mat1</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>mat2</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>exp_precision <span class="ot">&lt;-</span> <span class="cf">function</span>(loc, kappa, <span class="at">boundary =</span> <span class="st">&quot;free&quot;</span>) {</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span>(loc)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    l <span class="ot">&lt;-</span> <span class="fu">diff</span>(loc)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="co"># Precompute reusable terms</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">*</span> kappa <span class="sc">*</span> l)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    b <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> a</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>    </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    <span class="co"># Initialize matrix Q efficiently</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    Q <span class="ot">&lt;-</span> <span class="fu">Matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> n, <span class="at">ncol =</span> n)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>    </span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>    <span class="co"># Set diagonal elements</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    <span class="fu">diag</span>(Q)[<span class="dv">1</span><span class="sc">:</span>(n<span class="dv">-1</span>)] <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> a<span class="sc">/</span>b</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    <span class="fu">diag</span>(Q)[<span class="dv">2</span><span class="sc">:</span>n] <span class="ot">&lt;-</span> <span class="fu">diag</span>(Q)[<span class="dv">2</span><span class="sc">:</span>n] <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">+</span> a<span class="sc">/</span>b</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>    </span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>    <span class="co"># Set off-diagonal elements</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>    <span class="co">#  indices &lt;- c(which(row(Q) == col(Q) + 1), which(row(Q) == col(Q) - 1))</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>    <span class="co"># off_diag_values &lt;- -exp(-kappa * l) /b</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>    <span class="co"># Q[indices] &lt;- off_diag_values</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>    </span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>    </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>    row_indices <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(n <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>    col_indices <span class="ot">&lt;-</span> row_indices <span class="sc">+</span> <span class="dv">1</span>  <span class="co"># Offsets for off-diagonal elements</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>    </span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>    <span class="co"># Compute the off-diagonal values</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>    off_diag_values <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>kappa <span class="sc">*</span> l)<span class="sc">/</span>b</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>    </span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>    <span class="co"># Set the off-diagonal elements in matrix Q</span></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>    Q[<span class="fu">cbind</span>(row_indices, col_indices)] <span class="ot">&lt;-</span> off_diag_values</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>    Q[<span class="fu">cbind</span>(col_indices, row_indices)] <span class="ot">&lt;-</span> off_diag_values</span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>    </span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>    <span class="co"># Adjust boundary conditions if required</span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>    <span class="cf">if</span> (boundary <span class="sc">==</span> <span class="st">&quot;free&quot;</span>) {</span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>        Q[<span class="dv">1</span>, <span class="dv">1</span>] <span class="ot">&lt;-</span> Q[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.5</span></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>        Q[n, n] <span class="ot">&lt;-</span> Q[n, n] <span class="sc">+</span> <span class="fl">0.5</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>    }</span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>    </span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>    <span class="fu">return</span>(<span class="dv">2</span> <span class="sc">*</span> kappa <span class="sc">*</span> Q[])</span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Example usage of exp_precision function</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>loc <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">10</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>Q_matrix <span class="ot">&lt;-</span> <span class="fu">exp_precision</span>(loc, kappa, <span class="at">boundary =</span> <span class="st">&quot;free&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">print</span>(Q_matrix)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>matern.p.precision <span class="ot">&lt;-</span> <span class="cf">function</span>(loc,kappa,p,<span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, <span class="at">alpha =</span> <span class="dv">1</span>) {</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>    </span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">length</span>(loc)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>    <span class="cf">if</span>(alpha<span class="sc">==</span><span class="dv">1</span>) {</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>        Q <span class="ot">&lt;-</span> <span class="fu">exp_precision</span>(loc,kappa)<span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span>kappa)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>        A <span class="ot">&lt;-</span> <span class="fu">Diagonal</span>(n)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>        </span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">Q=</span>Q,<span class="at">A=</span>A))</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>        <span class="cf">if</span>(alpha<span class="sc">%%</span><span class="dv">1</span> <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>            fa <span class="ot">&lt;-</span> alpha</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>            fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha) <span class="sc">+</span> <span class="dv">1</span>    </span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>        }</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>        </span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>        <span class="cf">if</span>(fa <span class="sc">==</span> <span class="dv">1</span>) {</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>            N <span class="ot">&lt;-</span> n  <span class="sc">+</span> n <span class="sc">-</span> <span class="dv">1</span> </span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>            N <span class="ot">&lt;-</span> n<span class="sc">*</span>fa<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (n<span class="dv">-1</span>)<span class="sc">*</span>fa<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> n<span class="sc">*</span>fa<span class="sc">*</span>(fa <span class="sc">-</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>    </span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>        }</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>        </span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>        ii <span class="ot">&lt;-</span> <span class="fu">numeric</span>(N)</span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>        jj <span class="ot">&lt;-</span> <span class="fu">numeric</span>(N)</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>        val <span class="ot">&lt;-</span> <span class="fu">numeric</span>(N)</span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>        </span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>        <span class="cf">if</span>(equally_spaced){</span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>            Q<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span>],loc[<span class="dv">1</span>],kappa,p,alpha), </span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span>],loc[<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha)),</span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>                               <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span>],loc[<span class="dv">1</span>],kappa,p,alpha), </span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span>],loc[<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha))))</span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>            </span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>            Q.i <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span>],loc[<span class="dv">1</span>],kappa,p,alpha), </span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span>],loc[<span class="dv">2</span>],kappa,p,alpha),</span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">1</span>],loc[<span class="dv">3</span>],kappa,p,alpha)),</span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a>                               <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[<span class="dv">2</span>],loc[<span class="dv">1</span>],kappa,p,alpha),</span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">2</span>],loc[<span class="dv">2</span>],kappa,p,alpha),</span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">2</span>],loc[<span class="dv">3</span>],kappa,p,alpha)),</span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a>                               <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[<span class="dv">3</span>],loc[<span class="dv">1</span>],kappa,p,alpha),</span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">3</span>],loc[<span class="dv">2</span>],kappa,p,alpha),</span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a>                                     <span class="fu">matern.p.joint</span>(loc[<span class="dv">3</span>],loc[<span class="dv">3</span>],kappa,p,alpha))))[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>fa),<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>fa)]</span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a>        }</span>
+<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a>        </span>
+<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a>        </span>
+<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a>        <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">max</span>((n<span class="dv">-1</span>),<span class="dv">1</span>)){</span>
+<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a>            <span class="cf">if</span>(i<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a>                <span class="cf">if</span>(<span class="sc">!</span>equally_spaced){</span>
+<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a>                    Q<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[i],loc[i],kappa,p,alpha),</span>
+<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i],loc[i<span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha)),</span>
+<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a>                                       <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[i<span class="sc">+</span><span class="dv">1</span>],loc[i],kappa,p,alpha),</span>
+<span id="cb10-50"><a href="#cb10-50" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i<span class="sc">+</span><span class="dv">1</span>],loc[i<span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha))))</span>
+<span id="cb10-51"><a href="#cb10-51" tabindex="-1"></a>                    </span>
+<span id="cb10-52"><a href="#cb10-52" tabindex="-1"></a>                } </span>
+<span id="cb10-53"><a href="#cb10-53" tabindex="-1"></a>                counter <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb10-54"><a href="#cb10-54" tabindex="-1"></a>                <span class="cf">for</span>(ki <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa) {</span>
+<span id="cb10-55"><a href="#cb10-55" tabindex="-1"></a>                    <span class="cf">for</span>(kj <span class="cf">in</span> ki<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>fa)) {</span>
+<span id="cb10-56"><a href="#cb10-56" tabindex="-1"></a>                        ii[counter] <span class="ot">&lt;-</span> ki</span>
+<span id="cb10-57"><a href="#cb10-57" tabindex="-1"></a>                        jj[counter] <span class="ot">&lt;-</span> kj</span>
+<span id="cb10-58"><a href="#cb10-58" tabindex="-1"></a>                        val[counter] <span class="ot">&lt;-</span> Q<span class="fl">.1</span>[ki,kj]</span>
+<span id="cb10-59"><a href="#cb10-59" tabindex="-1"></a>                        counter <span class="ot">&lt;-</span> counter <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb10-60"><a href="#cb10-60" tabindex="-1"></a>                    }</span>
+<span id="cb10-61"><a href="#cb10-61" tabindex="-1"></a>                }</span>
+<span id="cb10-62"><a href="#cb10-62" tabindex="-1"></a>            } <span class="cf">else</span> {</span>
+<span id="cb10-63"><a href="#cb10-63" tabindex="-1"></a>                <span class="cf">if</span>(<span class="sc">!</span>equally_spaced){</span>
+<span id="cb10-64"><a href="#cb10-64" tabindex="-1"></a>                    Q.i <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">rbind</span>(<span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[i<span class="dv">-1</span>],loc[i<span class="dv">-1</span>],kappa,p,alpha),</span>
+<span id="cb10-65"><a href="#cb10-65" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i<span class="dv">-1</span>],loc[i],kappa,p,alpha),</span>
+<span id="cb10-66"><a href="#cb10-66" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i<span class="dv">-1</span>],loc[i<span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha)),</span>
+<span id="cb10-67"><a href="#cb10-67" tabindex="-1"></a>                                       <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[i],loc[i<span class="dv">-1</span>],kappa,p,alpha),</span>
+<span id="cb10-68"><a href="#cb10-68" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i],loc[i],kappa,p,alpha),</span>
+<span id="cb10-69"><a href="#cb10-69" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i],loc[i<span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha)),</span>
+<span id="cb10-70"><a href="#cb10-70" tabindex="-1"></a>                                       <span class="fu">cbind</span>(<span class="fu">matern.p.joint</span>(loc[i<span class="sc">+</span><span class="dv">1</span>],loc[i<span class="dv">-1</span>],kappa,p,alpha),</span>
+<span id="cb10-71"><a href="#cb10-71" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i<span class="sc">+</span><span class="dv">1</span>],loc[i],kappa,p,alpha),</span>
+<span id="cb10-72"><a href="#cb10-72" tabindex="-1"></a>                                             <span class="fu">matern.p.joint</span>(loc[i<span class="sc">+</span><span class="dv">1</span>],loc[i<span class="sc">+</span><span class="dv">1</span>],kappa,p,alpha))))[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>fa),<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>fa)]</span>
+<span id="cb10-73"><a href="#cb10-73" tabindex="-1"></a>                } </span>
+<span id="cb10-74"><a href="#cb10-74" tabindex="-1"></a>                <span class="co"># Q[(2*n-1):(2*n), (2*n-3):(2*n)] = Q.i[3:4,]</span></span>
+<span id="cb10-75"><a href="#cb10-75" tabindex="-1"></a>                <span class="cf">for</span>(ki <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa){</span>
+<span id="cb10-76"><a href="#cb10-76" tabindex="-1"></a>                    <span class="cf">for</span>(kj <span class="cf">in</span> ki<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>fa)){</span>
+<span id="cb10-77"><a href="#cb10-77" tabindex="-1"></a>                        ii[counter] <span class="ot">&lt;-</span> fa<span class="sc">*</span>(i<span class="dv">-1</span>) <span class="sc">+</span> ki</span>
+<span id="cb10-78"><a href="#cb10-78" tabindex="-1"></a>                        jj[counter] <span class="ot">&lt;-</span> fa<span class="sc">*</span>(i<span class="dv">-1</span>) <span class="sc">+</span> kj</span>
+<span id="cb10-79"><a href="#cb10-79" tabindex="-1"></a>                        val[counter] <span class="ot">&lt;-</span>Q.i[ki,kj]</span>
+<span id="cb10-80"><a href="#cb10-80" tabindex="-1"></a>                        counter <span class="ot">&lt;-</span> counter <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb10-81"><a href="#cb10-81" tabindex="-1"></a>                    }</span>
+<span id="cb10-82"><a href="#cb10-82" tabindex="-1"></a>                }     </span>
+<span id="cb10-83"><a href="#cb10-83" tabindex="-1"></a>            }</span>
+<span id="cb10-84"><a href="#cb10-84" tabindex="-1"></a>        }</span>
+<span id="cb10-85"><a href="#cb10-85" tabindex="-1"></a>        <span class="cf">if</span>(n<span class="sc">&lt;=</span><span class="dv">2</span>){</span>
+<span id="cb10-86"><a href="#cb10-86" tabindex="-1"></a>            Q.i <span class="ot">&lt;-</span> Q<span class="fl">.1</span></span>
+<span id="cb10-87"><a href="#cb10-87" tabindex="-1"></a>        }</span>
+<span id="cb10-88"><a href="#cb10-88" tabindex="-1"></a>        <span class="cf">for</span>(ki <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>fa){</span>
+<span id="cb10-89"><a href="#cb10-89" tabindex="-1"></a>            <span class="cf">for</span>(kj <span class="cf">in</span> ki<span class="sc">:</span>fa){</span>
+<span id="cb10-90"><a href="#cb10-90" tabindex="-1"></a>                ii[counter] <span class="ot">&lt;-</span> fa<span class="sc">*</span>(n<span class="dv">-1</span>) <span class="sc">+</span> ki</span>
+<span id="cb10-91"><a href="#cb10-91" tabindex="-1"></a>                jj[counter] <span class="ot">&lt;-</span> fa<span class="sc">*</span>(n<span class="dv">-1</span>) <span class="sc">+</span> kj</span>
+<span id="cb10-92"><a href="#cb10-92" tabindex="-1"></a>                val[counter] <span class="ot">&lt;-</span>Q.i[ki<span class="sc">+</span>fa,kj<span class="sc">+</span>fa]</span>
+<span id="cb10-93"><a href="#cb10-93" tabindex="-1"></a>                counter <span class="ot">&lt;-</span> counter <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb10-94"><a href="#cb10-94" tabindex="-1"></a>            }</span>
+<span id="cb10-95"><a href="#cb10-95" tabindex="-1"></a>        }    </span>
+<span id="cb10-96"><a href="#cb10-96" tabindex="-1"></a>        Q <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">sparseMatrix</span>(<span class="at">i   =</span> ii,</span>
+<span id="cb10-97"><a href="#cb10-97" tabindex="-1"></a>                                  <span class="at">j    =</span> jj,</span>
+<span id="cb10-98"><a href="#cb10-98" tabindex="-1"></a>                                  <span class="at">x    =</span> val,</span>
+<span id="cb10-99"><a href="#cb10-99" tabindex="-1"></a>                                  <span class="at">dims =</span> <span class="fu">c</span>(fa<span class="sc">*</span>n, fa<span class="sc">*</span>n), <span class="at">symmetric=</span><span class="cn">TRUE</span>)</span>
+<span id="cb10-100"><a href="#cb10-100" tabindex="-1"></a>        </span>
+<span id="cb10-101"><a href="#cb10-101" tabindex="-1"></a>        A <span class="ot">&lt;-</span>  Matrix<span class="sc">::</span><span class="fu">sparseMatrix</span>(<span class="at">i   =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
+<span id="cb10-102"><a href="#cb10-102" tabindex="-1"></a>                                   <span class="at">j    =</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="dv">1</span>,<span class="at">to=</span>n<span class="sc">*</span>fa,<span class="at">by=</span>fa),</span>
+<span id="cb10-103"><a href="#cb10-103" tabindex="-1"></a>                                   <span class="at">x    =</span> <span class="fu">rep</span>(<span class="dv">1</span>,n),</span>
+<span id="cb10-104"><a href="#cb10-104" tabindex="-1"></a>                                   <span class="at">dims =</span> <span class="fu">c</span>(n, fa<span class="sc">*</span>n))</span>
+<span id="cb10-105"><a href="#cb10-105" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">Q=</span>Q,<span class="at">A=</span>A))    </span>
+<span id="cb10-106"><a href="#cb10-106" tabindex="-1"></a>    }</span>
+<span id="cb10-107"><a href="#cb10-107" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># ------------ DATA ----------------------------------------------------------</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.3</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">1001</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">abs</span>(x <span class="sc">-</span> <span class="fl">0.5</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">matern.covariance</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu, <span class="at">sigma =</span> sigma)</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu, <span class="at">sigma =</span> sigma, <span class="at">deriv =</span> <span class="dv">1</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>y3 <span class="ot">&lt;-</span> <span class="fu">matern.derivative</span>(h, <span class="at">kappa =</span> kappa, <span class="at">nu =</span> nu, <span class="at">sigma =</span> sigma, <span class="at">deriv =</span> <span class="dv">2</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>y4 <span class="ot">&lt;-</span> <span class="fu">matern.p</span>(<span class="at">s =</span> x, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> kappa, <span class="at">p =</span> <span class="dv">0</span>, <span class="at">alpha =</span> alpha)</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>y5 <span class="ot">&lt;-</span> <span class="fu">matern.p</span>(<span class="at">s =</span> x, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> kappa, <span class="at">p =</span> p, <span class="at">alpha =</span> alpha)</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>y6 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(x, <span class="cf">function</span>(si) <span class="fu">matern.p.joint</span>(<span class="at">s =</span> si, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> kappa, <span class="at">p =</span> p, <span class="at">alpha =</span> alpha)[<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>y7 <span class="ot">&lt;-</span> <span class="fu">matern.p.deriv</span>(<span class="at">s =</span> x, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> kappa, <span class="at">p =</span> p, <span class="at">alpha =</span> alpha, <span class="at">deriv =</span> <span class="dv">1</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>y8 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(x, <span class="cf">function</span>(si) <span class="fu">matern.p.joint</span>(<span class="at">s =</span> si, <span class="at">t =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> kappa, <span class="at">p =</span> p, <span class="at">alpha =</span> alpha)[<span class="dv">2</span>,<span class="dv">2</span>])</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co"># ------------ SCALING -------------------------------------------------------</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>s1 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y1))</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>s2 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y2))</span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>s3 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y3))</span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>s4 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y4))</span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>s5 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y5))</span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>s6 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y6))</span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>s7 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y7))</span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>s8 <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(y8))</span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>z1 <span class="ot">&lt;-</span> y1 <span class="sc">/</span> s1</span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>z2 <span class="ot">&lt;-</span> y2 <span class="sc">/</span> s2</span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>z3 <span class="ot">&lt;-</span> y3 <span class="sc">/</span> s3</span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>z4 <span class="ot">&lt;-</span> y4 <span class="sc">/</span> s4</span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>z5 <span class="ot">&lt;-</span> y5 <span class="sc">/</span> s5</span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>z6 <span class="ot">&lt;-</span> y6 <span class="sc">/</span> s6</span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>z7 <span class="ot">&lt;-</span> y7 <span class="sc">/</span> s7</span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>z8 <span class="ot">&lt;-</span> y8 <span class="sc">/</span> s8</span>
+<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a></span>
+<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a><span class="co"># ------------ PLOT ----------------------------------------------------------</span></span>
+<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a></span>
+<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a><span class="fu">plot_ly</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-43"><a href="#cb11-43" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">0</span>, <span class="at">z =</span> <span class="sc">~</span>z1,</span>
+<span id="cb11-44"><a href="#cb11-44" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-45"><a href="#cb11-45" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;Matérn (1/&quot;</span>, <span class="fu">round</span>(s1, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-46"><a href="#cb11-46" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-47"><a href="#cb11-47" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-48"><a href="#cb11-48" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">z =</span> <span class="sc">~</span>z2,</span>
+<span id="cb11-49"><a href="#cb11-49" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-50"><a href="#cb11-50" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;Matérn&#39; (1/&quot;</span>, <span class="fu">round</span>(s2, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-51"><a href="#cb11-51" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-52"><a href="#cb11-52" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-53"><a href="#cb11-53" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">2</span>, <span class="at">z =</span> <span class="sc">~</span>z3,</span>
+<span id="cb11-54"><a href="#cb11-54" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-55"><a href="#cb11-55" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;Matérn&#39;&#39; (1/&quot;</span>, <span class="fu">round</span>(s3, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-56"><a href="#cb11-56" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-57"><a href="#cb11-57" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-58"><a href="#cb11-58" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">3</span>, <span class="at">z =</span> <span class="sc">~</span>z4,</span>
+<span id="cb11-59"><a href="#cb11-59" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-60"><a href="#cb11-60" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;matern.0 (1/&quot;</span>, <span class="fu">round</span>(s4, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-61"><a href="#cb11-61" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-62"><a href="#cb11-62" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-63"><a href="#cb11-63" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">4</span>, <span class="at">z =</span> <span class="sc">~</span>z5,</span>
+<span id="cb11-64"><a href="#cb11-64" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-65"><a href="#cb11-65" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;matern.p (1/&quot;</span>, <span class="fu">round</span>(s5, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-66"><a href="#cb11-66" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-67"><a href="#cb11-67" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-68"><a href="#cb11-68" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">5</span>, <span class="at">z =</span> <span class="sc">~</span>z6,</span>
+<span id="cb11-69"><a href="#cb11-69" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-70"><a href="#cb11-70" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;matern.p joint (1/&quot;</span>, <span class="fu">round</span>(s6, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-71"><a href="#cb11-71" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-72"><a href="#cb11-72" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-73"><a href="#cb11-73" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">6</span>, <span class="at">z =</span> <span class="sc">~</span>z7,</span>
+<span id="cb11-74"><a href="#cb11-74" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-75"><a href="#cb11-75" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;matern.p&#39; (1/&quot;</span>, <span class="fu">round</span>(s7, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-76"><a href="#cb11-76" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-77"><a href="#cb11-77" tabindex="-1"></a>  <span class="fu">add_trace</span>(</span>
+<span id="cb11-78"><a href="#cb11-78" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span><span class="dv">7</span>, <span class="at">z =</span> <span class="sc">~</span>z8,</span>
+<span id="cb11-79"><a href="#cb11-79" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;scatter3d&quot;</span>, <span class="at">mode =</span> <span class="st">&quot;lines&quot;</span>,</span>
+<span id="cb11-80"><a href="#cb11-80" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">paste0</span>(<span class="st">&quot;matern.p joint&#39; (1/&quot;</span>, <span class="fu">round</span>(s8, <span class="dv">3</span>), <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb11-81"><a href="#cb11-81" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-82"><a href="#cb11-82" tabindex="-1"></a>  <span class="fu">layout</span>(</span>
+<span id="cb11-83"><a href="#cb11-83" tabindex="-1"></a>    <span class="at">scene =</span> <span class="fu">list</span>(</span>
+<span id="cb11-84"><a href="#cb11-84" tabindex="-1"></a>      <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">&quot;x&quot;</span>),</span>
+<span id="cb11-85"><a href="#cb11-85" tabindex="-1"></a>      <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">&quot;Curve index&quot;</span>),</span>
+<span id="cb11-86"><a href="#cb11-86" tabindex="-1"></a>      <span class="at">zaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">&quot;Scaled value [-1, 1]&quot;</span>)</span>
+<span id="cb11-87"><a href="#cb11-87" tabindex="-1"></a>    ),</span>
+<span id="cb11-88"><a href="#cb11-88" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="st">&quot;&lt;b&gt;Functions&lt;/b&gt;&quot;</span>))</span>
+<span id="cb11-89"><a href="#cb11-89" tabindex="-1"></a>  )</span></code></pre></div>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
+<div id="ref-Bolin2025linearcostexponentiallyconvergent"
+class="csl-entry">
+Bolin, David, Vaibhav Mehandiratta, and Alexandre B. Simas. 2025.
+<span>“Linear Cost and Exponentially Convergent Approximation of
+Gaussian Matérn Processes on Intervals.”</span> <a
+href="https://arxiv.org/abs/2410.13000">https://arxiv.org/abs/2410.13000</a>.
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTWF0w6lybiBGdW5jdGlvbnMiCmRhdGU6ICJMYXN0IG1vZGlmaWVkOiBgciBmb3JtYXQoU3lzLnRpbWUoKSwgJyVkLSVtLSVZLicpYCIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6CiAgICBtYXRoamF4OiAiaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9tYXRoamF4QDMvZXM1L3RleC1tbWwtY2h0bWwuanMiCiAgICBoaWdobGlnaHQ6IHB5Z21lbnRzCiAgICB0aGVtZTogZmxhdGx5CiAgICBjb2RlX2ZvbGRpbmc6IHNob3cgIyBjbGFzcy5zb3VyY2UgPSAiZm9sZC1oaWRlIiB0byBoaWRlIGNvZGUgYW5kIGFkZCBhIGJ1dHRvbiB0byBzaG93IGl0CiAgICBkZl9wcmludDogcGFnZWQKICAgIHRvYzogdHJ1ZQogICAgdG9jX2Zsb2F0OgogICAgICBjb2xsYXBzZWQ6IHRydWUKICAgICAgc21vb3RoX3Njcm9sbDogdHJ1ZQogICAgbnVtYmVyX3NlY3Rpb25zOiB0cnVlCiAgICBmaWdfY2FwdGlvbjogdHJ1ZQogICAgY29kZV9kb3dubG9hZDogdHJ1ZQogICAgY3NzOiB2aXN1YWwuY3NzCmFsd2F5c19hbGxvd19odG1sOiB0cnVlCmJpYmxpb2dyYXBoeTogCiAgLSByZWZlcmVuY2VzLmJpYgogIC0gZ3JhdGVmdWwtcmVmcy5iaWIKaGVhZGVyLWluY2x1ZGVzOgogIC0gXG5ld2NvbW1hbmR7XGFyfXtcbWF0aGJie1J9fQogIC0gXG5ld2NvbW1hbmR7XGxsYXZ9WzFde1xsZWZ0XHsjMVxyaWdodFx9fQogIC0gXG5ld2NvbW1hbmR7XHBhcmV9WzFde1xsZWZ0KCMxXHJpZ2h0KX0KICAtIFxuZXdjb21tYW5ke1xOY2FsfXtcbWF0aGNhbHtOfX0KICAtIFxuZXdjb21tYW5ke1xWY2FsfXtcbWF0aGNhbHtWfX0KICAtIFxuZXdjb21tYW5ke1xFY2FsfXtcbWF0aGNhbHtFfX0KICAtIFxuZXdjb21tYW5ke1xXY2FsfXtcbWF0aGNhbHtXfX0KLS0tCgpHbyBiYWNrIHRvIHRoZSBbQ29udGVudHNdKGFib3V0Lmh0bWwpIHBhZ2UuCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3IsIHB1cmwgPSBGQUxTRSwgZWNobyA9IEZBTFNFfQojIENyZWF0ZSBhIGNsaXBib2FyZCBidXR0b24gb24gdGhlIHJlbmRlcmVkIEhUTUwgcGFnZQpzb3VyY2UoaGVyZTo6aGVyZSgiY2xpcGJvYXJkLlIiKSk7IGNsaXBib2FyZApgYGAKCgpgYGB7ciwgcHVybCA9IEZBTFNFLCBjbGFzcy5zb3VyY2UgPSAiZm9sZC1oaWRlIn0KIyBTZXQgc2VlZCBmb3IgcmVwcm9kdWNpYmlsaXR5CnNldC5zZWVkKDE5ODIpIAojIFNldCBnbG9iYWwgb3B0aW9ucyBmb3IgYWxsIGNvZGUgY2h1bmtzCmtuaXRyOjpvcHRzX2NodW5rJHNldCgKICAjIERpc2FibGUgbWVzc2FnZXMgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgbWVzc2FnZSA9IEZBTFNFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IEZBTFNFLCAgICAKICAjIFNob3cgUiBjb2RlIHdpdGhpbiBjb2RlIGNodW5rcyBpbiBvdXRwdXQKICBlY2hvID0gVFJVRSwgICAgICAgIAogICMgSW5jbHVkZSBib3RoIFIgY29kZSBhbmQgaXRzIHJlc3VsdHMgaW4gb3V0cHV0CiAgaW5jbHVkZSA9IFRSVUUsICAgICAKICAjIEV2YWx1YXRlIFIgY29kZSBjaHVua3MKICBldmFsID0gRkFMU0UsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KYGBgCgoKCmBgYHtyfQojIHJlbW90ZXM6Omluc3RhbGxfZ2l0aHViKCJkYXZpZGJvbGluL3JzcGRlIiwgcmVmID0gImRldmVsIikKIyByZW1vdGVzOjppbnN0YWxsX2dpdGh1YigiZGF2aWRib2xpbi9tZXRyaWNncmFwaCIsIHJlZiA9ICJkZXZlbCIpCmxpYnJhcnkoclNQREUpCmxpYnJhcnkoTWV0cmljR3JhcGgpCmxpYnJhcnkoZ3JhdGVmdWwpCmxpYnJhcnkoTWF0cml4KQoKbGlicmFyeShnZ3Bsb3QyKQpsaWJyYXJ5KHJlc2hhcGUyKQpsaWJyYXJ5KHBsb3RseSkKYGBgCgoKVGhlIE1hdMOpcm4gY292YXJpYW5jZSBmdW5jdGlvbiBpcyBnaXZlbiBieQoKJCQKXHZhcnJobyhoOyBcbnUsIFxrYXBwYSwgXHNpZ21hKT1cZGZyYWN7XHNpZ21hXnsyfX17Ml57XG51LTF9IFxHYW1tYShcbnUpfShca2FwcGF8aHwpXlxudSBLX1xudShca2FwcGF8aHwpLFxxdWFkIFxzaWdtYV4yID0gXGRmcmFje1xHYW1tYShcbnUpfXtcR2FtbWEoXG51KzEvMikoNFxwaSleezEvMn1ca2FwcGFeezJcbnV9XHRhdV4yfQpcdGFnezF9ClxsYWJlbHttYXRlcm5jb3ZhcmlhbmNlfQokJAoKYW5kIGl0IGlzIGNvZGVkIGJlbG93IGFzIGBtYXRlcm4uY292YXJpYW5jZSgpYC4KCmBgYHtyfQptYXRlcm4uY292YXJpYW5jZSA8LSBmdW5jdGlvbihoLCBrYXBwYSwgbnUsIHNpZ21hKSB7CiAgICBpZiAobnUgPT0gMSAvIDIpIHsKICAgICAgICBDIDwtIHNpZ21hXjIgKiBleHAoLWthcHBhICogYWJzKGgpKQogICAgfSBlbHNlIHsKICAgICAgICBDIDwtIChzaWdtYV4yIC8gKDJeKG51IC0gMSkgKiBnYW1tYShudSkpKSAqCiAgICAgICAgICAgICgoa2FwcGEgKiBhYnMoaCkpXm51KSAqIGJlc3NlbEsoa2FwcGEgKiBhYnMoaCksIG51KQogICAgICAgIENbaCA9PSAwXSA8LSBzaWdtYV4yCiAgICB9CiAgICByZXR1cm4oQykKfQpgYGAKClRoZSBkZXJpdmF0aXZlcyBvZiB0aGUgTWF0w6lybiBjb3ZhcmlhbmNlIGZ1bmN0aW9uIGNhbiBiZSBjb21wdXRlZCB1c2luZyB0aGUgZm9sbG93aW5nIHJlY3Vyc2l2ZSByZWxhdGlvbi4gRm9yIGV4YW1wbGUsIHRoZSBmaXJzdCBkZXJpdmF0aXZlIGlzIGdpdmVuIGJ5CgokJApcdmFycmhvJyhoOyBcbnUsIFxrYXBwYSwgXHNpZ21hKSA9IApcYmVnaW57Y2FzZXN9CjAsICYgaCA9IDAgXFwKLVxkZnJhY3tca2FwcGFeMn17MihcbnUgLSAxKX0gaCBcdmFycmhvKGg7IFxudSAtIDEsIFxrYXBwYSwgXHNpZ21hKSwgJiBoIFxuZXEgMApcZW5ke2Nhc2VzfQpcdGFnezJ9ClxsYWJlbHttYXRlcm5fZGVyaXZhdGl2ZX0KJCQKCmFuZCBpdCBjYW4gYmUgb2J0YWluZWQgYnkgc2V0dGluZyBgZGVyaXYgPSAxYCBpbiB0aGUgZnVuY3Rpb24gYG1hdGVybi5kZXJpdmF0aXZlKClgIGJlbG93LgoKYGBge3J9Cm1hdGVybi5kZXJpdmF0aXZlIDwtIGZ1bmN0aW9uKGgsIGthcHBhLCBudSwgc2lnbWEsIGRlcml2ID0gMSkgCnsKICAgIGlmKGRlcml2ID09IDApIHsKICAgICAgICBDID0gbWF0ZXJuLmNvdmFyaWFuY2UoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSwgc2lnbWEgPSBzaWdtYSkKICAgICAgICByZXR1cm4oQykKICAgIH0gZWxzZSBpZiAoZGVyaXYgPT0gMSkgewogICAgICAgIEMgPSBoICogbWF0ZXJuLmNvdmFyaWFuY2UoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSAtIDEsIHNpZ21hID0gc2lnbWEpCiAgICAgICAgQ1toID09IDBdID0gMAogICAgICAgIHJldHVybigtKGthcHBhXjIvKDIgKiAobnUgLSAxKSkpICogQykKICAgIH0KICAgIGVsc2UgaWYgKGRlcml2ID09IDIpIHsKICAgICAgICBDID0gbWF0ZXJuLmNvdmFyaWFuY2UoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSAtIDEsIHNpZ21hID0gc2lnbWEpICsgCiAgICAgICAgICAgIGggKiBtYXRlcm4uZGVyaXZhdGl2ZShoLCBrYXBwYSA9IGthcHBhLCBudSA9IG51IC0gMSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzaWdtYSA9IHNpZ21hLCBkZXJpdiA9IDEpCiAgICAgICAgcmV0dXJuKC0oa2FwcGFeMi8oMiAqIChudSAtIDEpKSkgKiBDKQogICAgfQogICAgZWxzZSB7CiAgICAgICAgQyA9IChkZXJpdiAtIDEpICogbWF0ZXJuLmRlcml2YXRpdmUoaCwga2FwcGEgPSBrYXBwYSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbnUgPSBudSAtIDEsIHNpZ21hID0gc2lnbWEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRlcml2ID0gZGVyaXYgLSAyKSArIAogICAgICAgICAgICBoICogbWF0ZXJuLmRlcml2YXRpdmUoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSAtIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDEsIHNpZ21hID0gc2lnbWEsIGRlcml2ID0gZGVyaXYgLSAxKQogICAgICAgIHJldHVybigtKGthcHBhXjIvKDIgKiAobnUgLSAxKSkpICogQykKICAgIH0KICAgIAp9CmBgYAoKRnJvbSBbQEJvbGluMjAyNWxpbmVhcmNvc3RleHBvbmVudGlhbGx5Y29udmVyZ2VudCwgUHJvcG9zaXRpb24gMV0sIHdlIGhhdmUgdGhlIGZvbGxvd2luZyBkZWNvbXBvc2l0aW9uCgokJApcdmFycmhvX21eXGFscGhhKGgpPVx2YXJyaG9fe20sIDB9XlxhbHBoYShoKStcc3VtX3tpPTF9Xm0gXHZhcnJob197bSwgaX1eXGFscGhhKGgpClx0YWd7M30KXGxhYmVse21hdGVybl9wX2RlY29tcG9zaXRpb259CiQkCgp3aGVyZQoKJCQKXHZhcnJob197bSwgMH1eXGFscGhhKGgpPWsgXHNpZ21hXjIgXGNkb3QgXGJlZ2lue2Nhc2VzfVxkZnJhY3tjX1xhbHBoYSBcc3FydHs0IFxwaX19e1xrYXBwYX0gMV97W2g9MF19LCAmIDA8XGFscGhhPDEgXFwgXHZhcnJob1xsZWZ0KGggO1xsZmxvb3JcYWxwaGFccmZsb29yLVxmcmFjezF9ezJ9LCBca2FwcGEsIFxmcmFje2NfXGFscGhhfXtjX3tcbGZsb29yXGFscGhhXHJmbG9vcn19XHJpZ2h0KSwgJiBcYWxwaGEgXGdlcSAxXGVuZHtjYXNlc30KXHRhZ3s0fQpcbGFiZWx7bWF0ZXJuXzBfY292YXJpYW5jZX0KJCQKCmFuZAoKJCQKXHZhcnJob197bSwgaX1eXGFscGhhKGgpPXJfaSBcc2lnbWFeMiBcY2RvdCBcYmVnaW57Y2FzZXN9XHZhcnJob1xsZWZ0KGggOyBcZnJhY3sxfXsyfSwgXGthcHBhX2ksIFxmcmFje2NfXGFscGhhIFxzcXJ0e1xwaX19e1xzcXJ0ezEtcF9pfX1ccmlnaHQpLCAmIDA8XGFscGhhPDEgXFwgXGZyYWN7MX17cF9pXntcbGZsb29yXGFscGhhXHJmbG9vcn19IFx2YXJyaG9cbGVmdChoIDsgXGZyYWN7MX17Mn0sIFxrYXBwYV9pLCBcZnJhY3tjX1xhbHBoYSBcc3FydHtccGl9fXtcc3FydHsxLXBfaX19XHJpZ2h0KS1cc3VtX3tqPTF9XntcbGZsb29yXGFscGhhXHJmbG9vcn0gXGZyYWN7MX17cF9pXntcbGZsb29yXGFscGhhXHJmbG9vcisxLWp9fSBcdmFycmhvXGxlZnQoaCA7IGotXGZyYWN7MX17Mn0sIFxrYXBwYSwgXGZyYWN7Y19cYWxwaGF9e2Nfan1ccmlnaHQpLCAmIFxhbHBoYSBcZ2VxIDFcZW5ke2Nhc2VzfQpcdGFnezV9ClxsYWJlbHttYXRlcm5fcF9jb3ZhcmlhbmNlfQokJAoKYW5kICRjX2E6PVxHYW1tYShhKSAvIFxHYW1tYShhLTEgLyAyKSwgXGthcHBhX2k9XGthcHBhIFxzcXJ0ezEtcF9pfSQsIGFuZCAkXHZhcnJobyQgaXMgdGhlIE1hdMOpcm4gY292YXJpYW5jZSBcZXFyZWZ7bWF0ZXJuY292YXJpYW5jZX0uCgpGdW5jdGlvbiBgbWF0ZXJuLnAoKWAgaW1wbGVtZW50cyAKCiQkClxkZnJhY3tcdmFycmhvX3ttLCBpfV5cYWxwaGEoaCl9e3JfaVxzaWdtYV4yfQokJAphcyBnaXZlbiBiZWxvdy4gRnVuY3Rpb24gYG1hdGVybi5wLmRlcml2KClgIGltcGxlbWVudHMgdGhlIGRlcml2YXRpdmVzIG9mIHRoaXMgZnVuY3Rpb24uCgpgYGB7cn0KbWF0ZXJuLnAgPC0gZnVuY3Rpb24ocyx0LGthcHBhLHAsYWxwaGEpewogICAgaCA8LSBzLXQKICAgIGlmKHA9PTApewogICAgICAgIHJldHVybihtYXRlcm4uY292YXJpYW5jZShoLCBrYXBwYSA9IGthcHBhLCBudSA9IGFscGhhIC0gMS8yLCBzaWdtYSA9IDEpKQogICAgfSBlbHNlIHsKICAgICAgICBjYSA8LSBnYW1tYShhbHBoYSkvZ2FtbWEoYWxwaGEtMC41KQogICAgICAgIGZhIDwtIGZsb29yKGFscGhhKQogICAgICAgIGtwIDwtIGthcHBhKnNxcnQoMS1wKQogICAgICAgIG91dCA8LSBtYXRlcm4uY292YXJpYW5jZShoLCBrYXBwYSA9IGtwLCBudSA9IDEvMiwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpZ21hID0gc3FydChjYSpzcXJ0KHBpKS9zcXJ0KDEtcCkpKQogICAgICAgIGlmKGFscGhhIDwgMSkgewogICAgICAgICAgICByZXR1cm4ob3V0KQogICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgIAogICAgICAgICAgICBmb3IoaiBpbiAxOmZhKSB7CiAgICAgICAgICAgICAgICBvdXQgPC0gb3V0IC0gbWF0ZXJuLmNvdmFyaWFuY2UoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBqLTEvMiwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSBzcXJ0KGNhKmdhbW1hKGotMC41KS9nYW1tYShqKSkpL3BeKDEgLSBqKQogICAgICAgICAgICB9CiAgICAgICAgICAgIG91dCA8LSBvdXQvcF5mYQogICAgICAgICAgICByZXR1cm4ob3V0KSAgICAKICAgICAgICB9CiAgICB9Cn0KCm1hdGVybi5wLmRlcml2IDwtIGZ1bmN0aW9uKHMsdCxrYXBwYSxwLGFscGhhLGRlcml2ID0gMCl7CiAgICBoIDwtIHMtdAogICAgaWYoZGVyaXYgPT0wKXsKICAgICAgICByZXR1cm4obWF0ZXJuLnAocyx0LGthcHBhLHAsYWxwaGEpKQogICAgfSBlbHNlIHsKICAgICAgICBpZihwPT0wKXsKICAgICAgICAgICAgcmV0dXJuKG1hdGVybi5kZXJpdmF0aXZlKGgsIGthcHBhID0ga2FwcGEsIG51ID0gYWxwaGEgLSAxLzIsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSAxLCBkZXJpdiA9IGRlcml2KSkKICAgICAgICB9IGVsc2UgewogICAgICAgICAgICBjYSA8LSBnYW1tYShhbHBoYSkvZ2FtbWEoYWxwaGEtMC41KQogICAgICAgICAgICBmYSA8LSBmbG9vcihhbHBoYSkKICAgICAgICAgICAga3AgPC0ga2FwcGEqc3FydCgxLXApCiAgICAgICAgICAgIG91dCA8LSBtYXRlcm4uZGVyaXZhdGl2ZShoLCBrYXBwYSA9IGtwLCBudSA9ICAxLzIsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSBzcXJ0KGNhKnNxcnQocGkpL3NxcnQoMS1wKSksIGRlcml2ID0gZGVyaXYpCiAgICAgICAgICAgIGlmKGFscGhhIDwgMSkgewogICAgICAgICAgICAgICAgcmV0dXJuKG91dCkKICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIG91dCA8LSBvdXQvcF5mYQogICAgICAgICAgICAgICAgZm9yKGogaW4gMTpmYSkgewogICAgICAgICAgICAgICAgICAgIG91dCA8LSBvdXQgLSBtYXRlcm4uZGVyaXZhdGl2ZShoLCBrYXBwYSA9IGthcHBhLCBudSA9IGotMS8yLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSBzcXJ0KGNhKmdhbW1hKGotMC41KS9nYW1tYShqKSksIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkZXJpdiA9IGRlcml2KS9wXihmYSArIDEgLSBqKQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CiAgICAgICAgICAgIHJldHVybihvdXQpCiAgICAgICAgfSAgICAKICAgIH0KICAgIAp9CmBgYAoKCkZ1bmN0aW9uIGBtYXRlcm4ucC5qb2ludCgpYCBjb21wdXRlcyB0aGUgam9pbnQgY292YXJpYW5jZSBtYXRyaXggb2YgdGhlIHByb2Nlc3MgYW5kIGl0cyBkZXJpdmF0aXZlcyB1cCB0byBvcmRlciBgZmxvb3IoYWxwaGEpYCBmb3IgdGhlIHNoaWZ0ZWQgTWF0w6lybiBjb3ZhcmlhbmNlLiBUaGF0IGlzLCBpdCBjb21wdXRlcyAKCiQkClxtYXRoYmZ7cn1faTogXG1hdGhiYntSfSBcdGltZXMgXG1hdGhiYntSfSBcbWFwc3RvIFxtYXRoYmJ7Un1ee1xsY2VpbFxhbHBoYVxyY2VpbFx0aW1lcyBcbGNlaWxcYWxwaGFccmNlaWx9LCBccXVhZCBcbWF0aGJme3J9X2lcbGVmdCh0XzEsIHRfMlxyaWdodCk9XGxlZnRbXGZyYWN7XHBhcnRpYWxee2ktMX19e1xwYXJ0aWFsIHRfMl57aS0xfX0gXGZyYWN7XHBhcnRpYWxee2otMX19e1xwYXJ0aWFsIHRfMV57ai0xfX0gXGRmcmFje1x2YXJyaG9fe20sIGl9XlxhbHBoYVxsZWZ0KHRfMS10XzJccmlnaHQpfXtyX2lcc2lnbWFeMn1ccmlnaHRdX3tpIGogXGluXHsxLDIsIFxsZG90cywgXGxjZWlsXGFscGhhXHJjZWlsXH19Clx0YWd7Mn0KXGxhYmVse3JfbWF0cml4fQokJAp3aGljaCBpcyB0aGUgbXVsdGl2YXJpYXRlIGNvdmFyaWFuY2UgZnVuY3Rpb24gb2YgJCh1X2kodCksIHVfaScodCksIFxsZG90cywgdV9pXnsoXGxmbG9vclxhbHBoYVxyZmxvb3IpfSh0KSkkIGFuZCAkdV9pJCBpcyBhIHNoaWZ0ZWQgV2hpdHRsZeKAk01hdMOpcm4gYnJpZGdlIHByb2Nlc3Mgd2l0aCBjb3ZhcmlhbmNlIGZ1bmN0aW9uICRcdmFycmhvX3ttLCBpfV5cYWxwaGEoaCkvKHJfaVxzaWdtYV4yKSQuCgpgYGB7cn0KI0pvaW50IGNvdmFyaWFuY2Ugb2YgcHJvY2VzcyBhbmQgZGVyaXZhdGl2ZSBmb3Igc2hpZnRlZCBNYXRlcm4KbWF0ZXJuLnAuam9pbnQgPC0gZnVuY3Rpb24ocyx0LGthcHBhLHAsIGFscGhhID0gMSl7CiAgICAKICAgIGlmKGFscGhhJSUxID09IDApIHsKICAgICAgICBmYSA8LSBhbHBoYQogICAgfSBlbHNlIHsKICAgICAgICBmYSA8LSBmbG9vcihhbHBoYSkgKyAxICAgIAogICAgfQogICAgbWF0IDwtIG1hdHJpeCgwLCBucm93ID0gZmEsIG5jb2wgPSBmYSkKICAgIGZvcihpIGluIDE6ZmEpIHsKICAgICAgICBmb3IoaiBpbiBpOmZhKSB7CiAgICAgICAgICAgIGlmKGk9PWopIHsKICAgICAgICAgICAgICAgIG1hdFtpLGldIDwtICgoLTEpXihpLTEpKSptYXRlcm4ucC5kZXJpdihzLHQsa2FwcGEscCxhbHBoYSwgZGVyaXYgPSAyKihpLTEpKQogICAgICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAgICAgdG1wIDwtIG1hdGVybi5wLmRlcml2KHMsdCxrYXBwYSxwLGFscGhhLCBkZXJpdiA9IGktMSArIGogLSAxKQogICAgICAgICAgICAgICAgbWF0W2ksal0gPC0gKC0xKV4oai0xKSp0bXAKICAgICAgICAgICAgICAgIG1hdFtqLGldIDwtICgtMSleKGktMSkqdG1wCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9CiAgICAKICAgIHJldHVybihtYXQpCn0KYGBgCgoKYGBge3J9Cm1hdDEgPC0gbWF0ZXJuLnAuam9pbnQocyA9IDAuNiwgdCA9IDAuNSwga2FwcGEgPSAxMCwgcCA9IDAuMywgYWxwaGEgPSAyKQptYXQyIDwtIG1hdGVybi5wLmpvaW50KHMgPSAwLjYsIHQgPSAwLjUsIGthcHBhID0gMTAsIHAgPSAwLjMsIGFscGhhID0gMykKbWF0MQptYXQyCmBgYApgYGB7cn0KZXhwX3ByZWNpc2lvbiA8LSBmdW5jdGlvbihsb2MsIGthcHBhLCBib3VuZGFyeSA9ICJmcmVlIikgewogICAgbiA8LSBsZW5ndGgobG9jKQogICAgbCA8LSBkaWZmKGxvYykKICAgIAogICAgIyBQcmVjb21wdXRlIHJldXNhYmxlIHRlcm1zCiAgICBhIDwtIGV4cCgtMiAqIGthcHBhICogbCkKICAgIGIgPC0gMSAtIGEKICAgIAogICAgIyBJbml0aWFsaXplIG1hdHJpeCBRIGVmZmljaWVudGx5CiAgICBRIDwtIE1hdHJpeCgwLCBucm93ID0gbiwgbmNvbCA9IG4pCiAgICAKICAgICMgU2V0IGRpYWdvbmFsIGVsZW1lbnRzCiAgICBkaWFnKFEpWzE6KG4tMSldIDwtIDEvMiArIGEvYgogICAgZGlhZyhRKVsyOm5dIDwtIGRpYWcoUSlbMjpuXSArIDEvMiArIGEvYgogICAgCiAgICAjIFNldCBvZmYtZGlhZ29uYWwgZWxlbWVudHMKICAgICMgIGluZGljZXMgPC0gYyh3aGljaChyb3coUSkgPT0gY29sKFEpICsgMSksIHdoaWNoKHJvdyhRKSA9PSBjb2woUSkgLSAxKSkKICAgICMgb2ZmX2RpYWdfdmFsdWVzIDwtIC1leHAoLWthcHBhICogbCkgL2IKICAgICMgUVtpbmRpY2VzXSA8LSBvZmZfZGlhZ192YWx1ZXMKICAgIAogICAgCiAgICByb3dfaW5kaWNlcyA8LSBzZXFfbGVuKG4gLSAxKQogICAgY29sX2luZGljZXMgPC0gcm93X2luZGljZXMgKyAxICAjIE9mZnNldHMgZm9yIG9mZi1kaWFnb25hbCBlbGVtZW50cwogICAgCiAgICAjIENvbXB1dGUgdGhlIG9mZi1kaWFnb25hbCB2YWx1ZXMKICAgIG9mZl9kaWFnX3ZhbHVlcyA8LSAtZXhwKC1rYXBwYSAqIGwpL2IKICAgIAogICAgIyBTZXQgdGhlIG9mZi1kaWFnb25hbCBlbGVtZW50cyBpbiBtYXRyaXggUQogICAgUVtjYmluZChyb3dfaW5kaWNlcywgY29sX2luZGljZXMpXSA8LSBvZmZfZGlhZ192YWx1ZXMKICAgIFFbY2JpbmQoY29sX2luZGljZXMsIHJvd19pbmRpY2VzKV0gPC0gb2ZmX2RpYWdfdmFsdWVzCiAgICAKICAgICMgQWRqdXN0IGJvdW5kYXJ5IGNvbmRpdGlvbnMgaWYgcmVxdWlyZWQKICAgIGlmIChib3VuZGFyeSA9PSAiZnJlZSIpIHsKICAgICAgICBRWzEsIDFdIDwtIFFbMSwgMV0gKyAwLjUKICAgICAgICBRW24sIG5dIDwtIFFbbiwgbl0gKyAwLjUKICAgIH0KICAgIAogICAgcmV0dXJuKDIgKiBrYXBwYSAqIFFbXSkKfQpgYGAKCgpgYGB7cn0KIyBFeGFtcGxlIHVzYWdlIG9mIGV4cF9wcmVjaXNpb24gZnVuY3Rpb24KbG9jIDwtIHNlcSgwLCAxLCBsZW5ndGgub3V0ID0gMTApCmthcHBhIDwtIDUKUV9tYXRyaXggPC0gZXhwX3ByZWNpc2lvbihsb2MsIGthcHBhLCBib3VuZGFyeSA9ICJmcmVlIikKcHJpbnQoUV9tYXRyaXgpCmBgYAoKCmBgYHtyfQptYXRlcm4ucC5wcmVjaXNpb24gPC0gZnVuY3Rpb24obG9jLGthcHBhLHAsZXF1YWxseV9zcGFjZWQgPSBGQUxTRSwgYWxwaGEgPSAxKSB7CiAgICAKICAgIG4gPC0gbGVuZ3RoKGxvYykKICAgIGlmKGFscGhhPT0xKSB7CiAgICAgICAgUSA8LSBleHBfcHJlY2lzaW9uKGxvYyxrYXBwYSkvKDIqa2FwcGEpCiAgICAgICAgQSA8LSBEaWFnb25hbChuKQogICAgICAgIAogICAgICAgIHJldHVybihsaXN0KFE9USxBPUEpKQogICAgfSBlbHNlIHsKICAgICAgICBpZihhbHBoYSUlMSA9PSAwKSB7CiAgICAgICAgICAgIGZhIDwtIGFscGhhCiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgZmEgPC0gZmxvb3IoYWxwaGEpICsgMSAgICAKICAgICAgICB9CiAgICAgICAgCiAgICAgICAgaWYoZmEgPT0gMSkgewogICAgICAgICAgICBOIDwtIG4gICsgbiAtIDEgCiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgTiA8LSBuKmZhXjIgKyAobi0xKSpmYV4yIC0gbipmYSooZmEgLTEpLzIgICAgCiAgICAgICAgfQogICAgICAgIAogICAgICAgIGlpIDwtIG51bWVyaWMoTikKICAgICAgICBqaiA8LSBudW1lcmljKE4pCiAgICAgICAgdmFsIDwtIG51bWVyaWMoTikKICAgICAgICAKICAgICAgICBpZihlcXVhbGx5X3NwYWNlZCl7CiAgICAgICAgICAgIFEuMSA8LSBzb2x2ZShyYmluZChjYmluZChtYXRlcm4ucC5qb2ludChsb2NbMV0sbG9jWzFdLGthcHBhLHAsYWxwaGEpLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1hdGVybi5wLmpvaW50KGxvY1sxXSxsb2NbMSsxXSxrYXBwYSxwLGFscGhhKSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjYmluZChtYXRlcm4ucC5qb2ludChsb2NbMSsxXSxsb2NbMV0sa2FwcGEscCxhbHBoYSksIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF0ZXJuLnAuam9pbnQobG9jWzErMV0sbG9jWzErMV0sa2FwcGEscCxhbHBoYSkpKSkKICAgICAgICAgICAgCiAgICAgICAgICAgIFEuaSA8LSBzb2x2ZShyYmluZChjYmluZChtYXRlcm4ucC5qb2ludChsb2NbMV0sbG9jWzFdLGthcHBhLHAsYWxwaGEpLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1hdGVybi5wLmpvaW50KGxvY1sxXSxsb2NbMl0sa2FwcGEscCxhbHBoYSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbMV0sbG9jWzNdLGthcHBhLHAsYWxwaGEpKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNiaW5kKG1hdGVybi5wLmpvaW50KGxvY1syXSxsb2NbMV0sa2FwcGEscCxhbHBoYSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbMl0sbG9jWzJdLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF0ZXJuLnAuam9pbnQobG9jWzJdLGxvY1szXSxrYXBwYSxwLGFscGhhKSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjYmluZChtYXRlcm4ucC5qb2ludChsb2NbM10sbG9jWzFdLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF0ZXJuLnAuam9pbnQobG9jWzNdLGxvY1syXSxrYXBwYSxwLGFscGhhKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1hdGVybi5wLmpvaW50KGxvY1szXSxsb2NbM10sa2FwcGEscCxhbHBoYSkpKSlbLWMoMTpmYSksLWMoMTpmYSldCiAgICAgICAgfQogICAgICAgIAogICAgICAgIAogICAgICAgIGZvcihpIGluIDE6bWF4KChuLTEpLDEpKXsKICAgICAgICAgICAgaWYoaT09MSl7CiAgICAgICAgICAgICAgICBpZighZXF1YWxseV9zcGFjZWQpewogICAgICAgICAgICAgICAgICAgIFEuMSA8LSBzb2x2ZShyYmluZChjYmluZChtYXRlcm4ucC5qb2ludChsb2NbaV0sbG9jW2ldLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbaV0sbG9jW2krMV0sa2FwcGEscCxhbHBoYSkpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjYmluZChtYXRlcm4ucC5qb2ludChsb2NbaSsxXSxsb2NbaV0sa2FwcGEscCxhbHBoYSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1hdGVybi5wLmpvaW50KGxvY1tpKzFdLGxvY1tpKzFdLGthcHBhLHAsYWxwaGEpKSkpCiAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICB9IAogICAgICAgICAgICAgICAgY291bnRlciA8LSAxCiAgICAgICAgICAgICAgICBmb3Ioa2kgaW4gMTpmYSkgewogICAgICAgICAgICAgICAgICAgIGZvcihraiBpbiBraTooMipmYSkpIHsKICAgICAgICAgICAgICAgICAgICAgICAgaWlbY291bnRlcl0gPC0ga2kKICAgICAgICAgICAgICAgICAgICAgICAgampbY291bnRlcl0gPC0ga2oKICAgICAgICAgICAgICAgICAgICAgICAgdmFsW2NvdW50ZXJdIDwtIFEuMVtraSxral0KICAgICAgICAgICAgICAgICAgICAgICAgY291bnRlciA8LSBjb3VudGVyICsgMQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIGlmKCFlcXVhbGx5X3NwYWNlZCl7CiAgICAgICAgICAgICAgICAgICAgUS5pIDwtIHNvbHZlKHJiaW5kKGNiaW5kKG1hdGVybi5wLmpvaW50KGxvY1tpLTFdLGxvY1tpLTFdLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbaS0xXSxsb2NbaV0sa2FwcGEscCxhbHBoYSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1hdGVybi5wLmpvaW50KGxvY1tpLTFdLGxvY1tpKzFdLGthcHBhLHAsYWxwaGEpKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY2JpbmQobWF0ZXJuLnAuam9pbnQobG9jW2ldLGxvY1tpLTFdLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbaV0sbG9jW2ldLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbaV0sbG9jW2krMV0sa2FwcGEscCxhbHBoYSkpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjYmluZChtYXRlcm4ucC5qb2ludChsb2NbaSsxXSxsb2NbaS0xXSxrYXBwYSxwLGFscGhhKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF0ZXJuLnAuam9pbnQobG9jW2krMV0sbG9jW2ldLGthcHBhLHAsYWxwaGEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYXRlcm4ucC5qb2ludChsb2NbaSsxXSxsb2NbaSsxXSxrYXBwYSxwLGFscGhhKSkpKVstYygxOmZhKSwtYygxOmZhKV0KICAgICAgICAgICAgICAgIH0gCiAgICAgICAgICAgICAgICAjIFFbKDIqbi0xKTooMipuKSwgKDIqbi0zKTooMipuKV0gPSBRLmlbMzo0LF0KICAgICAgICAgICAgICAgIGZvcihraSBpbiAxOmZhKXsKICAgICAgICAgICAgICAgICAgICBmb3Ioa2ogaW4ga2k6KDIqZmEpKXsKICAgICAgICAgICAgICAgICAgICAgICAgaWlbY291bnRlcl0gPC0gZmEqKGktMSkgKyBraQogICAgICAgICAgICAgICAgICAgICAgICBqaltjb3VudGVyXSA8LSBmYSooaS0xKSArIGtqCiAgICAgICAgICAgICAgICAgICAgICAgIHZhbFtjb3VudGVyXSA8LVEuaVtraSxral0KICAgICAgICAgICAgICAgICAgICAgICAgY291bnRlciA8LSBjb3VudGVyICsgMQogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIH0gICAgIAogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGlmKG48PTIpewogICAgICAgICAgICBRLmkgPC0gUS4xCiAgICAgICAgfQogICAgICAgIGZvcihraSBpbiAxOmZhKXsKICAgICAgICAgICAgZm9yKGtqIGluIGtpOmZhKXsKICAgICAgICAgICAgICAgIGlpW2NvdW50ZXJdIDwtIGZhKihuLTEpICsga2kKICAgICAgICAgICAgICAgIGpqW2NvdW50ZXJdIDwtIGZhKihuLTEpICsga2oKICAgICAgICAgICAgICAgIHZhbFtjb3VudGVyXSA8LVEuaVtraStmYSxraitmYV0KICAgICAgICAgICAgICAgIGNvdW50ZXIgPC0gY291bnRlciArIDEKICAgICAgICAgICAgfQogICAgICAgIH0gICAgCiAgICAgICAgUSA8LSBNYXRyaXg6OnNwYXJzZU1hdHJpeChpICAgPSBpaSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGogICAgPSBqaiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHggICAgPSB2YWwsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkaW1zID0gYyhmYSpuLCBmYSpuKSwgc3ltbWV0cmljPVRSVUUpCiAgICAgICAgCiAgICAgICAgQSA8LSAgTWF0cml4OjpzcGFyc2VNYXRyaXgoaSAgID0gMTpuLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGogICAgPSBzZXEoZnJvbT0xLHRvPW4qZmEsYnk9ZmEpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHggICAgPSByZXAoMSxuKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBkaW1zID0gYyhuLCBmYSpuKSkKICAgICAgICByZXR1cm4obGlzdChRPVEsQT1BKSkgICAgCiAgICB9Cn0KYGBgCgoKYGBge3J9CiMgLS0tLS0tLS0tLS0tIERBVEEgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQprYXBwYSA8LSAyNQpudSA8LSAzLzIKYWxwaGEgPC0gbnUgKyAxLzIKc2lnbWEgPC0gMQpwIDwtIDAuMwp4IDwtIHNlcSgwLCAxLCBsZW5ndGgub3V0ID0gMTAwMSkKaCA8LSBhYnMoeCAtIDAuNSkKCnkxIDwtIG1hdGVybi5jb3ZhcmlhbmNlKGgsIGthcHBhID0ga2FwcGEsIG51ID0gbnUsIHNpZ21hID0gc2lnbWEpCnkyIDwtIG1hdGVybi5kZXJpdmF0aXZlKGgsIGthcHBhID0ga2FwcGEsIG51ID0gbnUsIHNpZ21hID0gc2lnbWEsIGRlcml2ID0gMSkKeTMgPC0gbWF0ZXJuLmRlcml2YXRpdmUoaCwga2FwcGEgPSBrYXBwYSwgbnUgPSBudSwgc2lnbWEgPSBzaWdtYSwgZGVyaXYgPSAyKQoKeTQgPC0gbWF0ZXJuLnAocyA9IHgsIHQgPSAwLjUsIGthcHBhID0ga2FwcGEsIHAgPSAwLCBhbHBoYSA9IGFscGhhKQp5NSA8LSBtYXRlcm4ucChzID0geCwgdCA9IDAuNSwga2FwcGEgPSBrYXBwYSwgcCA9IHAsIGFscGhhID0gYWxwaGEpCnk2IDwtIHNhcHBseSh4LCBmdW5jdGlvbihzaSkgbWF0ZXJuLnAuam9pbnQocyA9IHNpLCB0ID0gMC41LCBrYXBwYSA9IGthcHBhLCBwID0gcCwgYWxwaGEgPSBhbHBoYSlbMSwxXSkKeTcgPC0gbWF0ZXJuLnAuZGVyaXYocyA9IHgsIHQgPSAwLjUsIGthcHBhID0ga2FwcGEsIHAgPSBwLCBhbHBoYSA9IGFscGhhLCBkZXJpdiA9IDEpCnk4IDwtIHNhcHBseSh4LCBmdW5jdGlvbihzaSkgbWF0ZXJuLnAuam9pbnQocyA9IHNpLCB0ID0gMC41LCBrYXBwYSA9IGthcHBhLCBwID0gcCwgYWxwaGEgPSBhbHBoYSlbMiwyXSkKIyAtLS0tLS0tLS0tLS0gU0NBTElORyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCgpzMSA8LSBtYXgoYWJzKHkxKSkKczIgPC0gbWF4KGFicyh5MikpCnMzIDwtIG1heChhYnMoeTMpKQpzNCA8LSBtYXgoYWJzKHk0KSkKczUgPC0gbWF4KGFicyh5NSkpCnM2IDwtIG1heChhYnMoeTYpKQpzNyA8LSBtYXgoYWJzKHk3KSkKczggPC0gbWF4KGFicyh5OCkpCgp6MSA8LSB5MSAvIHMxCnoyIDwtIHkyIC8gczIKejMgPC0geTMgLyBzMwp6NCA8LSB5NCAvIHM0Cno1IDwtIHk1IC8gczUKejYgPC0geTYgLyBzNgp6NyA8LSB5NyAvIHM3Cno4IDwtIHk4IC8gczgKCiMgLS0tLS0tLS0tLS0tIFBMT1QgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKcGxvdF9seSgpICU+JQogIGFkZF90cmFjZSgKICAgIHggPSB+eCwgeSA9IH4wLCB6ID0gfnoxLAogICAgdHlwZSA9ICJzY2F0dGVyM2QiLCBtb2RlID0gImxpbmVzIiwKICAgIG5hbWUgPSBwYXN0ZTAoIk1hdMOpcm4gKDEvIiwgcm91bmQoczEsIDMpLCAiKSIpCiAgKSAlPiUKICBhZGRfdHJhY2UoCiAgICB4ID0gfngsIHkgPSB+MSwgeiA9IH56MiwKICAgIHR5cGUgPSAic2NhdHRlcjNkIiwgbW9kZSA9ICJsaW5lcyIsCiAgICBuYW1lID0gcGFzdGUwKCJNYXTDqXJuJyAoMS8iLCByb3VuZChzMiwgMyksICIpIikKICApICU+JQogIGFkZF90cmFjZSgKICAgIHggPSB+eCwgeSA9IH4yLCB6ID0gfnozLAogICAgdHlwZSA9ICJzY2F0dGVyM2QiLCBtb2RlID0gImxpbmVzIiwKICAgIG5hbWUgPSBwYXN0ZTAoIk1hdMOpcm4nJyAoMS8iLCByb3VuZChzMywgMyksICIpIikKICApICU+JQogIGFkZF90cmFjZSgKICAgIHggPSB+eCwgeSA9IH4zLCB6ID0gfno0LAogICAgdHlwZSA9ICJzY2F0dGVyM2QiLCBtb2RlID0gImxpbmVzIiwKICAgIG5hbWUgPSBwYXN0ZTAoIm1hdGVybi4wICgxLyIsIHJvdW5kKHM0LCAzKSwgIikiKQogICkgJT4lCiAgYWRkX3RyYWNlKAogICAgeCA9IH54LCB5ID0gfjQsIHogPSB+ejUsCiAgICB0eXBlID0gInNjYXR0ZXIzZCIsIG1vZGUgPSAibGluZXMiLAogICAgbmFtZSA9IHBhc3RlMCgibWF0ZXJuLnAgKDEvIiwgcm91bmQoczUsIDMpLCAiKSIpCiAgKSAlPiUKICBhZGRfdHJhY2UoCiAgICB4ID0gfngsIHkgPSB+NSwgeiA9IH56NiwKICAgIHR5cGUgPSAic2NhdHRlcjNkIiwgbW9kZSA9ICJsaW5lcyIsCiAgICBuYW1lID0gcGFzdGUwKCJtYXRlcm4ucCBqb2ludCAoMS8iLCByb3VuZChzNiwgMyksICIpIikKICApICU+JQogIGFkZF90cmFjZSgKICAgIHggPSB+eCwgeSA9IH42LCB6ID0gfno3LAogICAgdHlwZSA9ICJzY2F0dGVyM2QiLCBtb2RlID0gImxpbmVzIiwKICAgIG5hbWUgPSBwYXN0ZTAoIm1hdGVybi5wJyAoMS8iLCByb3VuZChzNywgMyksICIpIikKICApICU+JQogIGFkZF90cmFjZSgKICAgIHggPSB+eCwgeSA9IH43LCB6ID0gfno4LAogICAgdHlwZSA9ICJzY2F0dGVyM2QiLCBtb2RlID0gImxpbmVzIiwKICAgIG5hbWUgPSBwYXN0ZTAoIm1hdGVybi5wIGpvaW50JyAoMS8iLCByb3VuZChzOCwgMyksICIpIikKICApICU+JQogIGxheW91dCgKICAgIHNjZW5lID0gbGlzdCgKICAgICAgeGF4aXMgPSBsaXN0KHRpdGxlID0gIngiKSwKICAgICAgeWF4aXMgPSBsaXN0KHRpdGxlID0gIkN1cnZlIGluZGV4IiksCiAgICAgIHpheGlzID0gbGlzdCh0aXRsZSA9ICJTY2FsZWQgdmFsdWUgWy0xLCAxXSIpCiAgICApLAogICAgbGVnZW5kID0gbGlzdCh0aXRsZSA9IGxpc3QodGV4dCA9ICI8Yj5GdW5jdGlvbnM8L2I+IikpCiAgKQpgYGAKCg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("matern_functions.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
