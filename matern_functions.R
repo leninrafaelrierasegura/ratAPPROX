@@ -1,89 +1,4 @@
----
-title: "Matérn Functions"
-date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
-output:
-  html_document:
-    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-    highlight: pygments
-    theme: flatly
-    code_folding: show # class.source = "fold-hide" to hide code and add a button to show it
-    df_print: paged
-    toc: true
-    toc_float:
-      collapsed: true
-      smooth_scroll: true
-    number_sections: true
-    fig_caption: true
-    code_download: true
-    css: visual.css
-always_allow_html: true
-bibliography: 
-  - references.bib
-  - grateful-refs.bib
-header-includes:
-  - \newcommand{\ar}{\mathbb{R}}
-  - \newcommand{\llav}[1]{\left\{#1\right\}}
-  - \newcommand{\pare}[1]{\left(#1\right)}
-  - \newcommand{\Ncal}{\mathcal{N}}
-  - \newcommand{\Vcal}{\mathcal{V}}
-  - \newcommand{\Ecal}{\mathcal{E}}
-  - \newcommand{\Wcal}{\mathcal{W}}
----
-
-Go back to the [Contents](about.html) page.
-
-<div style="color: #2c3e50; text-align: right;">
-********  
-<strong>Press Show to reveal the code chunks.</strong>  
-
-********
-</div>
-
-
-```{r, purl = FALSE, echo = FALSE}
-# Create a clipboard button on the rendered HTML page
-source(here::here("clipboard.R")); clipboard
-```
-
-
-```{r, purl = FALSE, class.source = "fold-hide"}
-# Set seed for reproducibility
-set.seed(1982) 
-# Set global options for all code chunks
-knitr::opts_chunk$set(
-  # Disable messages printed by R code chunks
-  message = FALSE,    
-  # Disable warnings printed by R code chunks
-  warning = FALSE,    
-  # Show R code within code chunks in output
-  echo = TRUE,        
-  # Include both R code and its results in output
-  include = TRUE,     
-  # Evaluate R code chunks
-  eval = TRUE,       
-  # Enable caching of R code chunks for faster rendering
-  cache = FALSE,      
-  # Align figures in the center of the output
-  fig.align = "center",
-  # Enable retina display for high-resolution figures
-  retina = 2,
-  # Show errors in the output instead of stopping rendering
-  error = TRUE,
-  # Do not collapse code and output into a single block
-  collapse = FALSE
-)
-# Start the figure counter
-fig_count <- 0
-# Define the captioner function
-captioner <- function(caption) {
-  fig_count <<- fig_count + 1
-  paste0("Figure ", fig_count, ": ", caption)
-}
-```
-
-
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -94,20 +9,9 @@ library(Matrix)
 library(ggplot2)
 library(reshape2)
 library(plotly)
-```
 
 
-The Matérn covariance function is given by
-
-$$
-\varrho(h; \nu, \kappa, \sigma)=\dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 = \dfrac{\Gamma(\nu)}{\Gamma(\nu+1/2)(4\pi)^{1/2}\kappa^{2\nu}\tau^2}
-\tag{1}
-\label{materncovariance}
-$$
-
-and it is coded below as `matern.covariance()`.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 matern.covariance <- function(h, kappa, nu, sigma) {
     if (nu == 1 / 2) {
         C <- sigma^2 * exp(-kappa * abs(h))
@@ -118,23 +22,9 @@ matern.covariance <- function(h, kappa, nu, sigma) {
     }
     return(C)
 }
-```
 
-The derivatives of the Matérn covariance function can be computed using the following recursive relation. For example, the first derivative is given by
 
-$$
-\varrho'(h; \nu, \kappa, \sigma) = 
-\begin{cases}
-0, & h = 0 \\
--\dfrac{\kappa^2}{2(\nu - 1)} h \varrho(h; \nu - 1, \kappa, \sigma), & h \neq 0
-\end{cases}
-\tag{2}
-\label{matern_derivative}
-$$
-
-and it can be obtained by setting `deriv = 1` in the function `matern.derivative()` below.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 matern.derivative <- function(h, kappa, nu, sigma, deriv = 1) 
 {
     if(deriv == 0) {
@@ -161,42 +51,9 @@ matern.derivative <- function(h, kappa, nu, sigma, deriv = 1)
     }
     
 }
-```
 
-From [@Bolin2025linearcostexponentiallyconvergent, Proposition 1], we have the following decomposition
 
-$$
-\varrho_m^\alpha(h)=\varrho_{m, 0}^\alpha(h)+\sum_{i=1}^m \varrho_{m, i}^\alpha(h)
-\tag{3}
-\label{matern_p_decomposition}
-$$
-
-where
-
-$$
-\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha \sqrt{4 \pi}}{\kappa} 1_{[h=0]}, & 0<\alpha<1 \\ \varrho\left(h ;\lfloor\alpha\rfloor-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), & \alpha \geq 1\end{cases}
-\tag{4}
-\label{matern_0_covariance}
-$$
-
-and
-
-$$
-\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h ; \frac{1}{2}, \kappa_i, \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right), & 0<\alpha<1 \\ \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \frac{1}{2}, \kappa_i, \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor} \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; j-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_j}\right), & \alpha \geq 1\end{cases}
-\tag{5}
-\label{matern_p_covariance}
-$$
-
-and $c_a:=\Gamma(a) / \Gamma(a-1 / 2), \kappa_i=\kappa \sqrt{1-p_i}$, and $\varrho$ is the Matérn covariance \eqref{materncovariance}.
-
-Function `matern.p()` implements 
-
-$$
-\dfrac{\varrho_{m, i}^\alpha(h)}{r_i\sigma^2}
-$$
-as given below. Function `matern.p.deriv()` implements the derivatives of this function.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 matern.p <- function(s,t,kappa,p,alpha){
     h <- s-t
     if(p==0){
@@ -250,19 +107,9 @@ matern.p.deriv <- function(s,t,kappa,p,alpha,deriv = 0){
     }
     
 }
-```
 
 
-Function `matern.p.joint()` computes the joint covariance matrix of the process and its derivatives up to order `floor(alpha)` for the shifted Matérn covariance. That is, it computes 
-
-$$
-\mathbf{r}_i: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\lceil\alpha\rceil\times \lceil\alpha\rceil}, \quad \mathbf{r}_i\left(t_1, t_2\right)=\left[\frac{\partial^{i-1}}{\partial t_2^{i-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \dfrac{\varrho_{m, i}^\alpha\left(t_1-t_2\right)}{r_i\sigma^2}\right]_{i j \in\{1,2, \ldots, \lceil\alpha\rceil\}}
-\tag{2}
-\label{r_matrix}
-$$
-which is the multivariate covariance function of $(u_i(t), u_i'(t), \ldots, u_i^{(\lfloor\alpha\rfloor)}(t))$ and $u_i$ is a shifted Whittle–Matérn bridge process with covariance function $\varrho_{m, i}^\alpha(h)/(r_i\sigma^2)$.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 #Joint covariance of process and derivative for shifted Matern
 matern.p.joint <- function(s,t,kappa,p, alpha = 1){
     
@@ -286,16 +133,15 @@ matern.p.joint <- function(s,t,kappa,p, alpha = 1){
     
     return(mat)
 }
-```
 
 
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 mat1 <- matern.p.joint(s = 0.6, t = 0.5, kappa = 10, p = 0.3, alpha = 2)
 mat2 <- matern.p.joint(s = 0.6, t = 0.5, kappa = 10, p = 0.3, alpha = 3)
 mat1
 mat2
-```
-```{r}
+
+## ---------------------------------------------------------------------------------------------------------------------------------------
 exp_precision <- function(loc, kappa, boundary = "free") {
     n <- length(loc)
     l <- diff(loc)
@@ -335,20 +181,9 @@ exp_precision <- function(loc, kappa, boundary = "free") {
     
     return(2 * kappa * Q[])
 }
-```
 
 
-```
-{r}
-# Example usage of exp_precision function
-loc <- seq(0, 1, length.out = 10)
-kappa <- 5
-Q_matrix <- exp_precision(loc, kappa, boundary = "free")
-print(Q_matrix)
-```
-
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------------------
 matern.p.precision <- function(loc,kappa,p,equally_spaced = FALSE, alpha = 1) {
     
     n <- length(loc)
@@ -456,107 +291,4 @@ matern.p.precision <- function(loc,kappa,p,equally_spaced = FALSE, alpha = 1) {
         return(list(Q=Q,A=A))    
     }
 }
-```
-
-
-```
-{r}
-aux <-  matern.p.precision(loc = c(0,1,2), kappa = 10, p = 0.3, equally_spaced = TRUE, alpha = 2.2)
-aux$Q
-aux$A
-```
-
-
-```
-{r}
-# ------------ DATA ----------------------------------------------------------
-kappa <- 25
-nu <- 3/2
-alpha <- nu + 1/2
-sigma <- 1
-p <- 0.3
-x <- seq(0, 1, length.out = 1001)
-h <- abs(x - 0.5)
-
-y1 <- matern.covariance(h, kappa = kappa, nu = nu, sigma = sigma)
-y2 <- matern.derivative(h, kappa = kappa, nu = nu, sigma = sigma, deriv = 1)
-y3 <- matern.derivative(h, kappa = kappa, nu = nu, sigma = sigma, deriv = 2)
-
-y4 <- matern.p(s = x, t = 0.5, kappa = kappa, p = 0, alpha = alpha)
-y5 <- matern.p(s = x, t = 0.5, kappa = kappa, p = p, alpha = alpha)
-y6 <- sapply(x, function(si) matern.p.joint(s = si, t = 0.5, kappa = kappa, p = p, alpha = alpha)[1,1])
-y7 <- matern.p.deriv(s = x, t = 0.5, kappa = kappa, p = p, alpha = alpha, deriv = 1)
-y8 <- sapply(x, function(si) matern.p.joint(s = si, t = 0.5, kappa = kappa, p = p, alpha = alpha)[2,2])
-# ------------ SCALING -------------------------------------------------------
-
-s1 <- max(abs(y1))
-s2 <- max(abs(y2))
-s3 <- max(abs(y3))
-s4 <- max(abs(y4))
-s5 <- max(abs(y5))
-s6 <- max(abs(y6))
-s7 <- max(abs(y7))
-s8 <- max(abs(y8))
-
-z1 <- y1 / s1
-z2 <- y2 / s2
-z3 <- y3 / s3
-z4 <- y4 / s4
-z5 <- y5 / s5
-z6 <- y6 / s6
-z7 <- y7 / s7
-z8 <- y8 / s8
-
-# ------------ PLOT ----------------------------------------------------------
-
-plot_ly() %>%
-  add_trace(
-    x = ~x, y = ~0, z = ~z1,
-    type = "scatter3d", mode = "lines",
-    name = paste0("Matérn (1/", round(s1, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~1, z = ~z2,
-    type = "scatter3d", mode = "lines",
-    name = paste0("Matérn' (1/", round(s2, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~2, z = ~z3,
-    type = "scatter3d", mode = "lines",
-    name = paste0("Matérn'' (1/", round(s3, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~3, z = ~z4,
-    type = "scatter3d", mode = "lines",
-    name = paste0("matern.0 (1/", round(s4, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~4, z = ~z5,
-    type = "scatter3d", mode = "lines",
-    name = paste0("matern.p (1/", round(s5, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~5, z = ~z6,
-    type = "scatter3d", mode = "lines",
-    name = paste0("matern.p joint (1/", round(s6, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~6, z = ~z7,
-    type = "scatter3d", mode = "lines",
-    name = paste0("matern.p' (1/", round(s7, 3), ")")
-  ) %>%
-  add_trace(
-    x = ~x, y = ~7, z = ~z8,
-    type = "scatter3d", mode = "lines",
-    name = paste0("matern.p joint' (1/", round(s8, 3), ")")
-  ) %>%
-  layout(
-    scene = list(
-      xaxis = list(title = "x"),
-      yaxis = list(title = "Curve index"),
-      zaxis = list(title = "Scaled value [-1, 1]")
-    ),
-    legend = list(title = list(text = "<b>Functions</b>"))
-  )
-```
 

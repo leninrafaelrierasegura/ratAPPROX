@@ -1,4 +1,4 @@
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(){
   edge1 <- rbind(c(0,0),c(1,0))
@@ -24,7 +24,56 @@ gets.graph.tadpole <- function(){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## --------------------------------------------------------------------------------------------------------------------------------------------------
+# Eigenfunctions for the tadpole graph
+tadpole.eig <- function(k,graph){
+  x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
+  x2 <- c(0,graph$get_edge_lengths()[2]*graph$mesh$PtE[graph$mesh$PtE[,1]==2,2]) 
+  
+  if(k==0){ 
+    f.e1 <- rep(1,length(x1)) 
+    f.e2 <- rep(1,length(x2)) 
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    f = list(phi=f1/sqrt(3)) 
+    
+  } else {
+    f.e1 <- -2*sin(pi*k*1/2)*cos(pi*k*x1/2) 
+    f.e2 <- sin(pi*k*x2/2)                  
+    
+    f1 = c(f.e1[1],f.e2[1],f.e1[-1], f.e2[-1]) 
+    
+    if((k %% 2)==1){ 
+      f = list(phi=f1/sqrt(3)) 
+    } else { 
+      f.e1 <- (-1)^{k/2}*cos(pi*k*x1/2)
+      f.e2 <- cos(pi*k*x2/2)
+      f2 = c(f.e1[1],f.e2[1],f.e1[-1],f.e2[-1]) 
+      f <- list(phi=f1,psi=f2/sqrt(3/2))
+    }
+  }
+  
+  return(f)
+}
+
+
+# Function to compute the true covariance matrix
+gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
+  Sigma.kl <- matrix(0,nrow = dim(graph$mesh$V)[1],ncol = dim(graph$mesh$V)[1])
+  for(i in 0:n.overkill){
+    phi <- tadpole.eig(i,graph)$phi
+    Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*phi%*%t(phi)
+    if(i>0 && (i %% 2)==0){ 
+      psi <- tadpole.eig(i,graph)$psi
+      Sigma.kl <- Sigma.kl + (1/(kappa^2 + (i*pi/2)^2)^(alpha))*psi%*%t(psi)
+    }
+    
+  }
+  Sigma.kl <- Sigma.kl/tau^2
+  return(Sigma.kl)
+}
+
+
+## --------------------------------------------------------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -101,5 +150,70 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
                 x = (2 * kappa * tau^2) * x_[1:count],
                 dims = c(graph$nV, graph$nV)))
   }
+}
+
+
+## --------------------------------------------------------------------------------------------------------------------------------------------------
+gives.indices <- function(graph, factor, constant){
+  index.obs1 <- sapply(graph$PtV, 
+                       function(i){
+                         idx_temp <- i == graph$E[,1]
+                         idx_temp <- which(idx_temp)
+                         return(idx_temp[1])}
+                       )
+  index.obs1 <- (index.obs1 - 1) * factor + 1
+  index.obs4 <- NULL
+  na_obs1 <- is.na(index.obs1)
+  if(any(na_obs1)){
+    idx_na <- which(na_obs1)
+    PtV_NA <- graph$PtV[idx_na]
+    index.obs4 <- sapply(PtV_NA, 
+                         function(i){
+                           idx_temp <- i == graph$E[,2]
+                           idx_temp <- which(idx_temp)
+                           return(idx_temp[1])}
+                         )
+    index.obs1[na_obs1] <- (index.obs4 - 1 ) * factor + constant                                                                      
+  }
+  return(index.obs1)
+}
+
+conditioning <- function(graph,alpha=1){
+  i_  =  rep(0, 2 * graph$nE)
+  j_  =  rep(0, 2 * graph$nE)
+  x_  =  rep(0, 2 * graph$nE)
+
+  count_constraint <- 0
+  count <- 0
+  for (v in 1:graph$nV) {
+    lower_edges  <- which(graph$E[, 1] %in% v)
+    upper_edges  <- which(graph$E[, 2] %in% v)
+    n_e <- length(lower_edges) + length(upper_edges)
+    if (n_e > 1) {
+      if (length(upper_edges) == 0) {
+        edges <- cbind(lower_edges, 1)
+      } else if(length(lower_edges) == 0){
+        edges <- cbind(upper_edges, 2)
+      }else{
+        edges <- rbind(cbind(lower_edges, 1),
+                       cbind(upper_edges, 2))
+      }
+      for (i in 2:n_e) {
+        i_[count + 1:2] <- count_constraint + 1
+        j_[count + 1:2] <- c(2 * (edges[i-1,1] - 1) + edges[i-1, 2],
+                             2 * (edges[i,1]   - 1) + edges[i,   2])
+        x_[count + 1:2] <- c(1,-1)
+        count <- count + 2
+        count_constraint <- count_constraint + 1
+      }
+    }
+  }
+  K <- Matrix::sparseMatrix(i = i_[1:count],
+                            j = j_[1:count],
+                            x = x_[1:count],
+                            dims = c(count_constraint, 2*graph$nE))
+                         
+  CB <- MetricGraph:::c_basis2(K)
+  return(CB)
 }
 
