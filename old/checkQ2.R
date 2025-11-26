@@ -38,7 +38,7 @@ EDGE_LENGTHS <- graph$edge_lengths
 # parameters
 kappa <- 10
 sigma <- 1
-alpha <- 1.8
+alpha <- 1.3
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -74,12 +74,12 @@ for(order in 0:m){
     l_e <- EDGE_LENGTHS[e]
     if(order == 0){
       LOC <- c(0,l_e)
-      DIVIDER <- k * kappa^2
-      FACTOR <- sqrt(pi)*2*tau^2*kappa^3
+      DIVIDER <- k*kappa^2
+      FACTOR <- 2*kappa*tau^2
     } else {
       LOC <- c(l_e, 0)
       DIVIDER <- r[order] * kappa^4
-      FACTOR <- c_alpha*sqrt(pi)*2*tau^2*kappa^3
+      FACTOR <- 2*c_alpha*sqrt(pi)*tau^2*kappa^3
       }
     aux <- matern.p.precision(loc = LOC, 
                               kappa = kappa, 
@@ -87,13 +87,12 @@ for(order in 0:m){
                               equally_spaced = FALSE, 
                               alpha = ALPHA)
     Qtilde_i[[paste0("m=",order)]][[e]] <- (aux$Q - 0.5 * correction_term)*FACTOR
-    
   }
   Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])/DIVIDER
 }
 
-
 Q1 <- Qtilde_i[[paste0("m=",0)]]
+
 cbmat <- conditioning(graph,alpha=1)
 nc1 <- 1:length(cbmat$S)
 W <- Diagonal(dim(Q1)[1])
@@ -134,6 +133,6 @@ graph_initial$plot_function(Sigma[,2], p = q, type = "plotly", line_color = "blu
 
 L_2_error = sqrt(as.double(t(graph_initial$mesh$weights)%*%(True_Sigma - Sigma)^2%*%graph_initial$mesh$weights))
 print(L_2_error)
-Q1
+
 
   
