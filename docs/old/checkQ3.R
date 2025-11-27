@@ -14,7 +14,7 @@ source(here::here("matern_functions.R"))
 graph_initial <- gets.graph.tadpole()
 graph <- graph_initial$clone()
 
-graph_initial$build_mesh(h = 0.01)
+graph_initial$build_mesh(h = 0.6)
 # to get the weights
 graph_initial$compute_fem()
 # add mesh locations as observations
@@ -33,7 +33,7 @@ graph$observation_to_vertex()
 # parameters
 kappa <- 10
 sigma <- 1
-alpha <- 1.99
+alpha <- 1.9
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -51,11 +51,11 @@ True_Sigma <- gets_true_cov_mat(graph = graph_initial,
                                 alpha = alpha, 
                                 n.overkill = n.overkill)
 
-q <- graph_initial$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-graph_initial$plot_function(X = Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+q <- graph_initial$plot_function(True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+graph_initial$plot_function(Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 L_2_error = sqrt(as.double(t(graph_initial$mesh$weights)%*%(True_Sigma - Sigma)^2%*%graph_initial$mesh$weights))
 print(L_2_error)
 
-#graph_initial$plot_function(X = Sigma[,1], type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+
   

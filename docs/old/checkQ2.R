@@ -37,14 +37,13 @@ EDGE_LENGTHS <- graph$edge_lengths
 
 # parameters
 kappa <- 10
-sigma <- 1.4
-alpha <- 1.8
+sigma <- 1
+alpha <- 1.3
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 100
-Acc <- gamma(nu) / (kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2))
-sigma2 <- Acc / tau^2
+c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
 # get rational approximation coefficients
 coeff <- rSPDE:::interp_rational_coefficients(
   order = m, 
@@ -59,29 +58,41 @@ Qtilde_i <- list()
 for(order in 0:m){
   Qtilde_i[[paste0("m=",order)]] <- list()
   if(order == 0){
-    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = floor(alpha)))
+    P <- order
+    ALPHA <- floor(alpha)
+    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
     correction_term <- rbind(cbind(r00_inverse, matrix(0, floor(alpha), floor(alpha))),
                              cbind(matrix(0, floor(alpha), floor(alpha)), r00_inverse))
   } else {
-    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = kappa^2*p[order], alpha = alpha))
+    P <- p[order]
+    ALPHA <- alpha
+    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
     correction_term <- rbind(cbind(r00_inverse, matrix(0, ceiling(alpha), ceiling(alpha))),
                              cbind(matrix(0, ceiling(alpha), ceiling(alpha)), r00_inverse))
   }
-  print(r00_inverse)
   for(e in 1:length(EDGE_LENGTHS)){
     l_e <- EDGE_LENGTHS[e]
-    aux <- matern.p.precision(loc = c(0,l_e), 
+    if(order == 0){
+      LOC <- c(0,l_e)
+      DIVIDER <- k*kappa^2
+      FACTOR <- 2*kappa*tau^2
+    } else {
+      LOC <- c(l_e, 0)
+      DIVIDER <- r[order] * kappa^4
+      FACTOR <- 2*c_alpha*sqrt(pi)*tau^2*kappa^3
+      }
+    aux <- matern.p.precision(loc = LOC, 
                               kappa = kappa, 
-                              p = ifelse(order == 0, order, p[order]),
+                              p = P,
                               equally_spaced = FALSE, 
-                              alpha = ifelse(order == 0, floor(alpha), alpha))
-    Qtilde_i[[paste0("m=",order)]][[e]] <- (aux$Q - 0.5 * correction_term) #/ ifelse(order == 0, k * sigma^2, r[order] * sigma^2)
-    
+                              alpha = ALPHA)
+    Qtilde_i[[paste0("m=",order)]][[e]] <- (aux$Q - 0.5 * correction_term)*FACTOR
   }
-  Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])
+  Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])/DIVIDER
 }
 
 Q1 <- Qtilde_i[[paste0("m=",0)]]
+
 cbmat <- conditioning(graph,alpha=1)
 nc1 <- 1:length(cbmat$S)
 W <- Diagonal(dim(Q1)[1])
@@ -93,8 +104,9 @@ A0 <- cbmat$T[index.obs1,-nc1]
 Qtilde_i <- Qtilde_i[-1] # remove m=0
 
 graph$buildC(alpha = 2)
-nc2 <- 1:length(graph$CoB$S)
-Tcomplete <- graph$CoB$T 
+nc2 <- 1:length(c(1,graph$CoB$S))
+TT <- graph$CoB$T
+Tcomplete <- t(TT)[, c(ncol(TT), 1:(ncol(TT)-1))]
 
 W2<-Diagonal(2*ceiling(alpha)*graph$nE)
 W2 <- W2[,-nc2]
@@ -105,7 +117,7 @@ index.obs2 <- gives.indices(graph = graph, factor = 4, constant = 3)
 Ai <- Tcomplete[index.obs2, -nc2]
 
 A <- cbind(A0, do.call(cbind, rep(list(Ai), m)))
-Qtilde_UU <- bdiag(Qtilde1_uu, do.call(bdiag, Qtilde_i_star_UU))
+Qtilde_UU <- bdiag(Qtilde1_uu, do.call(bdiag, Qtilde_i_star_UU))*kappa^(2*alpha)
 
 Sigma <- A %*% solve(Qtilde_UU, t(A)) 
 
@@ -116,13 +128,11 @@ True_Sigma <- gets_true_cov_mat(graph = graph_initial,
                                 n.overkill = n.overkill)
 
 
-p <- graph_initial$plot_function(True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-graph_initial$plot_function(Sigma[,2], p = p, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+q <- graph_initial$plot_function(True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+graph_initial$plot_function(Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 L_2_error = sqrt(as.double(t(graph_initial$mesh$weights)%*%(True_Sigma - Sigma)^2%*%graph_initial$mesh$weights))
 print(L_2_error)
 
 
-matern.p.deriv(s=0,t=0,kappa=kappa,p=-34,alpha=2,deriv = 0)*sigma2
-  
   

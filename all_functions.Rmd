@@ -625,7 +625,7 @@ Given a mesh size `h`, function `gets.graph.tadpole()` builds a tadpole graph an
 ```{r}
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(){
-  edge1 <- rbind(c(0,0),c(1,0))
+  edge1 <- rbind(c(0,0),c(1,0))#[c(2,1),]
   theta <- seq(from=-pi,to=pi,length.out = 10000)
   edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
   edges <- list(edge1, edge2)
@@ -794,7 +794,7 @@ gives.indices <- function(graph, factor, constant){
   return(index.obs1)
 }
 
-conditioning <- function(graph,alpha=1){
+conditioning <- function(graph, alpha = 1){
   i_  =  rep(0, 2 * graph$nE)
   j_  =  rep(0, 2 * graph$nE)
   x_  =  rep(0, 2 * graph$nE)
@@ -802,17 +802,19 @@ conditioning <- function(graph,alpha=1){
   count_constraint <- 0
   count <- 0
   for (v in 1:graph$nV) {
-    lower_edges  <- which(graph$E[, 1] %in% v)
-    upper_edges  <- which(graph$E[, 2] %in% v)
-    n_e <- length(lower_edges) + length(upper_edges)
-    if (n_e > 1) {
-      if (length(upper_edges) == 0) {
-        edges <- cbind(lower_edges, 1)
-      } else if(length(lower_edges) == 0){
-        edges <- cbind(upper_edges, 2)
+    edges_leaving_v  <- which(graph$E[, 1] %in% v) 
+    edges_entering_v  <- which(graph$E[, 2] %in% v)
+    n_leaving_edges <- length(edges_leaving_v)
+    n_entering_edges <- length(edges_entering_v)
+    n_e <- n_leaving_edges + n_entering_edges
+    if (n_e > 1) { # the alternative is n_e = 1, which means v is a degree one vertex and so no conditioning is needed 
+      if (n_entering_edges == 0) {
+        edges <- cbind(edges_leaving_v, 1)
+      } else if(n_leaving_edges == 0){
+        edges <- cbind(edges_entering_v, 2)
       }else{
-        edges <- rbind(cbind(lower_edges, 1),
-                       cbind(upper_edges, 2))
+        edges <- rbind(cbind(edges_leaving_v, 1),
+                       cbind(edges_entering_v, 2))
       }
       for (i in 2:n_e) {
         i_[count + 1:2] <- count_constraint + 1
@@ -835,6 +837,88 @@ conditioning <- function(graph,alpha=1){
 ```
 
 
+Function `matern.p.joint()` computes
+
+$$
+\mathbf{r}_i: \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\lceil\alpha\rceil\times \lceil\alpha\rceil}, \quad \mathbf{r}_i\left(t_1, t_2\right)=\left[\frac{\partial^{k-1}}{\partial t_2^{k-1}} \frac{\partial^{j-1}}{\partial t_1^{j-1}} \varrho_{i}\left(t_1-t_2\right)\right]_{k j \in\{1,2, \ldots, \lceil\alpha\rceil\}}
+$$
+
+where $\beta = \lfloor\alpha\rfloor$ if $i=0$ and $\beta = \lceil\alpha\rceil$ if $i=1,\dots,m$, and 
+
+
+$$
+\varrho_{i}(h)=\begin{cases}\dfrac{\varrho_{m, i}^\alpha(h)}{k \sigma^2}, & i=0 \\ 
+\dfrac{\varrho_{m, i}^\alpha(h)}{r_i \sigma^2}, & i=1,\dots,m\end{cases}
+$$
+
+and
+
+$$
+\varrho_{m, i}^\alpha(h)= \begin{cases} k \sigma^2 \varrho\left(h ;\lfloor\alpha\rfloor-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), & i=0 \\ r_i \sigma^2 \left[\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \frac{1}{2}, \kappa_i, \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right)-\displaystyle\sum_{j=1}^{\lfloor\alpha\rfloor} \dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; j-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_j}\right)\right], &  i=1,\dots,m\end{cases}
+$$
+
+
+and $c_a:=\Gamma(a) / \Gamma(a-1 / 2), \kappa_i=\kappa \sqrt{1-p_i}$, and $\varrho$ is the Matérn covariance
+
+
+$$
+\varrho(h; \nu, \kappa, \sigma^2)=\dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 = \dfrac{\Gamma(\nu)}{\Gamma(\nu+1/2)(4\pi)^{1/2}\kappa^{2\nu}\tau^2}
+$$
+
+-----------------
+
+## Case $i=0$
+
+-----------------
+
+$$
+\widetilde{\mathbf{Q}}_{0,e}=\mathbf{Q}_{0,e}-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}(0,0)^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{r}(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \lfloor\alpha\rfloor \times 2 \lfloor\alpha\rfloor},
+$$
+
+This is computed in `R` as follows
+
+- $\mathbf{r}(0,0) =$ `matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = floor(alpha))`.
+
+- $\mathbf{Q}_{0,e} =$ `matern.p.precision(loc = c(0, L_e[e]), kappa = kappa, p = 0, equally_spaced = TRUE, alpha = floor(alpha))$Q`.
+
+- Constant correction: $\widetilde{\mathbf{Q}}_{0,e}=\dfrac{2\tau^2\kappa^{2\alpha}}{k\kappa}\widetilde{\mathbf{Q}}_{0,e}$
+
+-----------------
+
+## Case $i=1,\dots,m$
+
+-----------------
+
+$$
+\widetilde{\mathbf{Q}}_{i,e}=\mathbf{Q}_{i,e}-\frac{1}{2}\left[\begin{array}{cc}
+\mathbf{r}_i(0,0)^{-1} & \mathbf{0} \\
+\mathbf{0} & \mathbf{r}_i(0,0)^{-1}
+\end{array}\right]\in\mathbb{R}^{2 \lceil\alpha\rceil \times 2 \lceil\alpha\rceil},
+$$
+
+This is computed in `R` as follows
+
+- $\mathbf{r}_i(0,0) =$ `matern.p.joint(s = 0, t = 0, kappa = kappa, p = p_i, alpha = alpha)`.
+
+- $\mathbf{Q}_{i,e} =$ `matern.p.precision(loc = c(0, L_e[e]), kappa = kappa, p = p_i, equally_spaced = TRUE, alpha = alpha)$Q`.
+
+- Constant correction: $\widetilde{\mathbf{Q}}_{i,e}=\dfrac{2\tau^2\kappa^{2\alpha}c_\alpha\sqrt{\pi}}{r_i \kappa}\widetilde{\mathbf{Q}}_{i,e}$
+
+Then 
+
+$$
+\widetilde{\mathbf{Q}}_0 = \operatorname{diag}\left(\{\widetilde{\mathbf{Q}}_{0,e}\}_{e\in\mathcal{E}}\right),
+$$ 
+
+and 
+
+$$
+\widetilde{\mathbf{Q}}_i = \operatorname{diag}\left(\{\widetilde{\mathbf{Q}}_{i,e}\}_{e\in\mathcal{E}}\right),\quad i=1,\dots,m.
+$$
+
 ```{r}
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
@@ -844,7 +928,84 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
     type_rational_approx = "chebfun", 
     type_interp = "spline", 
     alpha = alpha)
-  r <- coeff$r; p <- coeff$p; k <- coeff$k
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  # parameters
+  nu <- alpha - 1/2
+  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  c_1 <- gamma(floor(alpha))/gamma(floor(alpha) - 0.5)
+  # get edge lengths
+  L_e <- graph$edge_lengths
+  
+  Qtilde_i <- list() 
+  for(order in 1:m){
+    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = p[order], alpha = alpha))
+    correction_term <- rbind(cbind(r00_inverse, matrix(0, ceiling(alpha), ceiling(alpha))),
+                             cbind(matrix(0, ceiling(alpha), ceiling(alpha)), r00_inverse))
+    Qtilde_i[[paste0("m=",order)]] <- list()
+    for(e in 1:length(L_e)){
+      Q_e <- matern.p.precision(loc = c(0, L_e[e]),
+                                kappa = kappa, 
+                                p = p[order],
+                                equally_spaced = TRUE, 
+                                alpha = alpha)$Q
+      Qtilde_i[[paste0("m=",order)]][[e]] <- Q_e - 0.5 * correction_term
+    }
+    Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])/(r[order] * sigma^2)
+  }
+  
+
+  #####################################
+  ## CASE m = 0
+  #####################################
+  Qtilde_0_star_UU <- MetricGraph:::Qalpha1(theta = c(tau, kappa), 
+                                            graph = graph, 
+                                            BC = 1, 
+                                            build = TRUE)*c_1/(k * sigma^2 * c_alpha)
+  A0 <- graph$.__enclos_env__$private$A()
+  #####################################
+  ## CASE m > 0
+  #####################################
+  graph$buildC(alpha = 2)
+  COND_i <- graph$CoB
+  index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
+  n_const <- length(COND_i$S)
+  ind.const <- c(1:n_const)
+  Tc <- COND_i$T[-ind.const, ]
+  Qtilde_i_star_UU <- lapply(Qtilde_i, function(Q) Tc %*% Q %*% t(Tc)) 
+  Ai <- t(Tc)[index.obs_i, ] # observation matrix after conditioning
+  
+  #####################################
+  ## Build matrix A and Q_UU
+  #####################################
+  A <- cbind(A0, do.call(cbind, rep(list(Ai), m)))
+  Q_UU <- bdiag(Qtilde_0_star_UU, do.call(bdiag, Qtilde_i_star_UU))
+  # Return Sigma
+  Sigma <- A %*% solve(Q_UU, t(A)) 
+  return(Sigma)
+}
+```
+
+
+```
+{r}
+# the one that translates from Vaibhav's
+gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
+
+  # get rational approximation coefficients
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
   
   # compute constant c_alpha
   c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
@@ -871,10 +1032,10 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
     }
     Qtilde_i[[paste0("m=",order)]] <- list()
     for(e in 1:length(L_e)){
-      Q_e <- matern.p.precision(loc = if (order == 0) c(0, L_e[e]) else c(L_e[e], 0), 
+      Q_e <- matern.p.precision(loc = c(0, L_e[e]), #if (order == 0) c(0, L_e[e]) else c(L_e[e], 0), 
                                 kappa = kappa, 
                                 p = P,
-                                equally_spaced = FALSE, 
+                                equally_spaced = TRUE, 
                                 alpha = ALPHA)$Q
       Qtilde_i[[paste0("m=",order)]][[e]] <- (Q_e - 0.5 * correction_term)*FACTOR*kappa^(2*alpha)
     }
@@ -884,6 +1045,102 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   Qtilde_0 <- Qtilde_i[[paste0("m=",0)]] # extract Qtilde_0
   Qtilde_i <- Qtilde_i[-1] # remove Qtilde_0
   
+  # graph$.__enclos_env__$private$A()
+  #####################################
+  ## CASE m = 0
+  #####################################
+  COND_0 <- conditioning(graph = graph, alpha = 1)
+  index.obs_0 <- gives.indices(graph = graph, factor = 2, constant = 2)
+  nc_0 <- 1:length(COND_0$S) # number of constraints
+  T_0 <- COND_0$T # change of basis matrix
+  W_0 <- Diagonal(2*floor(alpha)*graph$nE)[,-nc_0] # matrix to remove constraints
+  Qtilde_0_star_UU <- t(W_0) %*% t(T_0) %*% Qtilde_0 %*% (T_0) %*% W_0 
+  Qtilde_0_star_UU_aux <- MetricGraph:::Qalpha1(theta = c(tau, kappa), graph = graph, BC = 1, build = TRUE)*(2*tau^2*kappa^(2*alpha))/(k * kappa)
+  print(Qtilde_0_star_UU)
+  print(Qtilde_0_star_UU_aux)
+  A0 <- T_0[index.obs_0, -nc_0] # observation matrix after conditioning
+  
+  #####################################
+  ## CASE m > 0
+  #####################################
+  graph$buildC(alpha = 2)
+  COND_i <- graph$CoB
+  index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
+  nc_i <- 1:length(c(1,COND_i$S)) # number of constraints
+  T_i <- COND_i$T # change of basis matrix
+  T_i <- t(T_i)[, c(ncol(T_i), 1:(ncol(T_i) - 1))] # column reordering
+  W_i <- Diagonal(2*ceiling(alpha)*graph$nE)[,-nc_i] # matrix to remove constraints
+  Qtilde_i_star_UU <- lapply(Qtilde_i, function(Q) t(W_i) %*% t(T_i) %*% Q %*% T_i %*% W_i) 
+  Ai <- T_i[index.obs_i, -nc_i] # observation matrix after conditioning
+  
+  #####################################
+  ## Build matrix A and Q_UU
+  #####################################
+  A <- cbind(A0, do.call(cbind, rep(list(Ai), m)))
+  Q_UU <- bdiag(Qtilde_0_star_UU, do.call(bdiag, Qtilde_i_star_UU))
+  # Return Sigma
+  Sigma <- A %*% solve(Q_UU, t(A)) 
+  return(Sigma)
+}
+```
+
+
+```
+{r}
+# edited when we met
+gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
+
+  # get rational approximation coefficients
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  # compute constant c_alpha
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  
+  # get edge lengths
+  L_e <- graph$edge_lengths
+  
+  Qtilde_i <- list() 
+  for(order in 0:m){
+    if(order == 0){
+      P <- order
+      ALPHA <- floor(alpha)
+      FACTOR <- (2*tau^2)/(k*kappa)
+      r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
+      correction_term <- rbind(cbind(r00_inverse, matrix(0, floor(alpha), floor(alpha))),
+                               cbind(matrix(0, floor(alpha), floor(alpha)), r00_inverse))
+    } else {
+      P <- p[order]
+      ALPHA <- alpha
+      FACTOR <- (2*c_alpha*sqrt(pi)*tau^2)/(r[order] * kappa)
+      r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
+      correction_term <- rbind(cbind(r00_inverse, matrix(0, ceiling(alpha), ceiling(alpha))),
+                               cbind(matrix(0, ceiling(alpha), ceiling(alpha)), r00_inverse))
+    }
+    Qtilde_i[[paste0("m=",order)]] <- list()
+    for(e in 1:length(L_e)){
+      Q_e <- matern.p.precision(loc = c(0, L_e[e]), #if (order == 0) c(0, L_e[e]) else c(L_e[e], 0), 
+                                kappa = kappa, 
+                                p = P,
+                                equally_spaced = TRUE, 
+                                alpha = ALPHA)$Q
+      Qtilde_i[[paste0("m=",order)]][[e]] <- (Q_e - 0.5 * correction_term)*FACTOR*kappa^(2*alpha)
+    }
+    Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])
+  }
+  
+  Qtilde_0 <- Qtilde_i[[paste0("m=",0)]] # extract Qtilde_0
+  print(dim(Qtilde_0))
+  Qtilde_i <- Qtilde_i[-1] # remove Qtilde_0
+  
+  # graph$.__enclos_env__$private$A()
   #####################################
   ## CASE m = 0
   #####################################
@@ -902,11 +1159,12 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   COND_i <- graph$CoB
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
   nc_i <- 1:length(c(1,COND_i$S)) # number of constraints
-  TT_i <- COND_i$T # change of basis matrix
-  T_i <- t(TT_i)[, c(ncol(TT_i), 1:(ncol(TT_i) - 1))] # column reordering
-  W_i <- Diagonal(2*ceiling(alpha)*graph$nE)[,-nc_i] # matrix to remove constraints
+  T_i <- COND_i$T # change of basis matrix
+  T_i <- T_i[-nc_i,]
+  #T_i <- t(T_i)[, c(ncol(T_i), 1:(ncol(T_i) - 1))] # column reordering
+  W_i <- Diagonal(2*ceiling(alpha)*graph$nE)#[,-nc_i] # matrix to remove constraints
   Qtilde_i_star_UU <- lapply(Qtilde_i, function(Q) t(W_i) %*% t(T_i) %*% Q %*% T_i %*% W_i) 
-  Ai <- T_i[index.obs_i, -nc_i] # observation matrix after conditioning
+  Ai <- T_i[index.obs_i,]# -nc_i] # observation matrix after conditioning
   
   #####################################
   ## Build matrix A and Q_UU
@@ -918,6 +1176,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   return(Sigma)
 }
 ```
+
 
 ## References
 
