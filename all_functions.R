@@ -221,6 +221,7 @@ conditioning <- function(graph, alpha = 1){
 
 
 ## ---------------------------------------------------------------------------------------------------------------------------------------------------
+# the one that translates from Vaibhav's
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
   # get rational approximation coefficients
@@ -234,44 +235,65 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   p <- coeff$p
   k <- coeff$k
   
-  # parameters
+  # reparameterization
   nu <- alpha - 1/2
   sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
   c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
   c_1 <- gamma(floor(alpha))/gamma(floor(alpha) - 0.5)
+  
   # get edge lengths
   L_e <- graph$edge_lengths
   
   Qtilde_i <- list() 
-  for(order in 1:m){
-    r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = p[order], alpha = alpha))
-    correction_term <- rbind(cbind(r00_inverse, matrix(0, ceiling(alpha), ceiling(alpha))),
-                             cbind(matrix(0, ceiling(alpha), ceiling(alpha)), r00_inverse))
+  for(order in 0:m){
+    if(order == 0){
+      P <- order
+      ALPHA <- floor(alpha)
+      FACTOR <- (2*tau^2)/(k*kappa)
+      r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
+      correction_term <- rbind(cbind(r00_inverse, matrix(0, floor(alpha), floor(alpha))),
+                               cbind(matrix(0, floor(alpha), floor(alpha)), r00_inverse))
+    } else {
+      P <- p[order]
+      ALPHA <- alpha
+      FACTOR <- (2*c_alpha*sqrt(pi)*tau^2)/(r[order] * kappa)
+      r00_inverse <- solve(matern.p.joint(s = 0, t = 0, kappa = kappa, p = P, alpha = ALPHA))
+      correction_term <- rbind(cbind(r00_inverse, matrix(0, ceiling(alpha), ceiling(alpha))),
+                               cbind(matrix(0, ceiling(alpha), ceiling(alpha)), r00_inverse))
+    }
     Qtilde_i[[paste0("m=",order)]] <- list()
     for(e in 1:length(L_e)){
-      Q_e <- matern.p.precision(loc = c(0, L_e[e]),
+      Q_e <- matern.p.precision(loc = c(0, L_e[e]), #if (order == 0) c(0, L_e[e]) else c(L_e[e], 0), 
                                 kappa = kappa, 
-                                p = p[order],
+                                p = P,
                                 equally_spaced = TRUE, 
-                                alpha = alpha)$Q
-      Qtilde_i[[paste0("m=",order)]][[e]] <- Q_e - 0.5 * correction_term
+                                alpha = ALPHA)$Q
+      Qtilde_i[[paste0("m=",order)]][[e]] <- (Q_e - 0.5 * correction_term)*FACTOR*kappa^(2*alpha)
     }
-    Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])/(r[order] * sigma^2)
+    Qtilde_i[[paste0("m=",order)]] <- bdiag(Qtilde_i[[paste0("m=",order)]])
   }
+  
+  Qtilde_0 <- Qtilde_i[[paste0("m=",0)]] # extract Qtilde_0
+  Qtilde_i <- Qtilde_i[-1] # remove Qtilde_0
   
 
   #####################################
   ## CASE m = 0
   #####################################
-  Qtilde_0_star_UU <- MetricGraph:::Qalpha1(theta = c(tau, kappa), 
-                                            graph = graph, 
-                                            BC = 1, 
-                                            build = TRUE)*c_1/(k * sigma^2 * c_alpha)
-  A0 <- graph$.__enclos_env__$private$A()
+  COND_0 <- conditioning(graph = graph, alpha = 1)
+  index.obs_0 <- gives.indices(graph = graph, factor = 2, constant = 2)
+  nc_0 <- 1:length(COND_0$S) # number of constraints
+  T_0 <- COND_0$T # change of basis matrix
+  W_0 <- Diagonal(2*floor(alpha)*graph$nE)[,-nc_0] # matrix to remove constraints
+  Qtilde_0_star_UU <- t(W_0) %*% t(T_0) %*% Qtilde_0 %*% (T_0) %*% W_0 
+  A0 <- T_0[index.obs_0, -nc_0] # observation matrix after conditioning
+  
+  # Qtilde_0_star_UU <- MetricGraph:::Qalpha1(theta = c(tau, kappa), graph = graph, BC = 1, build = TRUE)*c_1*kappa^(2*alpha)/(2 * k * c_alpha * kappa * sigma^2 * tau^2)#(2*tau^2*kappa^(2*alpha))/(k * kappa)
+  # A0 <- graph$.__enclos_env__$private$A()
   #####################################
   ## CASE m > 0
   #####################################
-  graph$buildC(alpha = 2)
+  graph$buildC(alpha = 2, edge_constraint = TRUE)
   COND_i <- graph$CoB
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
   n_const <- length(COND_i$S)
@@ -279,6 +301,16 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   Tc <- COND_i$T[-ind.const, ]
   Qtilde_i_star_UU <- lapply(Qtilde_i, function(Q) Tc %*% Q %*% t(Tc)) 
   Ai <- t(Tc)[index.obs_i, ] # observation matrix after conditioning
+  
+  # graph$buildC(alpha = 2)
+  # COND_i <- graph$CoB
+  # index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
+  # nc_i <- 1:length(c(1,COND_i$S)) # number of constraints
+  # T_i <- COND_i$T # change of basis matrix
+  # T_i <- t(T_i)[, c(ncol(T_i), 1:(ncol(T_i) - 1))] # column reordering
+  # W_i <- Diagonal(2*ceiling(alpha)*graph$nE)[,-nc_i] # matrix to remove constraints
+  # Qtilde_i_star_UU <- lapply(Qtilde_i, function(Q) t(W_i) %*% t(T_i) %*% Q %*% T_i %*% W_i) 
+  # Ai <- T_i[index.obs_i, -nc_i] # observation matrix after conditioning
   
   #####################################
   ## Build matrix A and Q_UU

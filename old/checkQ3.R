@@ -14,7 +14,7 @@ source(here::here("matern_functions.R"))
 graph_initial <- gets.graph.tadpole()
 graph <- graph_initial$clone()
 
-graph_initial$build_mesh(h = 0.01)
+graph_initial$build_mesh(h = 0.1)
 # to get the weights
 graph_initial$compute_fem()
 # add mesh locations as observations
@@ -31,9 +31,9 @@ graph$add_observations(data = graph_initial$get_mesh_locations() %>%
 graph$observation_to_vertex()
 
 # parameters
-kappa <- 10
+kappa <- 1
 sigma <- 1
-alpha <- 1.99
+alpha <- 1.01
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
