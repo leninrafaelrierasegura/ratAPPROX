@@ -278,7 +278,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
         loc = c(0, L_e[e]),
         kappa = kappa, 
         p = p[i],
-        equally_spaced = TRUE, 
+        equally_spaced = FALSE, 
         alpha = alpha)$Q
       
       # store Qtilde_{i,e}

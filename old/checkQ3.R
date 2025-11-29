@@ -14,7 +14,7 @@ source(here::here("matern_functions.R"))
 graph_initial <- gets.graph.tadpole()
 graph <- graph_initial$clone()
 
-graph_initial$build_mesh(h = 0.1)
+graph_initial$build_mesh(h = 0.2)
 # to get the weights
 graph_initial$compute_fem()
 # add mesh locations as observations
@@ -61,5 +61,6 @@ graph_initial$plot_function(X = Sigma[,2], p = q, type = "plotly", line_color = 
 L_2_error = sqrt(as.double(t(graph_initial$mesh$weights)%*%(True_Sigma - Sigma)^2%*%graph_initial$mesh$weights))
 print(L_2_error)
 
-#graph_initial$plot_function(X = Sigma[,1], type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
-  
+#graph_initial$plot_function(X = Sigma[,2], type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+# graph$V
+# graph_initial$mesh$V
