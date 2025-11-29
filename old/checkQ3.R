@@ -31,13 +31,17 @@ graph$add_observations(data = graph_initial$get_mesh_locations() %>%
 graph$observation_to_vertex()
 
 # parameters
-kappa <- 1
-sigma <- 1
-alpha <- 1.01
-m <- 4
+kappa <- 2.45
+sigma <- 6.32
+alpha <- 1.99
+m <- 1
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 100
+
+c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+c_1 <- gamma(floor(alpha))/gamma(floor(alpha) - 0.5)
+
 
 Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(graph = graph, 
                                               kappa = kappa, 
