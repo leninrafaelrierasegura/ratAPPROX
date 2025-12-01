@@ -12,8 +12,11 @@ library(plotly)
 
 ## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
-gets.graph.tadpole <- function(){
-  edge1 <- rbind(c(0,0),c(1,0))#[c(2,1),]
+gets.graph.tadpole <- function(flip_edge = FALSE){
+  if(flip_edge) {
+    edge1 <- rbind(c(0,0),c(1,0))[c(2,1),]
+    } else {
+    edge1 <- rbind(c(0,0),c(1,0))}
   theta <- seq(from=-pi,to=pi,length.out = 10000)
   edge2 <- cbind(1+1/pi+cos(theta)/pi,sin(theta)/pi)
   edges <- list(edge1, edge2)
