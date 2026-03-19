@@ -1,16 +1,10 @@
-# this is one is ok the next is to see what Alex says
 
-library(Matrix)
 library(MetricGraph)
-library(viridis)
+library(Matrix)
+library(dplyr)
 
-# get the functions from the Rmd files
-knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
-knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
 
-# load the functions
-source(here::here("all_functions.R"))
-source(here::here("matern_functions.R"))
+source("old/functions_for_simple_example.R")
 
 # parameters
 h <- 0.2
@@ -54,23 +48,12 @@ graph$add_observations(
 graph$observation_to_vertex()
 
 
-
-
 Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
   graph = graph, 
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
   m = m)
-
-# my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
-
-
-# my_order <- if (FLIPPED) c(6, 1, 5, 4, 3, 2, 7:graph$nV) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
-
-
 
 
 graph_true <- gets.graph.tadpole(flip_edge = FALSE)
@@ -89,9 +72,6 @@ my_order <- if (FLIPPED) c(nt, 1, (nt-1):2, (nt+1):graph$nV) else 1:graph$nV
 Approx_Sigma <- Approx_Sigma[my_order, my_order]
 
 
-# order_tmp <- if (FLIPPED) c(2, 6, 5, 4, 3, 1, 7:graph$nV) else 1:graph$nV
-# True_Sigma <- True_Sigma[order_tmp,order_tmp]
-
 
 q <- graph_true$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 
@@ -101,4 +81,16 @@ graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_colo
 
 L_2_error = sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
 print(L_2_error)
+
+
+
+
+
+
+
+
+
+
+
+
 

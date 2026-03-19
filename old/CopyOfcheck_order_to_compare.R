@@ -1,4 +1,3 @@
-# this is one is ok the next is to see what Alex says
 
 library(Matrix)
 library(MetricGraph)
@@ -63,13 +62,22 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
   alpha = alpha, 
   m = m)
 
-# my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
+
+# add mesh locations as observations
+graph_initial$add_observations(
+  data = graph_initial$get_mesh_locations() %>% 
+    as.data.frame() %>% 
+    mutate(y = 1) %>% 
+    rename(edge_number = V1, distance_on_edge = V2) %>% 
+    mutate(cov = Approx_Sigma[,2]),
+  edge_number = "edge_number",
+  distance_on_edge = "distance_on_edge",
+  data_coords = "PtE",
+  normalized = TRUE, 
+  clear_obs = TRUE)
 
 
-# my_order <- if (FLIPPED) c(6, 1, 5, 4, 3, 2, 7:graph$nV) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
-
+graph_initial$plot_function(data = "cov",  type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 
 
@@ -101,4 +109,9 @@ graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_colo
 
 L_2_error = sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
 print(L_2_error)
+
+
+
+
+
 

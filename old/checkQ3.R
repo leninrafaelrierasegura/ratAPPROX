@@ -23,7 +23,7 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 n.overkill <- 1000
 
 # build a graph with a mesh
-graph_initial <- gets.graph.tadpole(flip_edge = TRUE)
+graph_initial <- gets.graph.tadpole(flip_edge = FALSE)
 graph <- graph_initial$clone()
 
 graph_initial$build_mesh(h = h)

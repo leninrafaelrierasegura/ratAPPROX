@@ -1,3 +1,5 @@
+# this is one is ok only order is missing to compare
+
 library(Matrix)
 library(MetricGraph)
 library(viridis)
@@ -21,7 +23,7 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 n.overkill <- 1000
 
 # build a graph with a mesh
-graph_initial <- gets.graph.tadpole(flip_edge = TRUE)
+graph_initial <- gets.graph.tadpole(flip_edge = FALSE)
 graph <- graph_initial$clone()
 
 graph_initial$build_mesh(h = h)
@@ -32,7 +34,8 @@ graph$add_observations(
   data = graph_initial$get_mesh_locations() %>% 
     as.data.frame() %>% 
     mutate(y = 1) %>% 
-    rename(edge_number = V1, distance_on_edge = V2)%>%mutate(dummy=1:length(y)),
+    rename(edge_number = V1, distance_on_edge = V2) %>% 
+    mutate(dummy = 1:length(y)),
   edge_number = "edge_number",
   distance_on_edge = "distance_on_edge",
   data_coords = "PtE",
