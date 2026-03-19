@@ -111,7 +111,7 @@ source(here::here("matern_functions.R"))
 
 ```{r}
 # parameters
-h <- 0.2
+h <- 0.08
 kappa <- 5
 sigma <- 0.8
 alpha <- 1.4
@@ -163,29 +163,26 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
 
 
 ```{r}
-graph_initial$plot_function(X = Approx_Sigma[,2], type = "plotly", interpolate_plot = FALSE)
+graph_initial$plot_function(X = Approx_Sigma[,1], type = "plotly", interpolate_plot = FALSE)
 ```
 
 
 ```{r}
-graph_initial$add_observations(
-  data = graph_initial$get_mesh_locations() %>% 
+graph$add_observations(
+  data = graph$get_data() %>% 
     as.data.frame() %>% 
-    mutate(y = 1) %>% 
-    rename(edge_number = V1, distance_on_edge = V2) %>% 
-    mutate(cov = Approx_Sigma[,2]),
-  edge_number = "edge_number",
-  distance_on_edge = "distance_on_edge",
+    mutate(cov = Approx_Sigma[,1]),
+  edge_number = ".edge_number",
+  distance_on_edge = ".distance_on_edge",
   data_coords = "PtE",
   normalized = TRUE, 
   clear_obs = TRUE)
-
-graph_initial$observation_to_vertex()
+graph$observation_to_vertex()
 ```
 
 
 ```{r}
-graph_initial$plot_function(data = "cov", type = "plotly", interpolate_plot = FALSE)
+graph$plot_function(data = "cov", type = "plotly", interpolate_plot = FALSE)
 ```
 
 
