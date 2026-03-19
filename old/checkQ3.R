@@ -1,3 +1,5 @@
+# this is one is ok only order is missing to compare
+
 library(Matrix)
 library(MetricGraph)
 library(viridis)
@@ -32,7 +34,8 @@ graph$add_observations(
   data = graph_initial$get_mesh_locations() %>% 
     as.data.frame() %>% 
     mutate(y = 1) %>% 
-    rename(edge_number = V1, distance_on_edge = V2)%>%mutate(dummy=1:length(y)),
+    rename(edge_number = V1, distance_on_edge = V2) %>% 
+    mutate(dummy = 1:length(y)),
   edge_number = "edge_number",
   distance_on_edge = "distance_on_edge",
   data_coords = "PtE",
