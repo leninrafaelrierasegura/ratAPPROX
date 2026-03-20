@@ -163,7 +163,7 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
 
 
 ```{r}
-graph_initial$plot_function(X = Approx_Sigma[,1], type = "plotly", interpolate_plot = FALSE)
+graph_initial$plot_function(X = Approx_Sigma[,2], type = "plotly", interpolate_plot = FALSE)
 ```
 
 
@@ -171,7 +171,7 @@ graph_initial$plot_function(X = Approx_Sigma[,1], type = "plotly", interpolate_p
 graph$add_observations(
   data = graph$get_data() %>% 
     as.data.frame() %>% 
-    mutate(cov = Approx_Sigma[,1]),
+    mutate(cov = Approx_Sigma[,2]),
   edge_number = ".edge_number",
   distance_on_edge = ".distance_on_edge",
   data_coords = "PtE",

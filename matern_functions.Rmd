@@ -60,7 +60,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -100,7 +100,7 @@ library(plotly)
 The Matérn covariance function is given by
 
 $$
-\varrho(h; \nu, \kappa, \sigma)=\dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 = \dfrac{\Gamma(\nu)}{\Gamma(\nu+1/2)(4\pi)^{1/2}\kappa^{2\nu}\tau^2}
+\varrho(h; \kappa, \nu, \sigma)=\dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 = \dfrac{\Gamma(\nu)}{\Gamma(\nu+1/2)(4\pi)^{1/2}\kappa^{2\nu}\tau^2}
 \tag{1}
 \label{materncovariance}
 $$
@@ -123,10 +123,10 @@ matern.covariance <- function(h, kappa, nu, sigma) {
 The derivatives of the Matérn covariance function can be computed using the following recursive relation. For example, the first derivative is given by
 
 $$
-\varrho'(h; \nu, \kappa, \sigma) = 
+\varrho'(h; \kappa, \nu,  \sigma) = 
 \begin{cases}
 0, & h = 0 \\
--\dfrac{\kappa^2}{2(\nu - 1)} h \varrho(h; \nu - 1, \kappa, \sigma), & h \neq 0
+-\dfrac{\kappa^2}{2(\nu - 1)} h \varrho(h; \kappa, \nu - 1,  \sigma), & h \neq 0
 \end{cases}
 \tag{2}
 \label{matern_derivative}
@@ -174,7 +174,7 @@ $$
 where
 
 $$
-\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha \sqrt{4 \pi}}{\kappa} 1_{[h=0]}, & 0<\alpha<1 \\ \varrho\left(h ;\lfloor\alpha\rfloor-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), & \alpha \geq 1\end{cases}
+\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha \sqrt{4 \pi}}{\kappa} 1_{[h=0]}, & 0<\alpha<1 \\ \varrho\left(h ;\kappa,\lfloor\alpha\rfloor-\frac{1}{2},  \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), & \alpha \geq 1\end{cases}
 \tag{4}
 \label{matern_0_covariance}
 $$
@@ -182,7 +182,7 @@ $$
 and
 
 $$
-\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h ; \frac{1}{2}, \kappa_i, \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right), & 0<\alpha<1 \\ \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \frac{1}{2}, \kappa_i, \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor} \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; j-\frac{1}{2}, \kappa, \frac{c_\alpha}{c_j}\right), & \alpha \geq 1\end{cases}
+\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h ;\kappa_i, \frac{1}{2},  \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right), & 0<\alpha<1 \\ \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \kappa_i, \frac{1}{2},  \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor} \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; \kappa, j-\frac{1}{2},  \frac{c_\alpha}{c_j}\right), & \alpha \geq 1\end{cases}
 \tag{5}
 \label{matern_p_covariance}
 $$
@@ -195,6 +195,15 @@ $$
 \dfrac{\varrho_{m, i}^\alpha(h)}{r_i\sigma^2}
 $$
 as given below. Function `matern.p.deriv()` implements the derivatives of this function.
+
+Here are the details of what `matern.p()` does. 
+
+- If `p==0`, then $\kappa_i=\kappa$ and $\frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}} = c_\alpha \sqrt{\pi}$. So `matern.p()` returns $\varrho(h = s-t; \kappa = \kappa_i = \kappa, \nu = \alpha-1/2, \sigma = 1)$
+
+- If `p!=0`, then
+  
+    - If $0<\alpha<1$, then `matern.p()` returns $\varrho(h = s-t; \kappa = \kappa\sqrt{1-p_i}, \nu = 1/2, \sigma = \sqrt{\frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}}) = \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}} \cdot \varrho(h = s-t; \kappa = \kappa\sqrt{1-p_i}, \nu = 1/2, \sigma=1)$
+
 
 ```{r}
 matern.p <- function(s,t,kappa,p,alpha){
