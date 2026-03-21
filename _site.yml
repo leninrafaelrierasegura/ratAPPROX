@@ -9,6 +9,8 @@ navbar:
       href: about.html
     - text: "All functions"
       href: all_functions.html
+    - text: "Matern functions"
+      href: matern_functions.html
   right:
     - icon: fa-file-pdf
       href: https://arxiv.org/abs/0000.00000

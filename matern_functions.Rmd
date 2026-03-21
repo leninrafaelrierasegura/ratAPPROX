@@ -310,12 +310,15 @@ matern.p.joint <- function(s,t,kappa,p, alpha = 1){
 ```
 
 
-```{r}
+```
+{r}
 mat1 <- matern.p.joint(s = 0.6, t = 0.5, kappa = 10, p = 0.3, alpha = 2)
 mat2 <- matern.p.joint(s = 0.6, t = 0.5, kappa = 10, p = 0.3, alpha = 3)
 mat1
 mat2
 ```
+
+
 ```{r}
 exp_precision <- function(loc, kappa, boundary = "free") {
     n <- length(loc)

@@ -16,7 +16,7 @@ source(here::here("matern_functions.R"))
 h <- 0.2
 kappa <- 5
 sigma <- 0.8
-alpha <- 1.001
+alpha <- 0.89
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -56,7 +56,7 @@ graph$observation_to_vertex()
 
 
 
-Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
+Approx_Sigma <- gets_cov_mat_rat_approx_alpha_0_to_1(
   graph = graph, 
   kappa = kappa, 
   tau = tau, 

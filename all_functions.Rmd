@@ -1033,8 +1033,61 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 ```
 
 
+```{r}
+gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
+
+  # get rational approximation coefficients
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  # --------------------------------------------------
+  # CASE i = 0
+  # --------------------------------------------------
+  
+  I <- Matrix::Diagonal(graph$nV)     
+  Qtilde_0_star_UU <- I/k
+  A_0 <- I
+  
+  # --------------------------------------------------
+  # CASE i = 1,...,m
+  # --------------------------------------------------
+  
+  Qtilde_i_star_UU <- list()
+  
+  for(i in 1:m){
+    
+  Qtilde_i_star_UU[[i]] <- MetricGraph:::Qalpha1(
+    theta = c(tau/sqrt(r[i]), sqrt(kappa^2 - p[i])), 
+    graph = graph, 
+    BC = 3000, 
+    build = TRUE) * 1
+  
+  print(Qtilde_i_star_UU[[i]])
+  }
+  
+  A_i <- graph$.__enclos_env__$private$A()
+    # Build matrix A and Q_UU
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
+  Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  # Return Sigma
+  Sigma <- A %*% solve(Q_UU, t(A)) 
+  return(Sigma)
+}
+```
+
+
+
+
 ```
 {r}
+# Using V's implementation
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
   # get rational approximation coefficients
