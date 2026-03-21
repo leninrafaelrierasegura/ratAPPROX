@@ -174,7 +174,7 @@ $$
 where
 
 $$
-\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha \sqrt{4 \pi}}{\kappa} 1_{[h=0]}, & 0<\alpha<1 \\ \varrho\left(h ;\kappa,\lfloor\alpha\rfloor-\frac{1}{2},  \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\right), & \alpha \geq 1\end{cases}
+\varrho_{m, 0}^\alpha(h)=k \sigma^2 \cdot \begin{cases}\dfrac{c_\alpha \sqrt{4 \pi}}{\kappa} 1_{[h=0]}, & 0<\alpha<1 \\ \varrho\left(h ;\kappa,\lfloor\alpha\rfloor-\frac{1}{2}, \sqrt{ \frac{c_\alpha}{c_{\lfloor\alpha\rfloor}}}\right), & \alpha \geq 1\end{cases}
 \tag{4}
 \label{matern_0_covariance}
 $$
@@ -182,7 +182,7 @@ $$
 and
 
 $$
-\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h ;\kappa_i, \frac{1}{2},  \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right), & 0<\alpha<1 \\ \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \kappa_i, \frac{1}{2},  \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor} \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; \kappa, j-\frac{1}{2},  \frac{c_\alpha}{c_j}\right), & \alpha \geq 1\end{cases}
+\varrho_{m, i}^\alpha(h)=r_i \sigma^2 \cdot \begin{cases}\varrho\left(h ;\kappa_i, \frac{1}{2}, \sqrt{ \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}}\right), & 0<\alpha<1 \\ \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h ; \kappa_i, \frac{1}{2},  \sqrt{\frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}}\right)-\sum_{j=1}^{\lfloor\alpha\rfloor} \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h ; \kappa, j-\frac{1}{2},  \sqrt{\frac{c_\alpha}{c_j}}\right), & \alpha \geq 1\end{cases}
 \tag{5}
 \label{matern_p_covariance}
 $$
@@ -198,11 +198,23 @@ as given below. Function `matern.p.deriv()` implements the derivatives of this f
 
 Here are the details of what `matern.p()` does. 
 
-- If `p==0`, then $\kappa_i=\kappa$ and $\frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}} = c_\alpha \sqrt{\pi}$. So `matern.p()` returns $\varrho(h = s-t; \kappa = \kappa_i = \kappa, \nu = \alpha-1/2, \sigma = 1)$
+- If `p==0`, then `matern.p()` returns $\varrho(h = s-t; \kappa = \kappa, \nu = \alpha-1/2, \sigma = 1) =\dfrac{1}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|)$. So if you want the full matern, just multiply by $\sigma^2$. That is, $\sigma^2*$`matern.p(s,t,kappa,p = 0, alpha) = `$\varrho(h = s-t; \kappa = \kappa, \nu = \alpha-1/2, \sigma = \sigma)$.
 
 - If `p!=0`, then
   
     - If $0<\alpha<1$, then `matern.p()` returns $\varrho(h = s-t; \kappa = \kappa\sqrt{1-p_i}, \nu = 1/2, \sigma = \sqrt{\frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}}) = \frac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}} \cdot \varrho(h = s-t; \kappa = \kappa\sqrt{1-p_i}, \nu = 1/2, \sigma=1)$
+
+The bottom line  is
+
+ - $\varrho_{m, i}^\alpha(h)$ = $r_i\sigma^2$`matern.p(s,t,kappa,p = p, alpha)`.
+ 
+  - $\dfrac{d^k}{dh^k}\varrho_{m, i}^\alpha(h)$ = $r_i\sigma^2$`matern.p.deriv(s,t,kappa,p = p, alpha, deriv = k)`.
+ 
+ 
+ - $\mathbf{r}_i\left(t_1, t_2\right)=r_i\sigma^2$`matern.p.joint(s,t,kappa,p,alpha)`.
+
+- If `p==0`, then we are in the $\alpha\in\mathbb{N}$ case so that $\lfloor\alpha\rfloor=\alpha$ and hence $c_\alpha/c_{\lfloor\alpha\rfloor} = 1$ and hence
+$\varrho_{m, 0}^\alpha(h)=k \sigma^2\varrho(h;\kappa, \alpha-1/2,1)=k \sigma^2$`matern.p(s,t,kappa,p=0,alpha)`
 
 
 ```{r}
