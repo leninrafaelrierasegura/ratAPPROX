@@ -13,14 +13,14 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.2
+h <- 0.02
 kappa <- 5
 sigma <- 0.8
-alpha <- 1.001
-m <- 4
+alpha <- 1.01
+m <- 1
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
-n.overkill <- 1000
+n.overkill <- 10000
 
 
 FLIPPED <- FALSE
@@ -93,14 +93,25 @@ Approx_Sigma <- Approx_Sigma[my_order, my_order]
 # True_Sigma <- True_Sigma[order_tmp,order_tmp]
 
 
+op = matern.operators(alpha = alpha, 
+                      kappa = kappa, 
+                      tau = tau,
+                      m = m, 
+                      graph = graph_true)
+
+appr_cov_mat = covariance_mesh(op)
+
+
 q <- graph_true$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 
-graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graph_true$plot_function(X = appr_cov_mat[,2], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 
 q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 
-graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graph_true$plot_function(X = diag(appr_cov_mat), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 
 

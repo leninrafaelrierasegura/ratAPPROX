@@ -16,7 +16,7 @@ source(here::here("matern_functions.R"))
 h <- 0.2
 kappa <- 5
 sigma <- 0.8
-alpha <- 0.89
+alpha <- 0.51
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -93,11 +93,34 @@ Approx_Sigma <- Approx_Sigma[my_order, my_order]
 # True_Sigma <- True_Sigma[order_tmp,order_tmp]
 
 
+op = matern.operators(alpha = alpha, 
+                      kappa = kappa, 
+                      tau = tau,
+                      m = m, 
+                      graph = graph_true)
+
+appr_cov_mat = covariance_mesh(op)
+
 q <- graph_true$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 
-graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graph_true$plot_function(X = appr_cov_mat[,2], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 
+
+q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+
+graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graph_true$plot_function(X = diag(appr_cov_mat), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+
+
+
+# graph_true$plot_function(X = diag(solve(Q_list[[1]])), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "Q0", showlegend = TRUE) %>%
+#   graph_true$plot_function(X = diag(solve(Q_list[[2]])), p = ., type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Q1", showlegend = TRUE) %>%
+#   graph_true$plot_function(X = diag(solve(Q_list[[3]])), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Q2", showlegend = TRUE) %>%
+#   graph_true$plot_function(X = diag(solve(Q_list[[4]])), p = ., type = "plotly", line_color = "violet", interpolate_plot = FALSE, name = "Q3", showlegend = TRUE) %>%
+#   graph_true$plot_function(X = diag(solve(Q_list[[5]])), p = ., type = "plotly", line_color = "brown", interpolate_plot = FALSE, name = "Q4", showlegend = TRUE) %>% 
+#   graph_true$plot_function(X = diag(Approx_Sigma), p = ., type = "plotly", line_color = "skyblue", interpolate_plot = FALSE, name = "Q5", showlegend = TRUE)
 
 L_2_error = sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
 print(L_2_error)

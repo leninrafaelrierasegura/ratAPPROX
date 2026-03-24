@@ -1052,12 +1052,21 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
   p <- coeff$p
   k <- coeff$k
   
+  nu <- alpha - 1/2
+  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  
+  fa <- floor(alpha)
+  ca <- ceiling(alpha)
+  
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  
   # --------------------------------------------------
   # CASE i = 0
   # --------------------------------------------------
   
+  factor_0 <- kappa/(k*c_alpha*sqrt(4*pi)*sigma^2)
   I <- Matrix::Diagonal(graph$nV)     
-  Qtilde_0_star_UU <- I/k
+  Qtilde_0_star_UU <- I*factor_0
   A_0 <- I
   
   # --------------------------------------------------
@@ -1068,11 +1077,19 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
   
   for(i in 1:m){
     
-  Qtilde_i_star_UU[[i]] <- MetricGraph:::Qalpha1(
-    theta = c(tau/sqrt(r[i]), sqrt(kappa^2 - p[i])), 
-    graph = graph, 
-    BC = 3000, 
-    build = TRUE) * 1
+    nu <- ca - 0.5
+    KAPPA <- kappa*sqrt(1 - p[i])
+    tau <- sqrt(gamma(nu) / (sigma^2 * KAPPA^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+    
+    cte <- r[i]*c_alpha*sqrt(pi)/(sqrt(1 - p[i])*p[i]^fa)
+    
+    factor_i <- 1/cte
+    
+    Qtilde_i_star_UU[[i]] <- MetricGraph:::Qalpha1(
+      theta = c(tau, KAPPA), 
+      graph = graph, 
+      BC = 3000, 
+      build = TRUE) * factor_i
   
   }
   
