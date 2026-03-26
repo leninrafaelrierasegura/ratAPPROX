@@ -1,0 +1,326 @@
+---
+title: "Covariance functions on an interval of $\\mathbb{R}$"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+  - \newcommand{\almosteverywhere}{\mathrm{a.e.}\;}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r}
+# Create a clipboard button on the rendeblack HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+#set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+
+```
+
+```{r, eval = TRUE}
+library(MetricGraph)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(viridis)
+library(plotly)
+library(patchwork)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
+```
+
+
+```{r}
+capture.output(
+  knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R")),
+  file = here::here("old/purl_log.txt")
+)
+capture.output(
+  knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R")),
+  file = here::here("old/purl_log.txt")
+)
+
+source(here::here("all_functions.R"))
+source(here::here("matern_functions.R"))
+```
+
+
+```{r}
+# Function to build an interval graph and create a mesh
+gets_graph_interval <- function(h, ell){
+  edge <- rbind(c(0,0),c(ell,0))
+  edges = list(edge)
+  graph <- metric_graph$new(edges = edges)
+  graph$build_mesh(h = h)
+  return(graph)
+}
+```
+
+
+
+```{r}
+# Parameters of the approximation
+h = 0.2
+ell = 10
+type = "covariance"
+type_rational_approximation = "chebfun"
+rho = 4
+m = 4
+nu = 1.5
+sigma = 2
+
+# Get the graph and build the mesh
+graph = gets_graph_interval(h = h, ell = ell)
+graph$compute_fem()
+
+
+kappa = sqrt(8*nu)/rho
+tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+alpha = nu + 1/2
+```
+
+```{r}
+nodes <- graph$mesh$V[,1]
+dist_mat <- abs(outer(nodes, nodes, "-"))
+Sigma_Matern <- matern.covariance(h = dist_mat, kappa = kappa, nu = nu, sigma = sigma)
+```
+
+
+
+
+```{r}
+# Get the approximate covariance matrix
+op <- matern.operators(alpha = alpha, 
+                      kappa = kappa, 
+                      tau = tau,
+                      m = m, 
+                      graph = graph,
+                      type = type,
+                      type_rational_approximation = type_rational_approximation)
+
+Sigma_FEM <- covariance_mesh(op)
+```
+
+
+
+```{r}
+Sigma_r <- Sigma_FEM*NA
+for (i in 1:length(nodes)) {
+  for (j in 1:length(nodes)) {
+    Sigma_r[i,j] = sigma^2*matern.p.joint(s = nodes[i], t = nodes[j], kappa = kappa, p = 0, alpha = alpha)[1,1]
+  }
+}
+```
+
+
+```{r}
+r_bridge <- function(t1, t2, kappa, alpha, sigma, ell){
+  nu <- alpha - 1/2
+  r1_t1_0 <- sigma^2*matern.p.joint(s = t1, t = 0, kappa = kappa, p = 0, alpha = alpha)[1,]
+  r1_t1_ell <- sigma^2*matern.p.joint(s = t1, t = ell, kappa = kappa, p = 0, alpha = alpha)[1,]
+  
+  r_0_0 <- sigma^2*matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_0_ell <- sigma^2*matern.p.joint(s = 0, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_0 <- sigma^2*matern.p.joint(s = ell, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_ell <- sigma^2*matern.p.joint(s = ell, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  
+  r1_0_t2 <- sigma^2*matern.p.joint(s = 0, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
+  r1_ell_t2 <- sigma^2*matern.p.joint(s = ell, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
+  
+  r1_h <- matrix(c(r1_t1_0, r1_t1_ell), nrow = 1, ncol = 4)
+  r1_v <- matrix(c(r1_0_t2, r1_ell_t2), nrow = 4, ncol = 1)
+  
+  cov <- matern.covariance(h = t1 - t2, kappa = kappa, nu = nu, sigma = sigma) - r1_h %*% solve(cbind(rbind(r_0_0, r_ell_0), rbind(r_0_ell, r_ell_ell)), r1_v)
+  return(as.numeric(cov))
+}
+```
+
+
+```{r}
+r_hat <- function(t1, t2, kappa, alpha, sigma, ell){
+  nu <- alpha - 1/2
+  r1_t1_0 <- sigma^2*matern.p.joint(s = t1, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r1_t1_ell <- sigma^2*matern.p.joint(s = t1, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  
+  r_0_0 <- sigma^2*matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_0_ell <- -sigma^2*matern.p.joint(s = 0, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_0 <- -sigma^2*matern.p.joint(s = ell, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_ell <- sigma^2*matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  
+  r1_0_t2 <- sigma^2*matern.p.joint(s = t2, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r1_ell_t2 <- sigma^2*matern.p.joint(s = t2, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  
+  
+  cov <- sigma^2*matern.p.joint(s = t1, t = t2, kappa = kappa, p = 0, alpha = alpha) + cbind(r1_t1_0, r1_t1_ell) %*% solve(cbind(rbind(r_0_0, r_ell_0), rbind(r_0_ell, r_ell_ell)), rbind(r1_0_t2, r1_ell_t2))
+  return(as.numeric(cov[1,1]))
+}
+```
+
+
+
+```{r}
+Sigma_bridge <- Sigma_FEM*NA
+for (i in 1:length(nodes)) {
+  for (j in 1:length(nodes)) {
+    Sigma_bridge[i,j] = r_bridge(t1 = nodes[i], t2 = nodes[j], kappa = kappa, alpha = alpha, sigma = sigma, ell = ell)
+  }
+}
+```
+
+
+
+```{r}
+Sigma_hat <- Sigma_FEM*NA
+for (i in 1:length(nodes)) {
+  for (j in 1:length(nodes)) {
+    Sigma_hat[i,j] = r_hat(t1 = nodes[i], t2 = nodes[j], kappa = kappa, alpha = alpha, sigma = sigma, ell = ell)
+  }
+}
+```
+
+```{r}
+# Compute errors
+L_2_error_Matern_FEM <- sqrt(as.double(t(graph$mesh$weights) %*% (Sigma_Matern - Sigma_FEM)^2 %*% graph$mesh$weights))
+L_2_error_Matern_r <- sqrt(as.double(t(graph$mesh$weights) %*% (Sigma_Matern - Sigma_r)^2 %*% graph$mesh$weights))
+L_2_error_Matern_bridge <- sqrt(as.double(t(graph$mesh$weights) %*% (Sigma_Matern - Sigma_bridge)^2 %*% graph$mesh$weights))
+L_2_error_Matern_hat <- sqrt(as.double(t(graph$mesh$weights) %*% (Sigma_Matern - Sigma_hat)^2 %*% graph$mesh$weights))
+
+L_2_error_FEM_hat <- sqrt(as.double(t(graph$mesh$weights) %*% (Sigma_FEM - Sigma_hat)^2 %*% graph$mesh$weights))
+
+# Print messages
+cat(" L2 error (Matern - FEM):", L_2_error_Matern_FEM, "\n",
+    "L2 error (Matern - r):", L_2_error_Matern_r, "\n",
+    "L2 error (Matern - bridge):", L_2_error_Matern_bridge, "\n",
+    "L2 error (Matern - hat):", L_2_error_Matern_hat, "\n",
+    "L2 error (FEM - hat):", L_2_error_FEM_hat, "\n")
+```
+
+```{r}
+randd <- rnorm(length(nodes))
+R = chol(Sigma_FEM)
+x_FEM = t(R) %*% randd
+R = chol(Sigma_Matern)
+x_Matern = t(R) %*% randd
+R = chol(Sigma_bridge)
+x_bridge = t(R) %*% randd
+R = chol(Sigma_hat)
+x_hat = t(R) %*% randd
+```
+
+
+
+
+
+
+
+```{r}
+point  <- c(1,0.95)
+loc <- graph$coordinates(PtE = point)
+m1 <- which.min((graph$mesh$V[,1]-loc[1])^2 + (graph$mesh$V[,2]-loc[2])^2)
+```
+
+
+
+
+
+
+```{r}
+graph$plot_function(data = Sigma_FEM[m1, ], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "FEM",line_width = 4) %>%
+    graph$plot_function(data = Sigma_Matern[m1,], p = ., type = "plotly", line_color = "violet", interpolate_plot = FALSE, name = "Matern",line_width = 4) %>%
+    graph$plot_function(data = Sigma_r[m1,], p = ., type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "r",line_width = 4) %>%
+    graph$plot_function(data = Sigma_bridge[m1,], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "bridge",line_width = 4)  %>%
+    graph$plot_function(data = Sigma_hat[m1,], p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4)
+
+```
+
+
+
+```{r}
+graph$plot_function(data = diag(Sigma_FEM), type = "plotly", , line_color = "red", interpolate_plot = FALSE, name = "FEM",line_width = 4) %>%
+    graph$plot_function(data = diag(Sigma_Matern), p = ., type = "plotly", line_color = "violet", interpolate_plot = FALSE, name = "Matern",line_width = 4) %>%
+    graph$plot_function(data = diag(Sigma_r), p = ., type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "r",line_width = 4) %>%
+    graph$plot_function(data = diag(Sigma_bridge), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "bridge",line_width = 4) %>%
+    graph$plot_function(data = diag(Sigma_hat), p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4)
+```
+
+
+
+
+
+```{r}
+graph$plot_function(data = x_FEM, type = "plotly", , line_color = "red", interpolate_plot = FALSE, name = "FEM",line_width = 4) %>%
+    graph$plot_function(data = x_Matern, p = ., type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "r",line_width = 4) %>%
+    graph$plot_function(data = x_bridge, p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "bridge",line_width = 4) %>%
+    graph$plot_function(data = x_hat, p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4)
+```
+
+
+
+
+
+
+
+
