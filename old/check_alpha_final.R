@@ -13,24 +13,22 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.02
-kappa <- 5
-sigma <- 0.8
-alpha <- 1.01
-m <- 1
+h <- 0.05
+kappa <- 10
+sigma <- 1
+alpha <- 0.51
+m <- 10
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
-n.overkill <- 10000
+n.overkill <- 1000
 
 
-FLIPPED <- FALSE
+FLIPPED <- TRUE
 
 
 # build a graph with a mesh
 graph_initial <- gets.graph.tadpole(flip_edge = FLIPPED)
 graph <- graph_initial$clone()
-
-
 
 
 graph_initial$build_mesh(h = h)
@@ -56,19 +54,12 @@ graph$observation_to_vertex()
 
 
 
-Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
+Approx_Sigma <- rat_covariance(
   graph = graph, 
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
   m = m)
-
-# my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
-
-
-# my_order <- if (FLIPPED) c(6, 1, 5, 4, 3, 2, 7:graph$nV) else 1:graph$nV
-# Approx_Sigma <- Approx_Sigma[my_order, my_order]
 
 
 
@@ -76,45 +67,49 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
 graph_true <- gets.graph.tadpole(flip_edge = FALSE)
 graph_true$build_mesh(h = h)
 graph_true$compute_fem()
-True_Sigma <- gets_true_cov_mat(graph = graph_true, 
-                                kappa = kappa, 
-                                tau = tau, 
-                                alpha = alpha, 
-                                n.overkill = n.overkill)
+
+True_Sigma <- gets_true_cov_mat(
+  graph = graph_true, 
+  kappa = kappa, 
+  tau = tau, 
+  alpha = alpha, 
+  n.overkill = n.overkill)
 
 # mesh points in tail edge
 nt <- sum(graph_true$mesh$VtE[,1] == 1) + 1
 
-my_order <- if (FLIPPED) c(nt, 1, (nt-1):2, (nt+1):graph$nV) else 1:graph$nV
+if (!FLIPPED) {my_order <- 1:graph$nV
+} else if (alpha > 0.5 && alpha <= 1) {my_order <- c(2, 1, nt:3, (nt+1):graph$nV)
+  } else if (alpha > 1 && alpha <= 2) {my_order <- c(nt, 1, (nt-1):2, (nt+1):graph$nV)
+    } else {stop("alpha outside supported range")
+      }
+
+
 Approx_Sigma <- Approx_Sigma[my_order, my_order]
 
 
-# order_tmp <- if (FLIPPED) c(2, 6, 5, 4, 3, 1, 7:graph$nV) else 1:graph$nV
-# True_Sigma <- True_Sigma[order_tmp,order_tmp]
-
-
-op = matern.operators(alpha = alpha, 
+op <- matern.operators(alpha = alpha, 
                       kappa = kappa, 
                       tau = tau,
                       m = m, 
                       graph = graph_true)
 
-appr_cov_mat = covariance_mesh(op)
-
+FEM_Sigma <- covariance_mesh(op)
 
 q <- graph_true$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-
 graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graph_true$plot_function(X = appr_cov_mat[,2], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+  graph_true$plot_function(X = FEM_Sigma[,2], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
+
 
 
 q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-
 graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graph_true$plot_function(X = diag(appr_cov_mat), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+  graph_true$plot_function(X = diag(FEM_Sigma), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
 
 
 
-L_2_error = sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
-print(L_2_error)
+L_2_error_RAT <- sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
+L_2_error_FEM <- sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - FEM_Sigma)^2%*%graph_true$mesh$weights))
 
+
+cat(sprintf("L2 error (RAT-TRUE): %.8f\nL2 error (FEM-TRUE): %.8f\n", L_2_error_RAT, L_2_error_FEM))

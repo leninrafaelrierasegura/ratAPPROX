@@ -925,6 +925,24 @@ $$
 ```{r}
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
+  
+  if(alpha == 2){
+    Q_unconstraint <- MetricGraph:::Qalpha2(theta = c(tau, kappa),
+                                         graph = graph,
+                                         BC = 3000,
+                                         build = TRUE)
+    graph$buildC(alpha = alpha, edge_constraint = TRUE) # should always be TRUE
+    COND <- graph$CoB
+    Tc <- COND$T[-c(1:length(COND$S)), ]
+
+    Q_U <-  Tc %*% Q_unconstraint %*% t(Tc)
+
+    index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
+    A <- t(Tc)[index.obs_i, ] 
+
+    Sigma <- A %*% solve(Q_U, t(A))
+    return(Sigma)
+  }
 
   # get rational approximation coefficients
   coeff <- rSPDE:::interp_rational_coefficients(
@@ -998,11 +1016,11 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   # When I use MetricGraph:::Qalpha1, I am assuming that tau and sigma are related by tau^2 = gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)) where nu = 1/2
   
   factor_0 <- 1/(k*c_alpha/c_1)
-  nu <- fa - 0.5
-  tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  NU <- fa - 0.5
+  TAU <- sqrt(gamma(NU) / (sigma^2 * kappa^(2*NU) * (4*pi)^(1/2) * gamma(NU + 1/2)))
     
   Qtilde_0_star_UU <- MetricGraph:::Qalpha1(
-    theta = c(tau, kappa), 
+    theta = c(TAU, kappa), 
     graph = graph, 
     BC = 3000, 
     build = TRUE) * factor_0
@@ -1040,6 +1058,17 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
 ```{r}
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
+  
+  if(alpha == 1){
+    I <- Matrix::Diagonal(graph$nV)  
+    Q_U <- MetricGraph:::Qalpha1(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = 3000,
+      build = TRUE)
+    Sigma <- solve(Q_U, I)
+    return(Sigma)
+  }
 
   # get rational approximation coefficients
   coeff <- rSPDE:::interp_rational_coefficients(
@@ -1077,39 +1106,54 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
   
   for(i in 1:m){
     
-    nu <- ca - 0.5
+    NU <- ca - 0.5
     KAPPA <- kappa*sqrt(1 - p[i])
-    tau <- sqrt(gamma(nu) / (sigma^2 * KAPPA^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+    TAU <- sqrt(gamma(NU) / (sigma^2 * KAPPA^(2*NU) * (4*pi)^(1/2) * gamma(NU + 1/2)))
     
     cte <- r[i]*c_alpha*sqrt(pi)/(sqrt(1 - p[i])*p[i]^fa)
     
     factor_i <- 1/cte
     
     Qtilde_i_star_UU[[i]] <- MetricGraph:::Qalpha1(
-      theta = c(tau, KAPPA), 
+      theta = c(TAU, KAPPA), 
       graph = graph, 
       BC = 3000, 
       build = TRUE) * factor_i
   
   }
   
-  # A_i <- graph$.__enclos_env__$private$A()
-  # 
-  # # Build matrix A and Q_UU
-  # A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
-  # Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
-  # # Return Sigma
-  # Sigma <- A %*% solve(Q_UU, t(A)) 
   
   # List of all Q blocks
-  Q_list <- c(list(Qtilde_0_star_UU), Qtilde_i_star_UU)
+  Q_UU <- c(list(Qtilde_0_star_UU), Qtilde_i_star_UU)
   # Compute Sigma as sum of inverses using solve(Q_i, I_n)
-  Sigma <- Reduce(`+`, lapply(Q_list, function(Qi) solve(Qi, I)))
+  Sigma <- Reduce(`+`, lapply(Q_UU, function(Qi) solve(Qi, I)))
   return(Sigma)
 }
 ```
 
 
+
+```{r}
+rat_covariance <- function(graph, kappa, tau, alpha, m){
+  if(alpha <= 0.5){
+    return(paste("alpha = ", alpha, ", alpha should be larger than 0.5"))
+  }
+  else if(alpha > 0.5 && alpha <= 1){
+    return(gets_cov_mat_rat_approx_alpha_0_to_1(graph = graph,
+                                                kappa = kappa,
+                                                tau = tau,
+                                                alpha = alpha,
+                                                m = m))
+  }
+  else if(alpha > 1 && alpha <= 2){
+    return(gets_cov_mat_rat_approx_alpha_1_to_2(graph = graph,
+                                                kappa = kappa,
+                                                tau = tau,
+                                                alpha = alpha,
+                                                m = m))
+  }
+}
+```
 
 
 ```
