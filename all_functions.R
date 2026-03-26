@@ -1,4 +1,4 @@
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 gives.indices <- function(graph, factor, constant){
   index.obs1 <- sapply(graph$PtV, 
                        function(i){
@@ -222,7 +222,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   
@@ -315,7 +315,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   
   # When I use MetricGraph:::Qalpha1, I am assuming that tau and sigma are related by tau^2 = gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)) where nu = 1/2
   
-  factor_0 <- 1/(k*c_alpha/c_1)
+  inv_factor_0 <- 1/(k*c_alpha/c_1)
   NU <- fa - 0.5
   TAU <- sqrt(gamma(NU) / (sigma^2 * kappa^(2*NU) * (4*pi)^(1/2) * gamma(NU + 1/2)))
     
@@ -323,7 +323,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
     theta = c(TAU, kappa), 
     graph = graph, 
     BC = 3000, 
-    build = TRUE) * factor_0
+    build = TRUE) * inv_factor_0
   
   A_0 <- graph$.__enclos_env__$private$A()
 
@@ -336,11 +336,11 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   COND_i <- graph$CoB
   Tc <- COND_i$T[-c(1:length(COND_i$S)), ]
   
-  factor_i <- 1/(r*sigma^2)
+  inv_factor_i <- 1/(r*sigma^2)
 
   Qtilde_i_star_UU <- purrr::map2(
     Qtilde_i, 
-    factor_i, 
+    inv_factor_i, 
     function(Q, x) Tc %*% Q %*% t(Tc) * x)
 
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
@@ -355,7 +355,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
   
   if(alpha == 1){
@@ -369,7 +369,6 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
     return(Sigma)
   }
 
-  # get rational approximation coefficients
   coeff <- rSPDE:::interp_rational_coefficients(
     order = m, 
     type_rational_approx = "chebfun", 
@@ -392,48 +391,43 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
   # CASE i = 0
   # --------------------------------------------------
   
-  factor_0 <- kappa/(k*c_alpha*sqrt(4*pi)*sigma^2)
+  inv_factor_0 <- 1/(k*c_alpha*sqrt(4*pi)*sigma^2/kappa)
   I <- Matrix::Diagonal(graph$nV)     
-  Qtilde_0_star_UU <- I*factor_0
-  A_0 <- I
+  Qtilde_0_star_UU <- I * inv_factor_0
   
   # --------------------------------------------------
   # CASE i = 1,...,m
   # --------------------------------------------------
   
-  Qtilde_i_star_UU <- list()
+  inv_factor_i <- 1/(r*c_alpha*sqrt(pi)/sqrt(1 - p))
+    
+  NU <- ca - 0.5
   
+  Qtilde_i_star_UU <- list()
   for(i in 1:m){
     
-    NU <- ca - 0.5
     KAPPA <- kappa*sqrt(1 - p[i])
     TAU <- sqrt(gamma(NU) / (sigma^2 * KAPPA^(2*NU) * (4*pi)^(1/2) * gamma(NU + 1/2)))
-    
-    cte <- r[i]*c_alpha*sqrt(pi)/(sqrt(1 - p[i])*p[i]^fa)
-    
-    factor_i <- 1/cte
     
     Qtilde_i_star_UU[[i]] <- MetricGraph:::Qalpha1(
       theta = c(TAU, KAPPA), 
       graph = graph, 
       BC = 3000, 
-      build = TRUE) * factor_i
+      build = TRUE) * inv_factor_i[i]
   
   }
-  
-  
-  # List of all Q blocks
+
   Q_UU <- c(list(Qtilde_0_star_UU), Qtilde_i_star_UU)
-  # Compute Sigma as sum of inverses using solve(Q_i, I_n)
+  
   Sigma <- Reduce(`+`, lapply(Q_UU, function(Qi) solve(Qi, I)))
   return(Sigma)
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, kappa, tau, alpha, m){
   if(alpha <= 0.5){
-    return(paste("alpha = ", alpha, ", alpha should be larger than 0.5"))
+    stop("alpha = ", alpha, ", alpha should be larger than 0.5")
   }
   else if(alpha > 0.5 && alpha <= 1){
     return(gets_cov_mat_rat_approx_alpha_0_to_1(graph = graph,
@@ -452,7 +446,7 @@ rat_covariance <- function(graph, kappa, tau, alpha, m){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------------------
 
 
 # before I changed the constants

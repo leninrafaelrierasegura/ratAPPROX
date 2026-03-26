@@ -13,7 +13,7 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.05
+h <- 0.02
 kappa <- 10
 sigma <- 1
 alpha <- 0.51
@@ -32,25 +32,19 @@ graph <- graph_initial$clone()
 
 
 graph_initial$build_mesh(h = h)
-graph_initial$compute_fem()
 
+
+mesh_locations <- graph_initial$get_mesh_locations() %>% 
+  as.data.frame() %>% 
+  rename(edge_number = V1, distance_on_edge = V2)
 
 # add mesh locations as observations
 graph$add_observations(
-  data = graph_initial$get_mesh_locations() %>% 
-    as.data.frame() %>% 
-    mutate(y = 1) %>% 
-    rename(edge_number = V1, distance_on_edge = V2) %>% 
-    mutate(dummy = 1:length(y)),
-  edge_number = "edge_number",
-  distance_on_edge = "distance_on_edge",
-  data_coords = "PtE",
-  normalized = TRUE, 
-  clear_obs = TRUE)
+  data = mesh_locations,
+  normalized = TRUE)
 
 # add observations as vertices
 graph$observation_to_vertex()
-
 
 
 
@@ -60,7 +54,6 @@ Approx_Sigma <- rat_covariance(
   tau = tau, 
   alpha = alpha, 
   m = m)
-
 
 
 
@@ -102,10 +95,10 @@ graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_colo
 
 
 
-q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graph_true$plot_function(X = diag(FEM_Sigma), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
-
+# q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+# graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+#   graph_true$plot_function(X = diag(FEM_Sigma), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
+# 
 
 
 L_2_error_RAT <- sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
