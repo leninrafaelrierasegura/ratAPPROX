@@ -45,7 +45,7 @@ Go back to the [Contents](about.html) page.
 # Create a clipboard button on the rendeblack HTML page
 source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
-#set.seed(1982) 
+set.seed(1982) 
 # Set global options for all code chunks
 knitr::opts_chunk$set(
   # Disable messages printed by R code chunks
@@ -123,19 +123,22 @@ gets_graph_interval <- function(h, ell){
 
 ```{r}
 # Parameters of the approximation
-h = 0.2
-ell = 10
-type = "covariance"
-type_rational_approximation = "chebfun"
-rho = 4
-m = 4
-nu = 1.5
-sigma = 2
+h = 0.1
+ell = 6
 
 # Get the graph and build the mesh
 graph = gets_graph_interval(h = h, ell = ell)
 graph$compute_fem()
 
+nodes <- graph$mesh$V[,1]
+randd <- rnorm(length(nodes))
+
+type = "covariance"
+type_rational_approximation = "chebfun"
+rho = 4
+m = 1
+nu = 0.5
+sigma = 2
 
 kappa = sqrt(8*nu)/rho
 tau = sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
@@ -143,7 +146,6 @@ alpha = nu + 1/2
 ```
 
 ```{r}
-nodes <- graph$mesh$V[,1]
 dist_mat <- abs(outer(nodes, nodes, "-"))
 Sigma_Matern <- matern.covariance(h = dist_mat, kappa = kappa, nu = nu, sigma = sigma)
 ```
@@ -190,10 +192,10 @@ r_bridge <- function(t1, t2, kappa, alpha, sigma, ell){
   r1_0_t2 <- sigma^2*matern.p.joint(s = 0, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
   r1_ell_t2 <- sigma^2*matern.p.joint(s = ell, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
   
-  r1_h <- matrix(c(r1_t1_0, r1_t1_ell), nrow = 1, ncol = 4)
-  r1_v <- matrix(c(r1_0_t2, r1_ell_t2), nrow = 4, ncol = 1)
+  r1_h <- matrix(c(r1_t1_0, r1_t1_ell), nrow = 1, ncol = 2*alpha)
+  r1_v <- matrix(c(r1_0_t2, r1_ell_t2), nrow = 2*alpha, ncol = 1)
   
-  cov <- matern.covariance(h = t1 - t2, kappa = kappa, nu = nu, sigma = sigma) - r1_h %*% solve(cbind(rbind(r_0_0, r_ell_0), rbind(r_0_ell, r_ell_ell)), r1_v)
+  cov <- matern.covariance(h = t1 - t2, kappa = kappa, nu = nu, sigma = sigma) - r1_h %*% solve(rbind(cbind(r_0_0, r_0_ell), cbind(r_ell_0, r_ell_ell)), r1_v)
   return(as.numeric(cov))
 }
 ```
@@ -214,7 +216,7 @@ r_hat <- function(t1, t2, kappa, alpha, sigma, ell){
   r1_ell_t2 <- sigma^2*matern.p.joint(s = t2, t = ell, kappa = kappa, p = 0, alpha = alpha)
   
   
-  cov <- sigma^2*matern.p.joint(s = t1, t = t2, kappa = kappa, p = 0, alpha = alpha) + cbind(r1_t1_0, r1_t1_ell) %*% solve(cbind(rbind(r_0_0, r_ell_0), rbind(r_0_ell, r_ell_ell)), rbind(r1_0_t2, r1_ell_t2))
+  cov <- sigma^2*matern.p.joint(s = t1, t = t2, kappa = kappa, p = 0, alpha = alpha) + cbind(r1_t1_0, r1_t1_ell) %*% solve(rbind(cbind(r_0_0, r_0_ell), cbind(r_ell_0, r_ell_ell)), rbind(r1_0_t2, r1_ell_t2))
   return(as.numeric(cov[1,1]))
 }
 ```
@@ -228,6 +230,8 @@ for (i in 1:length(nodes)) {
     Sigma_bridge[i,j] = r_bridge(t1 = nodes[i], t2 = nodes[j], kappa = kappa, alpha = alpha, sigma = sigma, ell = ell)
   }
 }
+
+
 ```
 
 
@@ -258,26 +262,10 @@ cat(" L2 error (Matern - FEM):", L_2_error_Matern_FEM, "\n",
     "L2 error (FEM - hat):", L_2_error_FEM_hat, "\n")
 ```
 
-```{r}
-randd <- rnorm(length(nodes))
-R = chol(Sigma_FEM)
-x_FEM = t(R) %*% randd
-R = chol(Sigma_Matern)
-x_Matern = t(R) %*% randd
-R = chol(Sigma_bridge)
-x_bridge = t(R) %*% randd
-R = chol(Sigma_hat)
-x_hat = t(R) %*% randd
-```
-
-
-
-
-
 
 
 ```{r}
-point  <- c(1,0.95)
+point  <- c(1,0.65)
 loc <- graph$coordinates(PtE = point)
 m1 <- which.min((graph$mesh$V[,1]-loc[1])^2 + (graph$mesh$V[,2]-loc[2])^2)
 ```
@@ -306,6 +294,36 @@ graph$plot_function(data = diag(Sigma_FEM), type = "plotly", , line_color = "red
     graph$plot_function(data = diag(Sigma_hat), p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4)
 ```
 
+
+
+```{r}
+eps <- 1e-16
+Sigma_bridge <- Sigma_bridge + diag(eps, nrow(Sigma_bridge))
+Sigma_hat <- Sigma_hat + diag(eps, nrow(Sigma_hat))
+R = chol(Sigma_FEM)
+x_FEM = t(R) %*% randd
+R = chol(Sigma_Matern)
+x_Matern = t(R) %*% randd
+R = chol(Sigma_bridge)
+x_bridge = t(R) %*% randd
+R = chol(Sigma_hat)
+x_hat = t(R) %*% randd
+```
+
+
+```{r}
+# Compute errors
+L_2_error_Matern_FEM_sample <- sqrt(as.double(t(graph$mesh$weights) %*% (x_Matern - x_FEM)^2))
+L_2_error_Matern_bridge_sample <- sqrt(as.double(t(graph$mesh$weights) %*% (x_Matern - x_bridge)^2))
+L_2_error_Matern_hat_sample <- sqrt(as.double(t(graph$mesh$weights) %*% (x_Matern - x_hat)^2 ))
+L_2_error_FEM_hat_sample <- sqrt(as.double(t(graph$mesh$weights) %*% (x_FEM - x_hat)^2))
+
+# Print messages
+cat(" L2 error (Matern - FEM) sample:", L_2_error_Matern_FEM_sample, "\n",
+    "L2 error (Matern - bridge) sample:", L_2_error_Matern_bridge_sample, "\n",
+    "L2 error (Matern - hat) sample:", L_2_error_Matern_hat_sample, "\n",
+    "L2 error (FEM - hat) sample:", L_2_error_FEM_hat_sample, "\n")
+```
 
 
 
