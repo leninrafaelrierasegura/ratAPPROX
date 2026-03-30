@@ -80,6 +80,7 @@ captioner <- function(caption) {
 ```
 
 ```{r, eval = TRUE}
+library(Matrix)
 library(MetricGraph)
 library(ggplot2)
 library(reshape2)
@@ -178,14 +179,44 @@ idx <- match(
 Approx_Sigma <- Approx_Sigma[idx, idx]
 
 
-TT <- matrix(c(
-  1, 0, -1,  0,  0,  0,
-  0, 1,  0, -1,  0,  0,
-  0, 0,  1,  0, -1,  0,
-  0, 0,  0,  1,  0, -1,
-  1, 0,  1,  0,  1,  0,
-  0, 1,  0,  1,  0,  1
+# 1. Define Column Names (extracted from your LaTeX)
+col_labels <- c(
+  "u1(e1_low)", "u'1(e1_low)", "u1(e1_high)", "u'1(e1_high)",
+  "u2(e2_low)", "u'2(e2_low)", "u2(e2_high)", "u'2(e2_high)",
+  "u3(e3_low)", "u'3(e3_low)", "u3(e3_high)", "u'3(e3_high)"
+)
+
+# 2. Create Matrix K
+K <- matrix(c(
+  0, 0, 1,  0, -1, 0,  0, 0,  0, 0,  0, 0,
+  0, 0, 0,  0,  1, 0,  0, 0,  0, 0, -1, 0,
+  0, 0, 0,  0,  0, 0,  1, 0, -1, 0,  0, 0,
+  0, 1, 0,  0,  0, 0,  0, 0,  0, 0,  0, 0,
+  0, 0, 0, -1,  0, 1,  0, 0,  0, 0,  0, -1,
+  0, 0, 0,  0,  0, 0,  0, -1, 0, 1,  0, 0
 ), nrow = 6, byrow = TRUE)
+
+#K <- as(K, "sparseMatrix")
+# 3. Create Matrix L
+L <- matrix(c(
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+  0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0,
+  0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0,
+  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+), nrow = 6, byrow = TRUE)
+
+#L <- as(L, "sparseMatrix")
+
+# 4. Combine K and L vertically
+TT <- rbind(K, L)
+
+# Add column names for clarity
+colnames(TT) <- col_labels
+
+
+
 
 
 fa <- floor(alpha)
@@ -230,15 +261,28 @@ Q_tilde <- bdiag(Qtilde_e)
 
 Q_tilde_star <- TT %*% Q_tilde %*% t(TT)
 
-A <- matrix(c(1,0,0,0,0,0,
-              0,1,0,0,0,0), nrow = 2, ncol = 6, byrow = TRUE)
+A <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,
+              0,0,1,0,0,0,0,0,0,0,0,0,
+              0,0,0,0,0,0,1,0,0,0,0,0), nrow = 3, ncol = 12, byrow = TRUE)
 
-T_U <- TT[5:6,]
+S <- sparseMatrix(
+  i = 1:6,
+  j = 7:12,
+  x = 1,
+  dims = c(6, 12)
+)
 
-Q_tilde_star_UU <- Q_tilde_star[5:6, 5:6]
+T_U <- S %*% TT #TT[7:12,]
+
+Q_tilde_star_UU <- S %*% Q_tilde_star %*% t(S) #Q_tilde_star[7:12, 7:12]
 
 Sigma_build <- A %*% t(T_U) %*% solve(Q_tilde_star_UU, T_U %*% t(A))
 
+Approx_Sigma
+
+Sigma_build
+
+graph$plot(direction = TRUE)
 
 sum(Approx_Sigma-Sigma_build)
 ```
@@ -250,7 +294,7 @@ sum(Approx_Sigma-Sigma_build)
 
 
 
-
+# Case $\alpha=1$
 
 
 
@@ -269,7 +313,6 @@ graph$set_manual_edge_lengths(edge_lengths = c(1,2/pi,1))
 ```
 
 
-# Case $\alpha=1$
 
 ```{r}
 kappa <- 4
@@ -361,6 +404,12 @@ Sigma_build <- A %*% t(T_U) %*% solve(Q_tilde_star_UU, T_U %*% t(A))
 #                     type = "plotly", 
 #                     interpolate_plot = FALSE, 
 #                     vertex_size = 0)
+
+Approx_Sigma
+
+Sigma_build
+
+graph$plot(direction = T)
 
 sum(Approx_Sigma-Sigma_build)
 ```
