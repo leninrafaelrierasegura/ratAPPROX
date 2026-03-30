@@ -538,7 +538,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2_old <- function(graph, kappa, tau, alpha, m
   # --------------------------------------------------
   
   # build conditioning matrix
-  graph$buildC(alpha = 2, edge_constraint = FALSE) # should always be TRUE
+  graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
   COND_i <- graph$CoB
   Tc <- COND_i$T[-c(1:length(COND_i$S)), ]
   

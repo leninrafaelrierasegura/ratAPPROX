@@ -14,13 +14,13 @@ source(here::here("matern_functions.R"))
 
 # parameters
 h <- 0.1
-kappa <- 0.3
+kappa <- 1
 sigma <- 1
-alpha <- 2
-m <- 10
+alpha <- 0.9
+m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
-
+n.overkill <- 1000
 
 # This is a function from MetricGraph package that returns a list of edges
 edges <- logo_lines() 
@@ -32,8 +32,6 @@ graph <- graph_initial$clone()
 
 
 graph_initial$build_mesh(h = h)
-
-mesh_XY <- graph_initial$mesh$V %>% as.data.frame()
 
 
 mesh_locations <- graph_initial$get_mesh_locations() %>% 
@@ -49,12 +47,8 @@ graph$add_observations(
 # add observations as vertices
 graph$observation_to_vertex()
 
+
 data <- graph$get_data()
-
-vertex_XY <- graph$V
-
-
-
 
 Approx_Sigma <- rat_covariance(
   graph = graph, 
@@ -70,26 +64,15 @@ graph$add_observations(
   data = data %>% mutate(cov = Approx_Sigma[,100]),
   normalized = TRUE, clear_obs = TRUE)
 
-order <- graph$get_data() %>%
-  as.data.frame() %>%
-  select(.coord_x, .coord_y) %>%
-  rename(X = .coord_x, Y = .coord_y)
-
-# graph$plot_function(data = "cov", 
-#                     type = "plotly", 
-#                     interpolate_plot = FALSE, 
-#                     vertex_size = 0)
-
-digits <- 10
-
-idx <- match(
-  paste(round(mesh_XY$X, digits), round(mesh_XY$Y, digits)),
-  paste(round(order$X, digits), round(order$Y, digits))
-)
+# # add observations as vertices
+# graph$observation_to_vertex()
 
 
-if (alpha <= 1){Approx_Sigma_reordered <- Approx_Sigma
-} else {Approx_Sigma_reordered <- Approx_Sigma[idx, idx]}
+graph$plot_function(data = "cov", 
+                    type = "plotly", 
+                    interpolate_plot = FALSE, 
+                    vertex_size = 0)
+
 
 op <- matern.operators(alpha = alpha, 
                       kappa = kappa, 
@@ -100,25 +83,14 @@ op <- matern.operators(alpha = alpha,
 FEM_Sigma <- covariance_mesh(op)
 
 
-graph_initial$plot_function(X = Approx_Sigma_reordered[,100],  
+graph_initial$plot_function(X = Approx_Sigma[,100],  
                             type = "plotly", 
-                            line_color = "red", 
+                            line_color = "green", 
                             interpolate_plot = FALSE, 
-                            name = "rat", 
-                            showlegend = TRUE) %>%
-  graph_initial$plot_function(X = FEM_Sigma[,100],  
-                              p = .,
-                              type = "plotly", 
-                              line_color = "green", 
-                              interpolate_plot = FALSE, 
-                              name = "FEM", 
-                              showlegend = TRUE)
+                            name = "FEM", 
+                            showlegend = TRUE)
 
 
-L_2_error <- sqrt(as.double(t(graph_initial$mesh$weights)%*%(Approx_Sigma_reordered - FEM_Sigma)^2%*%graph_initial$mesh$weights))
-
-
-cat(sprintf("L2 error (RAT-TRUE): %.8f\n", L_2_error))
 
 
 
