@@ -13,17 +13,17 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.02
+h <- 1
 kappa <- 4
 sigma <- 1
-alpha <- 0.8
+alpha <- 2
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
 
 
-FLIPPED <- TRUE
+FLIPPED <- FALSE
 
 
 # build a graph with a mesh

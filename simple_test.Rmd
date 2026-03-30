@@ -1,0 +1,366 @@
+---
+title: "Simple test from Statistical paper"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+  - \newcommand{\almosteverywhere}{\mathrm{a.e.}\;}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+```{r}
+# Create a clipboard button on the rendeblack HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+
+```
+
+```{r, eval = TRUE}
+library(MetricGraph)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(viridis)
+library(plotly)
+library(patchwork)
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
+```
+
+
+```{r}
+capture.output(
+  knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R")),
+  file = here::here("old/purl_log.txt")
+)
+capture.output(
+  knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R")),
+  file = here::here("old/purl_log.txt")
+)
+
+source(here::here("all_functions.R"))
+source(here::here("matern_functions.R"))
+```
+
+
+
+
+
+
+# Case $\alpha=2$
+
+
+
+
+
+```{r}
+h <- 1
+kappa <- 4
+sigma <- 1
+alpha <- 2
+m <- 4
+nu <- alpha - 0.5
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+
+
+# build a graph with a mesh
+graph_initial <- gets.graph.tadpole(flip_edge = FALSE)
+graph <- graph_initial$clone()
+
+
+graph_initial$build_mesh(h = h)
+
+
+mesh_XY <- graph_initial$mesh$V %>% as.data.frame()
+
+
+mesh_locations <- graph_initial$get_mesh_locations() %>% 
+  as.data.frame() %>% 
+  mutate(dummy = 1) %>%
+  rename(edge_number = V1, distance_on_edge = V2)
+
+# add mesh locations as observations
+graph$add_observations(
+  data = mesh_locations,
+  normalized = TRUE)
+
+# add observations as vertices
+graph$observation_to_vertex()
+
+data <- graph$get_data()
+
+order <- data %>%
+  as.data.frame() %>%
+  select(.coord_x, .coord_y) %>%
+  rename(X = .coord_x, Y = .coord_y)
+
+Approx_Sigma <- rat_covariance(
+  graph = graph, 
+  kappa = kappa, 
+  tau = tau, 
+  alpha = alpha, 
+  m = m)
+
+digits <- 10
+
+idx <- match(
+  paste(round(mesh_XY$X, digits), round(mesh_XY$Y, digits)),
+  paste(round(order$X, digits), round(order$Y, digits))
+)
+
+
+Approx_Sigma <- Approx_Sigma[idx, idx]
+
+
+TT <- matrix(c(
+  1, 0, -1,  0,  0,  0,
+  0, 1,  0, -1,  0,  0,
+  0, 0,  1,  0, -1,  0,
+  0, 0,  0,  1,  0, -1,
+  1, 0,  1,  0,  1,  0,
+  0, 1,  0,  1,  0,  1
+), nrow = 6, byrow = TRUE)
+
+
+fa <- floor(alpha)
+ca <- ceiling(alpha)
+
+r00 <- matern.p.joint(
+      s = 0, 
+      t = 0, 
+      kappa = kappa, 
+      p = 0, 
+      alpha = alpha)
+    
+# compute r_(0,0)^(-1)
+r00_inverse <- solve(r00, Diagonal(ca))
+
+# define zero block 
+zero_block <- matrix(0, ca, ca)
+
+# build correction term
+correction_term <- rbind(
+  cbind(r00_inverse, zero_block),
+  cbind(zero_block, r00_inverse))
+
+L_e <- graph$edge_lengths
+Qtilde_e <- list()
+
+for(e in 1:length(L_e)){
+  
+  # compute Q_{i,e}
+  Q_e <- matern.p.precision(
+    loc = c(0, L_e[e]),
+    kappa = kappa, 
+    p = 0,
+    equally_spaced = FALSE, 
+    alpha = alpha)$Q
+  
+  # store Qtilde_{i,e}
+  Qtilde_e[[e]] <- Q_e - 0.5 * correction_term
+}
+
+Q_tilde <- bdiag(Qtilde_e)
+
+Q_tilde_star <- TT %*% Q_tilde %*% t(TT)
+
+A <- matrix(c(1,0,0,0,0,0,
+              0,1,0,0,0,0), nrow = 2, ncol = 6, byrow = TRUE)
+
+T_U <- TT[5:6,]
+
+Q_tilde_star_UU <- Q_tilde_star[5:6, 5:6]
+
+Sigma_build <- A %*% t(T_U) %*% solve(Q_tilde_star_UU, T_U %*% t(A))
+
+
+sum(Approx_Sigma-Sigma_build)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+theta1 <- seq(from=pi,to=0,length.out = 1000)
+theta2 <- seq(from=-pi,to=0,length.out = 1000)
+
+edge1 <- cbind(1/pi+cos(theta1)/pi,sin(theta1)/pi)
+edge2 <- rbind(c(0,0),c(2/pi,0))
+edge3 <- cbind(1/pi+cos(theta2)/pi,sin(theta2)/pi)
+edges <- list(edge1, edge2, edge3)
+graph <- metric_graph$new(edges = edges)
+graph$set_manual_edge_lengths(edge_lengths = c(1,2/pi,1))
+```
+
+
+# Case $\alpha=1$
+
+```{r}
+kappa <- 4
+sigma <- 1
+alpha <- 1
+m <- 4
+nu <- alpha - 0.5
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+Approx_Sigma <- rat_covariance(
+  graph = graph, 
+  kappa = kappa, 
+  tau = tau, 
+  alpha = alpha, 
+  m = m)
+
+TT <- matrix(c(
+  1, 0, -1,  0,  0,  0,
+  0, 1,  0, -1,  0,  0,
+  0, 0,  1,  0, -1,  0,
+  0, 0,  0,  1,  0, -1,
+  1, 0,  1,  0,  1,  0,
+  0, 1,  0,  1,  0,  1
+), nrow = 6, byrow = TRUE)
+
+
+fa <- floor(alpha)
+ca <- ceiling(alpha)
+
+r00 <- matern.p.joint(
+      s = 0, 
+      t = 0, 
+      kappa = kappa, 
+      p = 0, 
+      alpha = alpha)
+    
+# compute r_(0,0)^(-1)
+r00_inverse <- solve(r00, Diagonal(ca))
+
+# define zero block 
+zero_block <- matrix(0, ca, ca)
+
+# build correction term
+correction_term <- rbind(
+  cbind(r00_inverse, zero_block),
+  cbind(zero_block, r00_inverse))
+
+L_e <- graph$edge_lengths
+Qtilde_e <- list()
+
+for(e in 1:length(L_e)){
+  
+  # compute Q_{i,e}
+  Q_e <- matern.p.precision(
+    loc = c(0, L_e[e]),
+    kappa = kappa, 
+    p = 0,
+    equally_spaced = FALSE, 
+    alpha = alpha)$Q
+  
+  # store Qtilde_{i,e}
+  Qtilde_e[[e]] <- Q_e - 0.5 * correction_term
+}
+
+Q_tilde <- bdiag(Qtilde_e)
+
+Q_tilde_star <- TT %*% Q_tilde %*% t(TT)
+
+A <- matrix(c(1,0,0,0,0,0,
+              0,1,0,0,0,0), nrow = 2, ncol = 6, byrow = TRUE)
+
+T_U <- TT[5:6,]
+
+Q_tilde_star_UU <- Q_tilde_star[5:6, 5:6]
+
+Sigma_build <- A %*% t(T_U) %*% solve(Q_tilde_star_UU, T_U %*% t(A))
+
+# data <- data.frame(coord_x = graph$V[,1], 
+#                    coord_y = graph$V[,2],
+#                    var = diag(Approx_Sigma),
+#                    cov1 = Approx_Sigma[,1],
+#                    cov2 = Approx_Sigma[,2])
+# 
+# graph$add_observations(data = data, data_coords = "spatial", clear_obs = TRUE)
+# 
+# data_after <- graph$get_data()
+# 
+# graph$plot_function(data = "cov2", 
+#                     type = "plotly", 
+#                     interpolate_plot = FALSE, 
+#                     vertex_size = 0)
+
+sum(Approx_Sigma-Sigma_build)
+```

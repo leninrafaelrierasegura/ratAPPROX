@@ -67,9 +67,9 @@ Approx_Sigma <- rat_covariance(
 
 
 # add mesh locations as observations
-graph$add_observations(
-  data = data %>% mutate(cov = Approx_Sigma[,100]),
-  normalized = TRUE, clear_obs = TRUE)
+# graph$add_observations(
+#   data = data %>% mutate(cov = Approx_Sigma[,100]),
+#   normalized = TRUE, clear_obs = TRUE)
 
 
 # graph$plot_function(data = "cov", 
