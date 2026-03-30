@@ -51,9 +51,10 @@ graph$observation_to_vertex()
 
 data <- graph$get_data()
 
-vertex_XY <- graph$V
-
-
+order <- data %>%
+  as.data.frame() %>%
+  select(.coord_x, .coord_y) %>%
+  rename(X = .coord_x, Y = .coord_y)
 
 
 Approx_Sigma <- rat_covariance(
@@ -70,10 +71,6 @@ graph$add_observations(
   data = data %>% mutate(cov = Approx_Sigma[,100]),
   normalized = TRUE, clear_obs = TRUE)
 
-order <- graph$get_data() %>%
-  as.data.frame() %>%
-  select(.coord_x, .coord_y) %>%
-  rename(X = .coord_x, Y = .coord_y)
 
 # graph$plot_function(data = "cov", 
 #                     type = "plotly", 
