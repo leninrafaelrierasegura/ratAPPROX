@@ -51,6 +51,8 @@ graph$observation_to_vertex()
 
 data <- graph$get_data()
 
+da <- graph$.__enclos_env__$private$data %>% as.data.frame() # this is the same as data
+
 order <- data %>%
   as.data.frame() %>%
   select(.coord_x, .coord_y) %>%
