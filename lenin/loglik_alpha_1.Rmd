@@ -1,0 +1,316 @@
+---
+title: "loglik2"
+output: html_document
+---
+
+```{r}
+# Create a clipboard button on the rendeblack HTML page
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+
+```
+
+```{r}
+devtools::load_all("~/Desktop/MetricGraph")
+```
+
+
+```{r, eval = TRUE}
+library(Matrix)
+library(dplyr)
+library(rSPDE)
+source("~/Desktop/ratAPPROX/lenin/minimal_functions.R")
+```
+
+
+```{r}
+edge1 <- rbind(c(0,0),c(1,0))
+edge2 <- rbind(c(0,0),c(0,1))
+edge3 <- rbind(c(0,1),c(-1,1))
+theta <- seq(from=pi,to=3*pi/2,length.out = 20)
+edge4 <- cbind(sin(theta),1+ cos(theta))
+edges = list(edge1, edge2, edge3, edge4)
+graph <- metric_graph$new(edges = edges)
+
+
+alpha <- 1
+nu <- alpha - 1/2
+sigma <- 1.3
+range <- 0.15
+kappa <- sqrt(8*nu)/range
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+sigma_e <- 0.5
+
+rspde.order <- 2
+```
+
+
+```{r}
+n.obs.per.edge <- 3
+PtE <- NULL
+for(i in 1:graph$nE){
+  #add locations sampled at random to each edge
+  PtE <- rbind(PtE, cbind(rep(i, n.obs.per.edge), runif(n.obs.per.edge)))
+}
+
+u <- sample_spde(range = range, sigma = sigma, alpha = alpha,
+                 graph = graph, PtE = PtE)
+
+Y <- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
+
+df_data <- data.frame(y = Y, edge_number = PtE[,1],
+                        distance_on_edge = PtE[,2])
+
+graph$add_observations(data = df_data, normalized = TRUE)
+```
+
+
+```
+{r}
+op <- matern.operators(alpha = alpha,
+                       kappa = kappa,
+                       tau = tau,
+                       parameterization = "spde",
+                       m = rspde.order,
+                       graph = graph_initial)
+
+
+u <- simulate(op)
+
+obs.per.edge <- 3
+obs.loc <- NULL
+for(i in 1:graph_initial$nE) {
+  obs.loc <- rbind(obs.loc,
+                   cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
+}
+n.obs <- obs.per.edge*graph_initial$nE
+A <- graph_initial$fem_basis(obs.loc)
+
+Y <- as.vector(A %*% u + sigma_e * rnorm(n.obs))
+df_data <- data.frame(y = Y, edge_number = obs.loc[,1],
+                      distance_on_edge = obs.loc[,2])
+graph$add_observations(data = df_data, normalized = TRUE)
+
+```
+
+
+# Loglikelihood using `graph_lme`
+
+```{r}
+
+BC <- 0
+fit <- graph_lme(y ~ -1, graph=graph, BC = BC,
+                 model = list(type = "WhittleMatern", alpha = 1))
+
+fit$loglik
+
+```
+
+
+# Loglikelihood using minimal `graph_lme` with bridge representation
+
+
+```{r}
+fit <- graph_lme_minimal(y ~ -1, graph=graph, BC = BC,
+                 model = list(type = "WhittleMatern", alpha = 1, version = 1))
+
+fit$loglik
+
+
+
+precomp_data <- fit$precomp_data
+
+
+# using fitted parameters
+eval_likelihood_alpha1(
+  sigma_e      = fit$coeff$measurement_error,
+  tau          = fit$coeff$random_effects[["tau"]],
+  kappa        = fit$coeff$random_effects[["kappa"]],
+  graph        = graph,
+  precomp_data = precomp_data,
+  BC           = BC
+)
+```
+
+```{r}
+precomp_data <- naked_precompute_alpha1(graph,
+                        data_name = "y", 
+                        manual_y = NULL,
+                        X_cov = NULL,
+                        repl = NULL)
+
+# using fitted parameters
+naked_eval_likelihood_alpha1(
+  sigma_e      = fit$coeff$measurement_error,
+  tau          = fit$coeff$random_effects[["tau"]],
+  kappa        = fit$coeff$random_effects[["kappa"]],
+  graph        = graph,
+  precomp_data = precomp_data,
+  BC           = BC
+)
+```
+
+
+```
+{r}
+Qv <- MetricGraph:::Qalpha1(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = BC,
+      build = TRUE)
+
+Lv <- chol(Qv)
+
+
+PtE <- graph$get_PtE()
+obs.edges <- precomp_data$obs.edges
+loglik <- 0
+aux_list1 <- list()
+for (e in seq_along(obs.edges)){
+  edge_name <- paste0("edge_", e)
+  ell <- graph$edge_lengths[e]
+  tt <- PtE[PtE[,1] == e, 2]*ell
+  Sigma_e_mat <- Simga_e(t_vector = tt, 
+                         kappa = kappa,
+                         alpha = alpha,
+                         sigma = sigma,
+                         sigma_e = sigma_e,
+                         ell = ell)
+  chol_Sigma_e_mat <- chol(Sigma_e_mat)
+  y_edge <- precomp_data$y$repl_1[[edge_name]]
+  loglik <- loglik - sum(log(diag(chol_Sigma_e_mat))) - 0.5 * t(y_edge) %*% solve(Sigma_e_mat, y_edge)
+  list_mat_Bt <- list()
+  for (i in 1:length(tt)) {
+    list_mat_Bt[[i]] <- t(S_mat(t1 = tt[i],
+                              kappa = kappa,
+                              alpha = alpha,
+                              sigma = sigma,
+                              ell = ell))
+  }
+  BtT <- do.call(cbind, list_mat_Bt)
+  aux_list1[[e]] <- BtT %*% solve(Sigma_e_mat, t(BtT))
+}
+```
+
+
+# Loglikelihood using minimal `graph_lme` with no bridge representation
+
+```{r}
+fit <- graph_lme_minimal_v2(y ~ -1, graph=graph, BC = BC,
+                         model = list(type = "WhittleMatern", alpha = 1, version = 2))
+
+fit$loglik
+```
+
+
+# Loglikelihood using loglikekihood function (simplified) from the package
+
+
+```{r}
+
+m <- graph$nV
+n <- length(Y)
+
+
+
+graph$observation_to_vertex()
+
+data <- graph$get_data()
+
+Y <- data$y
+
+sigma_e      = fit$coeff$measurement_error
+tau          = fit$coeff$random_effects[["tau"]]
+kappa        = fit$coeff$random_effects[["kappa"]]
+
+theta <- c(log(sigma_e), log(1/tau), log(kappa))
+
+eval_likelihood_alpha1_v2(theta = theta,
+                          graph = graph,
+                          y = Y,
+                          BC = BC,
+                          parameterization = "spde")
+```
+
+
+# Loglikelihood using loglikekihood function (not simplified) from the package
+
+```{r}
+eva_likelihood_alpha1_v2_no_simplified(theta = theta,
+                          graph = graph,
+                          X_cov = matrix(0, ncol = 0, nrow = 0),
+                          y = Y,
+                          repl = NULL,
+                          BC = BC,
+                          parameterization = "spde")
+```
+
+
+# Loglikelihood using my implementation
+
+
+```{r}
+Q <- MetricGraph:::Qalpha1(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = BC,
+      build = TRUE)
+
+L <- chol(Q)
+
+barA <- cbind(matrix(0, nrow = n, ncol = m),
+              Matrix::Diagonal(n))
+
+Qp <- Q + 1/sigma_e^2 * t(barA) %*% barA 
+mu <- 1/sigma_e^2 * solve(Qp, t(barA) %*% Y)
+
+
+Lp <- chol(Qp)
+
+loglik <- sum(log(diag(L))) -
+  n*log(sigma_e) -
+  sum(log(diag(Lp))) -
+  0.5/sigma_e^2 * t(Y) %*% Y +
+  0.5 * t(mu) %*% Qp %*% mu -
+      0.5 * n * log(2*pi)
+
+loglik
+```
+
+
+
+```{r}
+
+```
+
