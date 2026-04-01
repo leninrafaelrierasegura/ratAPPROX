@@ -1,4 +1,4 @@
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 gives.indices <- function(graph, factor, constant){
   index.obs1 <- sapply(graph$PtV, 
                        function(i){
@@ -222,9 +222,9 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 # This is the correct version, it is corrected the constants
-gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
+gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 2){
     Q_unconstraint <- MetricGraph:::Qalpha2(theta = c(tau, kappa),
@@ -239,9 +239,11 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
     index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
     A <- t(Tc)[index.obs_i, ] 
-
+    if(build_cov){
     Sigma <- A %*% solve(Q_U, t(A))
     return(Sigma)
+    }
+    return(list(A = A, Q = Q_U))
   }
 
   # get rational approximation coefficients
@@ -349,24 +351,33 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
   # Build matrix A and Q_UU
   A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
   Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  if(build_cov){
   # Return Sigma
   Sigma <- A %*% solve(Q_UU, t(A)) 
   return(Sigma)
+  }
+  return(list(A = A, Q = Q_UU))
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
-gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
+## ------------------------------------------------------------
+gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
-    I <- Matrix::Diagonal(graph$nV)  
     Q_U <- MetricGraph:::Qalpha1(
       theta = c(tau, kappa),
       graph = graph,
       BC = 3000,
       build = TRUE)
-    Sigma <- solve(Q_U, I)
+    A <- graph$.__enclos_env__$private$A()
+    
+    if(build_cov){
+    Sigma <- A %*% solve(Q_U, t(A))
+    #I <- Matrix::Diagonal(graph$nV)  
+    #Sigma <- solve(Q_U, I)
     return(Sigma)
+    }
+    return(list(A = A, Q = Q_U))
   }
 
   coeff <- rSPDE:::interp_rational_coefficients(
@@ -416,16 +427,27 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m){
       build = TRUE) * inv_factor_i[i]
   
   }
-
-  Q_UU <- c(list(Qtilde_0_star_UU), Qtilde_i_star_UU)
   
-  Sigma <- Reduce(`+`, lapply(Q_UU, function(Qi) solve(Qi, I)))
+  A_0 <- graph$.__enclos_env__$private$A()
+  # Build matrix A and Q_UU
+  A <- do.call(cbind, rep(list(A_0), m+1))
+  Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  # Return Sigma
+  
+  if(build_cov){
+  Sigma <- A %*% solve(Q_UU, t(A))
+
+  # Q_UU <- c(list(Qtilde_0_star_UU), Qtilde_i_star_UU)
+  # 
+  # Sigma <- Reduce(`+`, lapply(Q_UU, function(Qi) solve(Qi, I)))
   return(Sigma)
+  }
+  return(list(A = A, Q = Q_UU))
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
-rat_covariance <- function(graph, kappa, tau, alpha, m){
+## ------------------------------------------------------------
+rat_covariance <- function(graph, kappa, tau, alpha, m, build_cov = TRUE){
   if(alpha <= 0.5){
     stop("alpha = ", alpha, ", alpha should be larger than 0.5")
   }
@@ -434,19 +456,21 @@ rat_covariance <- function(graph, kappa, tau, alpha, m){
                                                 kappa = kappa,
                                                 tau = tau,
                                                 alpha = alpha,
-                                                m = m))
+                                                m = m,
+                                                build_cov = build_cov))
   }
   else if(alpha > 1 && alpha <= 2){
     return(gets_cov_mat_rat_approx_alpha_1_to_2(graph = graph,
                                                 kappa = kappa,
                                                 tau = tau,
                                                 alpha = alpha,
-                                                m = m))
+                                                m = m, 
+                                                build_cov = build_cov))
   }
 }
 
 
-## ----------------------------------------------------------------------------------------------------------------------
+## ------------------------------------------------------------
 
 
 # before I changed the constants
