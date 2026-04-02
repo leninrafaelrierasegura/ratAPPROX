@@ -387,16 +387,16 @@ captioner &lt;- function(caption) {
   paste0(&quot;Figure &quot;, fig_count, &quot;: &quot;, caption)
 }</code></pre>
 <pre class="r"><code>capture.output(
-  knitr::purl(here::here(&quot;all_functions.Rmd&quot;), output = here::here(&quot;all_functions.R&quot;)),
+  knitr::purl(&quot;~/Desktop/ratAPPROX/all_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/all_functions.R&quot;),
   file = here::here(&quot;old/purl_log.txt&quot;)
 )
 capture.output(
-  knitr::purl(here::here(&quot;matern_functions.Rmd&quot;), output = here::here(&quot;matern_functions.R&quot;)),
+  knitr::purl(&quot;~/Desktop/ratAPPROX/matern_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/matern_functions.R&quot;),
   file = here::here(&quot;old/purl_log.txt&quot;)
 )
 
-source(here::here(&quot;all_functions.R&quot;))
-source(here::here(&quot;matern_functions.R&quot;))</code></pre>
+source(&quot;~/Desktop/ratAPPROX/all_functions.R&quot;)
+source(&quot;~/Desktop/ratAPPROX/matern_functions.R&quot;)</code></pre>
 <pre class="r"><code>devtools::load_all(&quot;~/Desktop/MetricGraph&quot;)</code></pre>
 <pre class="r"><code>library(Matrix)
 library(dplyr)
@@ -420,7 +420,10 @@ tau &lt;- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1
 
 sigma_e &lt;- 0.5
 
-rspde.order &lt;- 2</code></pre>
+rspde.order &lt;- 2
+
+
+BC &lt;- 0</code></pre>
 <pre class="r"><code>n.obs.per.edge &lt;- 30
 PtE &lt;- NULL
 for(i in 1:graph$nE){
@@ -429,7 +432,7 @@ for(i in 1:graph$nE){
 }
 
 u &lt;- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE)
+                 graph = graph, PtE = PtE, BC = BC)
 
 Y &lt;- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
 
@@ -439,12 +442,11 @@ df_data &lt;- data.frame(y = Y, edge_number = PtE[,1],
 graph$add_observations(data = df_data, normalized = TRUE)</code></pre>
 <div id="loglikelihood-using-graph_lme" class="section level1">
 <h1>Loglikelihood using <code>graph_lme</code></h1>
-<pre class="r"><code>BC &lt;- 0
-fit &lt;- graph_lme(y ~ -1, graph=graph, BC = BC,
+<pre class="r"><code>fit &lt;- graph_lme(y ~ -1, graph=graph, BC = BC,
                  model = list(type = &quot;WhittleMatern&quot;, alpha = 2))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -152.1095</code></pre>
 <pre class="r"><code>data &lt;- graph$get_data()
 
 Y &lt;- data$y
@@ -471,11 +473,11 @@ loglik_val &lt;- eval_likelihood_alpha2(
   BC      = 0
 )
 loglik_val</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -152.1095</code></pre>
 <pre class="r"><code>fit &lt;- graph_lme_alpha2(y ~ -1, graph=graph, BC = 0)
 
 fit$loglik</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -152.1095</code></pre>
 <pre class="r"><code>graph$observation_to_vertex()
 
 data &lt;- graph$get_data()
@@ -510,7 +512,7 @@ loglik &lt;- sum(log(diag(L))) -
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -152.0756</code></pre>
+## [1,] -152.0468</code></pre>
 </div>
 
 

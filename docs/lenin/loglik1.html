@@ -11,7 +11,7 @@
 
 
 
-<title>loglik2</title>
+<title>loglik1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,7 +348,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">loglik2</h1>
+<h1 class="title toc-ignore">loglik1</h1>
 
 </div>
 
@@ -386,11 +386,10 @@ captioner &lt;- function(caption) {
   fig_count &lt;&lt;- fig_count + 1
   paste0(&quot;Figure &quot;, fig_count, &quot;: &quot;, caption)
 }</code></pre>
-<pre class="r"><code>devtools::load_all(&quot;~/Desktop/MetricGraph&quot;)</code></pre>
 <pre class="r"><code>library(Matrix)
 library(dplyr)
 library(rSPDE)
-source(&quot;~/Desktop/ratAPPROX/lenin/minimal_functions.R&quot;)</code></pre>
+devtools::load_all(&quot;~/Desktop/MetricGraph&quot;)</code></pre>
 <pre class="r"><code>edge1 &lt;- rbind(c(0,0),c(1,0))
 edge2 &lt;- rbind(c(0,0),c(0,1))
 edge3 &lt;- rbind(c(0,1),c(-1,1))
@@ -398,199 +397,93 @@ theta &lt;- seq(from=pi,to=3*pi/2,length.out = 20)
 edge4 &lt;- cbind(sin(theta),1+ cos(theta))
 edges = list(edge1, edge2, edge3, edge4)
 graph &lt;- metric_graph$new(edges = edges)
-
-
-alpha &lt;- 1
+graph_clone &lt;- graph$clone()</code></pre>
+<pre class="r"><code>graph$build_mesh(h = 0.01)</code></pre>
+<pre class="r"><code>alpha &lt;- 1
 nu &lt;- alpha - 1/2
 sigma &lt;- 1.3
 range &lt;- 0.15
 kappa &lt;- sqrt(8*nu)/range
-tau &lt;- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+tau &lt;- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  
 
-sigma_e &lt;- 0.5
 
 rspde.order &lt;- 2
 
-BC &lt;- 0</code></pre>
-<pre class="r"><code>n.obs.per.edge &lt;- 3
-PtE &lt;- NULL
-for(i in 1:graph$nE){
-  #add locations sampled at random to each edge
-  PtE &lt;- rbind(PtE, cbind(rep(i, n.obs.per.edge), runif(n.obs.per.edge)))
-}
 
-u &lt;- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE, BC = BC)
 
-Y &lt;- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
-
-df_data &lt;- data.frame(y = Y, edge_number = PtE[,1],
-                        distance_on_edge = PtE[,2])
-
-graph$add_observations(data = df_data, normalized = TRUE)</code></pre>
-<pre><code>{r}
-op &lt;- matern.operators(alpha = alpha,
+op &lt;- matern.operators(alpha = alpha, 
                        kappa = kappa,
                        tau = tau,
                        parameterization = &quot;spde&quot;,
-                       m = rspde.order,
-                       graph = graph_initial)
+                       m = rspde.order, 
+                       graph = graph)  </code></pre>
+<pre class="r"><code>u &lt;- simulate(op)
 
-
-u &lt;- simulate(op)
-
-obs.per.edge &lt;- 3
+obs.per.edge &lt;- 100
 obs.loc &lt;- NULL
-for(i in 1:graph_initial$nE) {
+for(i in 1:graph$nE) {
   obs.loc &lt;- rbind(obs.loc,
                    cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
 }
-n.obs &lt;- obs.per.edge*graph_initial$nE
-A &lt;- graph_initial$fem_basis(obs.loc)
-
+n.obs &lt;- obs.per.edge*graph$nE
+A &lt;- graph$fem_basis(obs.loc)</code></pre>
+<pre class="r"><code>sigma_e &lt;- 0.5
 Y &lt;- as.vector(A %*% u + sigma_e * rnorm(n.obs))
 df_data &lt;- data.frame(y = Y, edge_number = obs.loc[,1],
-                      distance_on_edge = obs.loc[,2])
-graph$add_observations(data = df_data, normalized = TRUE)
-</code></pre>
-<div id="loglikelihood-using-graph_lme" class="section level1">
-<h1>Loglikelihood using <code>graph_lme</code></h1>
-<pre class="r"><code>fit &lt;- graph_lme(y ~ -1, graph=graph, BC = BC,
-                 model = list(type = &quot;WhittleMatern&quot;, alpha = 1))
+                        distance_on_edge = obs.loc[,2])
+graph_clone$add_observations(data = df_data, normalized = TRUE)</code></pre>
+<pre class="r"><code>fit &lt;- graph_lme(y ~ -1, graph=graph_clone, BC = 0,
+            model = list(type = &quot;WhittleMatern&quot;, alpha = 1))
 
-fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-</div>
-<div id="loglikelihood-using-minimal-graph_lme-with-bridge-representation" class="section level1">
-<h1>Loglikelihood using minimal <code>graph_lme</code> with bridge
-representation</h1>
-<pre class="r"><code>fit &lt;- graph_lme_minimal(y ~ -1, graph=graph, BC = BC,
-                 model = list(type = &quot;WhittleMatern&quot;, alpha = 1, version = 1))
+summary(fit)</code></pre>
+<pre><code>## 
+## Latent model - Whittle-Matern with alpha = 1
+## 
+## Call:
+## graph_lme(formula = y ~ -1, graph = graph_clone, model = list(type = &quot;WhittleMatern&quot;, 
+##     alpha = 1), BC = 0)
+## 
+## Random effects:
+##       Estimate Std.error z-value
+## tau    0.14871   0.01155  12.880
+## kappa 11.84538   2.86481   4.135
+## 
+## Random effects (Matern parameterization):
+##       Estimate Std.error z-value
+## sigma   1.3815    0.1391   9.933
+## range   0.1688    0.0395   4.275
+## 
+## Measurement error:
+##          Estimate Std.error z-value
+## std. dev   0.4343    0.0310   14.01
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 
+## 
+## Log-Likelihood:  -472.3456 
+## Number of function calls by &#39;optim&#39; = 21
+## Optimization method used in &#39;optim&#39; = L-BFGS-B
+## 
+## Time used to:     fit the model =  0.67669 secs</code></pre>
+<pre class="r"><code>fit$loglik</code></pre>
+<pre><code>## [1] -472.3456</code></pre>
+<pre class="r"><code>sigma_e &lt;- fit$coeff$measurement_error
+tau &lt;- fit$coeff$random_effects[1]
+kappa &lt;- fit$coeff$random_effects[2]
 
-fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-<pre class="r"><code>precomp_data &lt;- fit$precomp_data
-
-
-# using fitted parameters
-eval_likelihood_alpha1(
-  sigma_e      = fit$coeff$measurement_error,
-  tau          = fit$coeff$random_effects[[&quot;tau&quot;]],
-  kappa        = fit$coeff$random_effects[[&quot;kappa&quot;]],
-  graph        = graph,
-  precomp_data = precomp_data,
-  BC           = BC
-)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-<pre class="r"><code>precomp_data &lt;- naked_precompute_alpha1(graph,
-                        data_name = &quot;y&quot;, 
-                        manual_y = NULL,
-                        X_cov = NULL,
-                        repl = NULL)
-
-# using fitted parameters
-naked_eval_likelihood_alpha1(
-  sigma_e      = fit$coeff$measurement_error,
-  tau          = fit$coeff$random_effects[[&quot;tau&quot;]],
-  kappa        = fit$coeff$random_effects[[&quot;kappa&quot;]],
-  graph        = graph,
-  precomp_data = precomp_data,
-  BC           = BC
-)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-<pre><code>{r}
-Qv &lt;- MetricGraph:::Qalpha1(
-      theta = c(tau, kappa),
-      graph = graph,
-      BC = BC,
-      build = TRUE)
-
-Lv &lt;- chol(Qv)
-
-
-PtE &lt;- graph$get_PtE()
-obs.edges &lt;- precomp_data$obs.edges
-loglik &lt;- 0
-aux_list1 &lt;- list()
-for (e in seq_along(obs.edges)){
-  edge_name &lt;- paste0(&quot;edge_&quot;, e)
-  ell &lt;- graph$edge_lengths[e]
-  tt &lt;- PtE[PtE[,1] == e, 2]*ell
-  Sigma_e_mat &lt;- Simga_e(t_vector = tt, 
-                         kappa = kappa,
-                         alpha = alpha,
-                         sigma = sigma,
-                         sigma_e = sigma_e,
-                         ell = ell)
-  chol_Sigma_e_mat &lt;- chol(Sigma_e_mat)
-  y_edge &lt;- precomp_data$y$repl_1[[edge_name]]
-  loglik &lt;- loglik - sum(log(diag(chol_Sigma_e_mat))) - 0.5 * t(y_edge) %*% solve(Sigma_e_mat, y_edge)
-  list_mat_Bt &lt;- list()
-  for (i in 1:length(tt)) {
-    list_mat_Bt[[i]] &lt;- t(S_mat(t1 = tt[i],
-                              kappa = kappa,
-                              alpha = alpha,
-                              sigma = sigma,
-                              ell = ell))
-  }
-  BtT &lt;- do.call(cbind, list_mat_Bt)
-  aux_list1[[e]] &lt;- BtT %*% solve(Sigma_e_mat, t(BtT))
-}</code></pre>
-</div>
-<div id="loglikelihood-using-minimal-graph_lme-with-no-bridge-representation" class="section level1">
-<h1>Loglikelihood using minimal <code>graph_lme</code> with no bridge
-representation</h1>
-<pre class="r"><code>fit &lt;- graph_lme_minimal_v2(y ~ -1, graph=graph, BC = BC,
-                         model = list(type = &quot;WhittleMatern&quot;, alpha = 1, version = 2))
-
-fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-</div>
-<div id="loglikelihood-using-loglikekihood-function-simplified-from-the-package" class="section level1">
-<h1>Loglikelihood using loglikekihood function (simplified) from the
-package</h1>
-<pre class="r"><code>m &lt;- graph$nV
+m &lt;- graph$nV
 n &lt;- length(Y)
 
 
+graph_clone$observation_to_vertex()
 
-graph$observation_to_vertex()
-
-data &lt;- graph$get_data()
+data &lt;- graph_clone$get_data()
 
 Y &lt;- data$y
 
-sigma_e      = fit$coeff$measurement_error
-tau          = fit$coeff$random_effects[[&quot;tau&quot;]]
-kappa        = fit$coeff$random_effects[[&quot;kappa&quot;]]
-
-theta &lt;- c(log(sigma_e), log(1/tau), log(kappa))
-
-eval_likelihood_alpha1_v2(theta = theta,
-                          graph = graph,
-                          y = Y,
-                          BC = BC,
-                          parameterization = &quot;spde&quot;)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-</div>
-<div id="loglikelihood-using-loglikekihood-function-not-simplified-from-the-package" class="section level1">
-<h1>Loglikelihood using loglikekihood function (not simplified) from the
-package</h1>
-<pre class="r"><code>eva_likelihood_alpha1_v2_no_simplified(theta = theta,
-                          graph = graph,
-                          X_cov = matrix(0, ncol = 0, nrow = 0),
-                          y = Y,
-                          repl = NULL,
-                          BC = BC,
-                          parameterization = &quot;spde&quot;)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-</div>
-<div id="loglikelihood-using-my-implementation" class="section level1">
-<h1>Loglikelihood using my implementation</h1>
-<pre class="r"><code>Q &lt;- MetricGraph:::Qalpha1(
+Q &lt;- MetricGraph:::Qalpha1(
       theta = c(tau, kappa),
-      graph = graph,
-      BC = BC,
+      graph = graph_clone,
+      BC = 0,
       build = TRUE)
 
 L &lt;- chol(Q)
@@ -614,8 +507,7 @@ loglik &lt;- sum(log(diag(L))) -
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -17.70653</code></pre>
-</div>
+## [1,] -472.3456</code></pre>
 
 
 

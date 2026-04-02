@@ -1,9 +1,11 @@
 ---
-title: "loglik3"
+title: "loglik_fractional"
 output: html_document
 ---
 
+
 ```{r}
+rm(list = ls())
 # Create a clipboard button on the rendeblack HTML page
 # Set seed for reproducibility
 set.seed(1982) 
@@ -77,10 +79,14 @@ edge3 <- rbind(c(0,1),c(-1,1))
 theta <- seq(from=pi,to=3*pi/2,length.out = 20)
 edge4 <- cbind(sin(theta),1+ cos(theta))
 edges = list(edge1, edge2, edge3, edge4)
-graph <- metric_graph$new(edges = edges)
+graph_initial <- metric_graph$new(edges = edges)
 
+graph_rat <- graph_initial$clone()
+graph_FEM <- graph_initial$clone()
 
-alpha <- 2
+graph_FEM$build_mesh(h = 0.01)
+
+alpha <- 1.8
 nu <- alpha - 1/2
 sigma <- 1.3
 range <- 0.15
@@ -89,134 +95,110 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 
 sigma_e <- 0.5
 
-rspde.order <- 2
-
+m <- 2
 
 BC <- 0
 ```
 
 
+
+
 ```{r}
-n.obs.per.edge <- 30
-PtE <- NULL
-for(i in 1:graph$nE){
-  #add locations sampled at random to each edge
-  PtE <- rbind(PtE, cbind(rep(i, n.obs.per.edge), runif(n.obs.per.edge)))
+op <- matern.operators(alpha = alpha,
+                       kappa = kappa,
+                       tau = tau,
+                       parameterization = "spde",
+                       m = m,
+                       graph = graph_FEM)
+
+
+u <- simulate(op)
+
+obs.per.edge <- 50
+obs.loc <- NULL
+for(i in 1:graph_FEM$nE) {
+  obs.loc <- rbind(obs.loc,
+                   cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
 }
+n.obs <- obs.per.edge*graph_FEM$nE
+A <- graph_FEM$fem_basis(obs.loc)
 
-u <- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE, BC = BC)
+Y <- as.vector(A %*% u + sigma_e * rnorm(n.obs))
+df_data <- data.frame(y = Y, edge_number = obs.loc[,1],
+                      distance_on_edge = obs.loc[,2])
+graph_rat$add_observations(data = df_data, normalized = TRUE)
 
-Y <- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
-
-df_data <- data.frame(y = Y, edge_number = PtE[,1],
-                        distance_on_edge = PtE[,2])
-
-graph$add_observations(data = df_data, normalized = TRUE)
+graph_FEM$add_observations(data = df_data, normalized = TRUE)
 ```
-
-
-
 
 # Loglikelihood using `graph_lme`
 
 ```{r}
-
-fit <- graph_lme(y ~ -1, graph=graph, BC = BC,
-                 model = list(type = "WhittleMatern", alpha = 2))
+if(alpha == 1){
+  model <- "WM1"
+  graph_aux <- graph_rat
+} else if(alpha == 2){
+  model <- "WM2"
+  graph_aux <- graph_rat
+} else {
+  model <- "WM"
+  graph_aux <- graph_FEM
+}
+fit <- MetricGraph::graph_lme(y ~ -1, 
+                 graph = graph_aux,
+                 BC = BC,
+                 model = model)
 
 fit$loglik
-
 ```
 
 
+
 ```{r}
-data <- graph$get_data()
-
-Y <- data$y
-
-# Precompute once
-precomp <- precompute_alpha2(
-  graph     = graph,
-  manual_y  = Y,
-  data_name = NULL,
-  X_cov     = matrix(0, nrow = length(Y), ncol = 0),
-  repl      = unique(graph$.__enclos_env__$private$data[[".group"]])
-)
-
 sigma_e      = fit$coeff$measurement_error
 tau          = fit$coeff$random_effects[["tau"]]
 kappa        = fit$coeff$random_effects[["kappa"]]
+alpha <- ifelse(model == "WM", fit$coeff$random_effects[["alpha"]], alpha)
 
-# Evaluate at any (sigma_e, tau, kappa) cheaply
-loglik_val <- eval_likelihood_alpha2(
-  sigma_e = sigma_e,
-  tau = tau,
-  kappa = kappa,
-  precomp = precomp,
-  BC      = 0
-)
-loglik_val
-```
+theta <- c(log(sigma_e), log(1/tau), log(kappa))
 
-
-
-```{r}
-fit <- graph_lme_alpha2(y ~ -1, graph=graph, BC = 0)
-
-fit$loglik
-```
-
-
-
-```{r}
-graph$observation_to_vertex()
-
-data <- graph$get_data()
-
-Y <- data$y
-n <- length(Y)
-
-m <- 4
-Approx_Sigma <- rat_covariance(
-  graph = graph, 
-  kappa = kappa, 
-  tau = tau, 
-  alpha = alpha, 
-  m = m, build_cov = FALSE)
-```
-
-
-
-```{r}
-AT_Ut <- Approx_Sigma$A
-
-Q <- Approx_Sigma$Q
-L <- chol(Q)
-
-Qp <- Q + 1/sigma_e^2 * t(AT_Ut) %*% AT_Ut
-Lp <- chol(Qp)
-
-muhat <- 1/sigma_e^2 * solve(Qp, t(AT_Ut) %*% Y)
-
-loglik <- sum(log(diag(L))) -
-  n*log(sigma_e) -
-  sum(log(diag(Lp))) -
-  0.5/sigma_e^2 * t(Y) %*% Y +
-  0.5 * t(muhat) %*% Qp %*% muhat -
-      0.5 * n * log(2*pi)
-
+loglik <- rat_loglikelihood(graph = graph_rat,
+                  theta = theta,
+                  alpha = alpha, 
+                  m = m,
+                  BC = BC)
 loglik
 ```
 
-```{r}
 
+```{r}
+data <- graph_aux$get_data()
+#Y <- data$y
+repl <- data$.group
+
+
+object <- matern.operators(alpha = alpha,
+                       kappa = kappa,
+                       tau = tau,
+                       parameterization = "spde",
+                       m = m,
+                       graph = graph_aux)
+
+A_list <- list()
+A_list[["1"]] <- do.call(cbind, rep(list(A), m+1))
+FEM_loglikelihood(object = object, 
+                  y = Y, 
+                  X_cov = matrix(0, nrow = 0, ncol = 0),
+                  repl = repl,
+                  A_list = A_list, 
+                  sigma_e = sigma_e, 
+                  beta_cov)
 ```
 
 
+```{r}
 
-
-
+```
 
 
 

@@ -16,8 +16,8 @@ source(here::here("matern_functions.R"))
 h <- 0.1
 kappa <- 0.3
 sigma <- 1
-alpha <- 2
-m <- 10
+alpha <- 1.5
+m <- 3
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 
@@ -64,7 +64,7 @@ Approx_Sigma <- rat_covariance(
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
-  m = m)
+  m = m, build_cov = TRUE)
 
 
 
@@ -87,8 +87,7 @@ idx <- match(
 )
 
 
-if (alpha <= 1){Approx_Sigma_reordered <- Approx_Sigma
-} else {Approx_Sigma_reordered <- Approx_Sigma[idx, idx]}
+Approx_Sigma_reordered <- Approx_Sigma[idx, idx]
 
 op <- matern.operators(alpha = alpha, 
                       kappa = kappa, 

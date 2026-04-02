@@ -73,8 +73,6 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 sigma_e <- 0.5
 
 rspde.order <- 2
-
-BC <- 0
 ```
 
 
@@ -87,7 +85,7 @@ for(i in 1:graph$nE){
 }
 
 u <- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE, BC = BC)
+                 graph = graph, PtE = PtE)
 
 Y <- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
 
@@ -131,7 +129,7 @@ graph$add_observations(data = df_data, normalized = TRUE)
 
 ```{r}
 
-
+BC <- 0
 fit <- graph_lme(y ~ -1, graph=graph, BC = BC,
                  model = list(type = "WhittleMatern", alpha = 1))
 

@@ -1,4 +1,4 @@
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 gives.indices <- function(graph, factor, constant){
   index.obs1 <- sapply(graph$PtV, 
                        function(i){
@@ -222,7 +222,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -360,7 +360,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -446,8 +446,13 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## ------------------------------------------------------------
-rat_covariance <- function(graph, kappa, tau, alpha, m, build_cov = TRUE){
+## -----------------------------------------------------------------------------------------
+rat_covariance <- function(graph, 
+                           kappa, 
+                           tau, 
+                           alpha,
+                           m, 
+                           build_cov = TRUE){
   if(alpha <= 0.5){
     stop("alpha = ", alpha, ", alpha should be larger than 0.5")
   }
@@ -470,7 +475,134 @@ rat_covariance <- function(graph, kappa, tau, alpha, m, build_cov = TRUE){
 }
 
 
-## ------------------------------------------------------------
+## -----------------------------------------------------------------------------------------
+
+lazy_likelihood_alpha_rat <- function(graph,
+                                            kappa,
+                                            tau,
+                                            sigma_e,
+                                            alpha,
+                                            m,
+                                            Y){
+  n <- length(Y)
+  Q_and_A <- rat_covariance(
+      graph = graph, 
+      kappa = kappa, 
+      tau = tau, 
+      alpha = alpha, 
+      m = m, 
+      build_cov = FALSE)
+  
+  AT_Ut <- Q_and_A$A
+  
+  Q <- Q_and_A$Q
+  L <- chol(Q)
+  
+  Qp <- Q + 1/sigma_e^2 * t(AT_Ut) %*% AT_Ut
+  Lp <- chol(Qp)
+  
+  mu <- 1/sigma_e^2 * solve(Qp, t(AT_Ut) %*% Y)
+    
+    loglik <- sum(log(diag(L))) -
+      n*log(sigma_e) -
+      sum(log(diag(Lp))) -
+      0.5/sigma_e^2 * t(Y) %*% Y +
+      0.5 * t(mu) %*% Qp %*% mu -
+          0.5 * n * log(2*pi)
+    
+    return(loglik)
+}
+
+
+## -----------------------------------------------------------------------------------------
+rat_loglikelihood <- function(graph,
+                              theta,
+                              alpha,
+                              m,
+                              BC = 0){
+  
+  kappa = exp(theta[3])
+  sigma_e <- exp(theta[1])
+  reciprocal_tau <- exp(theta[2])
+  tau <- 1/reciprocal_tau
+  
+  graph$observation_to_vertex()
+  data <- graph$get_data()
+  Y <- data$y
+  
+  if(alpha <= 0.5 || alpha > 2){
+    stop("alpha = ", alpha, ", alpha should be in (0.5,2]")
+  }
+  else if(alpha > 0.5 && alpha <= 2){
+    return(lazy_likelihood_alpha_rat(graph = graph, 
+                                     kappa = kappa, 
+                                     tau = tau, 
+                                     sigma_e = sigma_e, 
+                                     alpha = alpha, 
+                                     m = m, 
+                                     Y = Y))
+  }
+}
+
+
+## -----------------------------------------------------------------------------------------
+FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
+  m <- object$m
+
+  Q <- object$Q
+  R <- Matrix::Cholesky(Q)
+
+  prior.ld <- c(determinant(R, logarithm = TRUE, sqrt = TRUE)$modulus)
+
+  repl_val <- unique(repl)
+
+  l <- 0
+
+  for (i in repl_val) {
+    ind_tmp <- (repl %in% i)
+    y_tmp <- y[ind_tmp]
+
+    if (ncol(X_cov) == 0) {
+      X_cov_tmp <- 0
+    } else {
+      X_cov_tmp <- X_cov[ind_tmp, , drop = FALSE]
+    }
+
+    na_obs <- is.na(y_tmp)
+
+    y_ <- y_tmp[!na_obs]
+
+
+    n.o <- length(y_)
+    A_tmp <- A_list[[as.character(i)]]
+    Q.p <- Q + t(A_tmp) %*% A_tmp / sigma_e^2
+
+    R.p <- Matrix::Cholesky(Q.p)
+
+    posterior.ld <- c(determinant(R.p, logarithm = TRUE, sqrt = TRUE)$modulus)
+
+    l <- l + prior.ld - posterior.ld - n.o * log(sigma_e)
+
+    v <- y_
+
+    if (ncol(X_cov) > 0) {
+      X_cov_tmp <- X_cov_tmp[!na_obs, , drop = FALSE]
+      v <- v - X_cov_tmp %*% beta_cov
+    }
+
+    mu.p <- solve(R.p, as.vector(t(A_tmp) %*% v / sigma_e^2), system = "A")
+
+    v <- v - A_tmp %*% mu.p
+
+    l <- l - 0.5 * (t(mu.p) %*% Q %*% mu.p + t(v) %*% v / sigma_e^2) -
+      0.5 * n.o * log(2 * pi)
+  }
+
+  return(as.double(l))
+}
+
+
+## -----------------------------------------------------------------------------------------
 
 
 # before I changed the constants
