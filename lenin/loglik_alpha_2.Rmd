@@ -40,6 +40,23 @@ captioner <- function(caption) {
 
 ```
 
+
+```{r}
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/all_functions.Rmd", output = "~/Desktop/ratAPPROX/all_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/matern_functions.Rmd", output = "~/Desktop/ratAPPROX/matern_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+
+source("~/Desktop/ratAPPROX/all_functions.R")
+source("~/Desktop/ratAPPROX/matern_functions.R")
+```
+
+
+
 ```{r}
 devtools::load_all("~/Desktop/MetricGraph")
 ```
@@ -77,7 +94,7 @@ rspde.order <- 2
 
 
 ```{r}
-n.obs.per.edge <- 3
+n.obs.per.edge <- 30
 PtE <- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -125,11 +142,15 @@ precomp <- precompute_alpha2(
   repl      = unique(graph$.__enclos_env__$private$data[[".group"]])
 )
 
+sigma_e      = fit$coeff$measurement_error
+tau          = fit$coeff$random_effects[["tau"]]
+kappa        = fit$coeff$random_effects[["kappa"]]
+
 # Evaluate at any (sigma_e, tau, kappa) cheaply
 loglik_val <- eval_likelihood_alpha2(
-  sigma_e      = fit$coeff$measurement_error,
-  tau          = fit$coeff$random_effects[["tau"]],
-  kappa        = fit$coeff$random_effects[["kappa"]],
+  sigma_e = sigma_e,
+  tau = tau,
+  kappa = kappa,
   precomp = precomp,
   BC      = 0
 )
@@ -143,6 +164,71 @@ fit <- graph_lme_alpha2(y ~ -1, graph=graph, BC = 0)
 
 fit$loglik
 ```
+
+
+
+```{r}
+graph$observation_to_vertex()
+
+data <- graph$get_data()
+
+Y <- data$y
+n <- length(Y)
+
+m <- 4
+Approx_Sigma <- rat_covariance(
+  graph = graph, 
+  kappa = kappa, 
+  tau = tau, 
+  alpha = alpha, 
+  m = m, build_cov = FALSE)
+```
+
+
+
+```{r}
+AT_Ut <- Approx_Sigma$A
+
+Q <- Approx_Sigma$Q
+L <- chol(Q)
+
+Qp <- Q + 1/sigma_e^2 * t(AT_Ut) %*% AT_Ut
+Lp <- chol(Qp)
+
+muhat <- 1/sigma_e^2 * solve(Qp, t(AT_Ut) %*% Y)
+
+loglik <- sum(log(diag(L))) -
+  n*log(sigma_e) -
+  sum(log(diag(Lp))) -
+  0.5/sigma_e^2 * t(Y) %*% Y +
+  0.5 * t(muhat) %*% Qp %*% muhat -
+      0.5 * n * log(2*pi)
+
+loglik
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

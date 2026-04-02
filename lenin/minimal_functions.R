@@ -1142,43 +1142,6 @@ graph_lme_alpha2 <- function(formula, graph, BC = 0) {
 }
 
 
-eval_likelihood_alpha2_old <- function(sigma_e, tau, kappa, Y, graph, BC = 0) {
-
-  # ── 1. Build theta vector (log scale, spde parameterization) ─────────────────
-  theta <- c(
-    log(sigma_e),        # theta[1]: log(sigma_e)
-    log(1 / tau),        # theta[2]: log(reciprocal_tau)
-    log(kappa)           # theta[3]: log(kappa)
-  )
-
-  # ── 2. Precompute ─────────────────────────────────────────────────────────────
-  obs.per.edge <- nrow(Y) / graph$nE
-  obs.loc <- do.call(rbind, lapply(1:graph$nE, function(i) {
-    cbind(rep(i, obs.per.edge), seq(0, 1, length.out = obs.per.edge))
-  }))
-
-  X_cov    <- matrix(0, nrow = length(Y), ncol = 0)   # no covariates (y ~ -1)
-  which_repl <- unique(graph$.__enclos_env__$private$data[[".group"]])
-
-  precomp <- precompute_alpha2(
-    graph     = graph,
-    manual_y  = as.numeric(Y),
-    data_name = NULL,
-    X_cov     = X_cov,
-    repl      = which_repl
-  )
-
-  # ── 3. Evaluate ───────────────────────────────────────────────────────────────
-  loglik <- likelihood_alpha2_precompute(
-    theta            = theta,
-    precomputed_data = precomp,
-    BC               = BC,
-    parameterization = "spde"
-  )
-
-  return(loglik)
-}
-
 eval_likelihood_alpha2 <- function(sigma_e, tau, kappa, precomp, BC = 0) {
 
   # ── 1. Build theta vector (log scale, spde parameterization) ─────────────────
