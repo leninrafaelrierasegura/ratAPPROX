@@ -1309,6 +1309,30 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 ```
 
+```{r}
+gets_De_from_Uv <- function(graph, alpha){
+  E  <- graph$E
+  nV <- graph$nV
+  nE <- graph$nE
+  
+  De_list <- vector("list", nE) # this preallocates, instead of doing list() which grows dynamically.
+  
+  for (e in 1:nE) {
+    e_ini_ter <- E[e,]
+    
+    De_list[[e]] <- Matrix::sparseMatrix(
+      i = c(1, 2),                 # row indices
+      j = c(e_ini_ter[1], e_ini_ter[2]),  # column indices
+      x = 1,                       # values
+      dims = c(2 * alpha, nV)
+    )
+  }
+  
+  return(De_list)
+}
+```
+
+
 
 ```
 {r}

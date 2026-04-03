@@ -184,8 +184,7 @@ naked_eval_likelihood_alpha1(
 ```
 
 
-```
-{r}
+```{r}
 Qv <- MetricGraph:::Qalpha1(
       theta = c(tau, kappa),
       graph = graph,
