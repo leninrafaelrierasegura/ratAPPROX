@@ -1333,6 +1333,28 @@ gets_De_from_Uv <- function(graph, alpha){
 ```
 
 
+```{r}
+gets_De_from_U <- function(graph, alpha){
+  nE <- graph$nE 
+  
+  De_list <- vector("list", nE)
+  
+  for (e in seq_len(nE)) {
+    rows <- seq_len(2 * alpha)
+    cols <- 2 * alpha * (e - 1) + rows
+    
+    De_list[[e]] <- Matrix::sparseMatrix(
+      i = rows,
+      j = cols,
+      x = 1,
+      dims = c(2 * alpha, 2 * alpha * nE)
+    )
+  } 
+  
+  return(De_list)
+}
+```
+
 
 ```
 {r}
