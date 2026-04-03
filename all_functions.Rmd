@@ -1315,15 +1315,15 @@ gets_De_from_Uv <- function(graph, alpha){
   nV <- graph$nV
   nE <- graph$nE
   
-  De_list <- vector("list", nE) # this preallocates, instead of doing list() which grows dynamically.
+  De_list <- vector("list", nE)
   
   for (e in 1:nE) {
     e_ini_ter <- E[e,]
     
     De_list[[e]] <- Matrix::sparseMatrix(
-      i = c(1, 2),                 # row indices
-      j = c(e_ini_ter[1], e_ini_ter[2]),  # column indices
-      x = 1,                       # values
+      i = c(seq_len(alpha), seq_len(alpha) + alpha),
+      j = c(rep(e_ini_ter[1], alpha), rep(e_ini_ter[2], alpha)),
+      x = 1,
       dims = c(2 * alpha, nV)
     )
   }

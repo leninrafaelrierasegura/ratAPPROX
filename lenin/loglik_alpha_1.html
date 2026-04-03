@@ -386,6 +386,17 @@ captioner &lt;- function(caption) {
   fig_count &lt;&lt;- fig_count + 1
   paste0(&quot;Figure &quot;, fig_count, &quot;: &quot;, caption)
 }</code></pre>
+<pre class="r"><code>capture.output(
+  knitr::purl(&quot;~/Desktop/ratAPPROX/all_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/all_functions.R&quot;),
+  file = here::here(&quot;old/purl_log.txt&quot;)
+)
+capture.output(
+  knitr::purl(&quot;~/Desktop/ratAPPROX/matern_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/matern_functions.R&quot;),
+  file = here::here(&quot;old/purl_log.txt&quot;)
+)
+
+source(&quot;~/Desktop/ratAPPROX/all_functions.R&quot;)
+source(&quot;~/Desktop/ratAPPROX/matern_functions.R&quot;)</code></pre>
 <pre class="r"><code>devtools::load_all(&quot;~/Desktop/MetricGraph&quot;)</code></pre>
 <pre class="r"><code>library(Matrix)
 library(dplyr)
@@ -412,7 +423,7 @@ sigma_e &lt;- 0.5
 rspde.order &lt;- 2
 
 BC &lt;- 0</code></pre>
-<pre class="r"><code>n.obs.per.edge &lt;- 3
+<pre class="r"><code>n.obs.per.edge &lt;- 20
 PtE &lt;- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -459,7 +470,7 @@ graph$add_observations(data = df_data, normalized = TRUE)
                  model = list(type = &quot;WhittleMatern&quot;, alpha = 1))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
+<pre><code>## [1] -125.6376</code></pre>
 </div>
 <div id="loglikelihood-using-minimal-graph_lme-with-bridge-representation" class="section level1">
 <h1>Loglikelihood using minimal <code>graph_lme</code> with bridge
@@ -468,7 +479,7 @@ representation</h1>
                  model = list(type = &quot;WhittleMatern&quot;, alpha = 1, version = 1))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
+<pre><code>## [1] -125.6376</code></pre>
 <pre class="r"><code>precomp_data &lt;- fit$precomp_data
 
 
@@ -481,12 +492,12 @@ eval_likelihood_alpha1(
   precomp_data = precomp_data,
   BC           = BC
 )</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-<pre class="r"><code>precomp_data &lt;- naked_precompute_alpha1(graph,
-                        data_name = &quot;y&quot;, 
-                        manual_y = NULL,
-                        X_cov = NULL,
-                        repl = NULL)
+<pre><code>## [1] -125.6376</code></pre>
+<pre class="r"><code># precomp_data &lt;- naked_precompute_alpha1(graph,
+#                         data_name = &quot;y&quot;, 
+#                         manual_y = NULL,
+#                         X_cov = NULL,
+#                         repl = NULL)
 
 # using fitted parameters
 naked_eval_likelihood_alpha1(
@@ -497,8 +508,14 @@ naked_eval_likelihood_alpha1(
   precomp_data = precomp_data,
   BC           = BC
 )</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
-<pre><code>{r}
+<pre><code>## [1] -125.6376</code></pre>
+<pre class="r"><code>sigma_e      = fit$coeff$measurement_error
+tau          = fit$coeff$random_effects[[&quot;tau&quot;]]
+kappa        = fit$coeff$random_effects[[&quot;kappa&quot;]]
+
+SIGMA &lt;- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+
 Qv &lt;- MetricGraph:::Qalpha1(
       theta = c(tau, kappa),
       graph = graph,
@@ -507,35 +524,62 @@ Qv &lt;- MetricGraph:::Qalpha1(
 
 Lv &lt;- chol(Qv)
 
-
-PtE &lt;- graph$get_PtE()
-obs.edges &lt;- precomp_data$obs.edges
 loglik &lt;- 0
+
+PtE &lt;- graph$get_PtE() # data location, edge_number, distance_on_edge (norm)
+
+n &lt;- nrow(PtE)
+obs.edges &lt;- precomp_data$obs.edges # edges where data is
+
 aux_list1 &lt;- list()
+aux_list2 &lt;- list()
+De &lt;- gets_De_from_Uv(graph, alpha)
 for (e in seq_along(obs.edges)){
   edge_name &lt;- paste0(&quot;edge_&quot;, e)
-  ell &lt;- graph$edge_lengths[e]
-  tt &lt;- PtE[PtE[,1] == e, 2]*ell
-  Sigma_e_mat &lt;- Simga_e(t_vector = tt, 
+  ell &lt;- graph$edge_lengths[e] # get edge_length of edge e
+  tt &lt;- PtE[PtE[,1] == e, 2]*ell # get the edge coordinate location
+  Sigma_e &lt;- gets_Sigma_e(t_vector = tt, 
                          kappa = kappa,
                          alpha = alpha,
-                         sigma = sigma,
+                         sigma = SIGMA,
                          sigma_e = sigma_e,
                          ell = ell)
-  chol_Sigma_e_mat &lt;- chol(Sigma_e_mat)
-  y_edge &lt;- precomp_data$y$repl_1[[edge_name]]
-  loglik &lt;- loglik - sum(log(diag(chol_Sigma_e_mat))) - 0.5 * t(y_edge) %*% solve(Sigma_e_mat, y_edge)
-  list_mat_Bt &lt;- list()
+  chol_Sigma_e &lt;- chol(Sigma_e)
+  y_e &lt;- precomp_data$y$repl_1[[edge_name]]
+  
+  Sigma_e_inv_y_e &lt;- solve(Sigma_e, y_e)
+  loglik &lt;- loglik - # accumulates the sum
+    sum(log(diag(chol_Sigma_e))) - # this is -0.5*log|Sigma_e|
+    0.5 * t(y_e) %*% Sigma_e_inv_y_e # this is -0.5*y_e^\top Sigma_e^{-1}y_e
+  
+  list_mat_Se &lt;- list()
   for (i in 1:length(tt)) {
-    list_mat_Bt[[i]] &lt;- t(S_mat(t1 = tt[i],
+    list_mat_Se[[i]] &lt;- S_mat(t1 = tt[i],
                               kappa = kappa,
                               alpha = alpha,
-                              sigma = sigma,
-                              ell = ell))
+                              sigma = SIGMA,
+                              ell = ell)
   }
-  BtT &lt;- do.call(cbind, list_mat_Bt)
-  aux_list1[[e]] &lt;- BtT %*% solve(Sigma_e_mat, t(BtT))
-}</code></pre>
+  Se &lt;- do.call(rbind, list_mat_Se)
+  SeDe &lt;- Se %*% De[[e]]
+  aux_list1[[e]] &lt;- t(SeDe) %*% solve(Sigma_e, SeDe)
+  aux_list2[[e]] &lt;- t(SeDe) %*% Sigma_e_inv_y_e
+}
+Qv_tilde &lt;- Qv + Reduce(`+`, aux_list1)
+
+Lv_tilde &lt;- chol(Qv_tilde)
+mu &lt;- solve(Qv_tilde, Reduce(`+`, aux_list2))
+
+loglik &lt;- loglik +
+  sum(log(diag(Lv))) - # this is 0.5*log|Qv|
+  sum(log(diag(Lv_tilde))) + # this is -0.5*log|Qv_tilde|
+  0.5 * t(mu) %*% Qv_tilde %*% mu -
+  0.5 * n * log(2*pi)
+
+loglik</code></pre>
+<pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
+##           [,1]
+## [1,] -125.6376</code></pre>
 </div>
 <div id="loglikelihood-using-minimal-graph_lme-with-no-bridge-representation" class="section level1">
 <h1>Loglikelihood using minimal <code>graph_lme</code> with no bridge
@@ -544,7 +588,7 @@ representation</h1>
                          model = list(type = &quot;WhittleMatern&quot;, alpha = 1, version = 2))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
+<pre><code>## [1] -125.6376</code></pre>
 </div>
 <div id="loglikelihood-using-loglikekihood-function-simplified-from-the-package" class="section level1">
 <h1>Loglikelihood using loglikekihood function (simplified) from the
@@ -571,7 +615,7 @@ eval_likelihood_alpha1_v2(theta = theta,
                           y = Y,
                           BC = BC,
                           parameterization = &quot;spde&quot;)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
+<pre><code>## [1] -125.6376</code></pre>
 </div>
 <div id="loglikelihood-using-loglikekihood-function-not-simplified-from-the-package" class="section level1">
 <h1>Loglikelihood using loglikekihood function (not simplified) from the
@@ -583,7 +627,7 @@ package</h1>
                           repl = NULL,
                           BC = BC,
                           parameterization = &quot;spde&quot;)</code></pre>
-<pre><code>## [1] -17.70653</code></pre>
+<pre><code>## [1] -125.6376</code></pre>
 </div>
 <div id="loglikelihood-using-my-implementation" class="section level1">
 <h1>Loglikelihood using my implementation</h1>
@@ -614,7 +658,7 @@ loglik &lt;- sum(log(diag(L))) -
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -17.70653</code></pre>
+## [1,] -125.6376</code></pre>
 </div>
 
 

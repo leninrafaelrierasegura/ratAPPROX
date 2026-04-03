@@ -40,6 +40,23 @@ captioner <- function(caption) {
 
 ```
 
+
+
+```{r}
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/all_functions.Rmd", output = "~/Desktop/ratAPPROX/all_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/matern_functions.Rmd", output = "~/Desktop/ratAPPROX/matern_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+
+source("~/Desktop/ratAPPROX/all_functions.R")
+source("~/Desktop/ratAPPROX/matern_functions.R")
+```
+
+
 ```{r}
 devtools::load_all("~/Desktop/MetricGraph")
 ```
@@ -79,7 +96,7 @@ BC <- 0
 
 
 ```{r}
-n.obs.per.edge <- 3
+n.obs.per.edge <- 20
 PtE <- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -166,11 +183,11 @@ eval_likelihood_alpha1(
 ```
 
 ```{r}
-precomp_data <- naked_precompute_alpha1(graph,
-                        data_name = "y", 
-                        manual_y = NULL,
-                        X_cov = NULL,
-                        repl = NULL)
+# precomp_data <- naked_precompute_alpha1(graph,
+#                         data_name = "y", 
+#                         manual_y = NULL,
+#                         X_cov = NULL,
+#                         repl = NULL)
 
 # using fitted parameters
 naked_eval_likelihood_alpha1(
@@ -185,6 +202,13 @@ naked_eval_likelihood_alpha1(
 
 
 ```{r}
+sigma_e      = fit$coeff$measurement_error
+tau          = fit$coeff$random_effects[["tau"]]
+kappa        = fit$coeff$random_effects[["kappa"]]
+
+SIGMA <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+
 Qv <- MetricGraph:::Qalpha1(
       theta = c(tau, kappa),
       graph = graph,
@@ -193,35 +217,60 @@ Qv <- MetricGraph:::Qalpha1(
 
 Lv <- chol(Qv)
 
-
-PtE <- graph$get_PtE()
-obs.edges <- precomp_data$obs.edges
 loglik <- 0
+
+PtE <- graph$get_PtE() # data location, edge_number, distance_on_edge (norm)
+
+n <- nrow(PtE)
+obs.edges <- precomp_data$obs.edges # edges where data is
+
 aux_list1 <- list()
+aux_list2 <- list()
+De <- gets_De_from_Uv(graph, alpha)
 for (e in seq_along(obs.edges)){
   edge_name <- paste0("edge_", e)
-  ell <- graph$edge_lengths[e]
-  tt <- PtE[PtE[,1] == e, 2]*ell
-  Sigma_e_mat <- Simga_e(t_vector = tt, 
+  ell <- graph$edge_lengths[e] # get edge_length of edge e
+  tt <- PtE[PtE[,1] == e, 2]*ell # get the edge coordinate location
+  Sigma_e <- gets_Sigma_e(t_vector = tt, 
                          kappa = kappa,
                          alpha = alpha,
-                         sigma = sigma,
+                         sigma = SIGMA,
                          sigma_e = sigma_e,
                          ell = ell)
-  chol_Sigma_e_mat <- chol(Sigma_e_mat)
-  y_edge <- precomp_data$y$repl_1[[edge_name]]
-  loglik <- loglik - sum(log(diag(chol_Sigma_e_mat))) - 0.5 * t(y_edge) %*% solve(Sigma_e_mat, y_edge)
-  list_mat_Bt <- list()
+  chol_Sigma_e <- chol(Sigma_e)
+  y_e <- precomp_data$y$repl_1[[edge_name]]
+  
+  Sigma_e_inv_y_e <- solve(Sigma_e, y_e)
+  loglik <- loglik - # accumulates the sum
+    sum(log(diag(chol_Sigma_e))) - # this is -0.5*log|Sigma_e|
+    0.5 * t(y_e) %*% Sigma_e_inv_y_e # this is -0.5*y_e^\top Sigma_e^{-1}y_e
+  
+  list_mat_Se <- list()
   for (i in 1:length(tt)) {
-    list_mat_Bt[[i]] <- t(S_mat(t1 = tt[i],
+    list_mat_Se[[i]] <- S_mat(t1 = tt[i],
                               kappa = kappa,
                               alpha = alpha,
-                              sigma = sigma,
-                              ell = ell))
+                              sigma = SIGMA,
+                              ell = ell)
   }
-  BtT <- do.call(cbind, list_mat_Bt)
-  aux_list1[[e]] <- BtT %*% solve(Sigma_e_mat, t(BtT))
+  Se <- do.call(rbind, list_mat_Se)
+  SeDe <- Se %*% De[[e]]
+  aux_list1[[e]] <- t(SeDe) %*% solve(Sigma_e, SeDe)
+  aux_list2[[e]] <- t(SeDe) %*% Sigma_e_inv_y_e
 }
+Qv_tilde <- Qv + Reduce(`+`, aux_list1)
+
+Lv_tilde <- chol(Qv_tilde)
+mu <- solve(Qv_tilde, Reduce(`+`, aux_list2))
+
+loglik <- loglik +
+  sum(log(diag(Lv))) - # this is 0.5*log|Qv|
+  sum(log(diag(Lv_tilde))) + # this is -0.5*log|Qv_tilde|
+  0.5 * t(mu) %*% Qv_tilde %*% mu -
+  0.5 * n * log(2*pi)
+
+loglik
+
 ```
 
 
