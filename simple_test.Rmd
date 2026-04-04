@@ -241,8 +241,6 @@ sum(Approx_Sigma-Sigma_build)
 
 
 ```{r}
-buildKirchooffConditioningMatrixCaseAlphaEqual1(graph)
-buildKirchooffConditioningMatrixCaseAlphaEqualOneNonSparse(graph)
 buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
 TT[1:4,]
 graph$buildC()

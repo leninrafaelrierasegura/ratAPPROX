@@ -424,7 +424,7 @@ rspde.order &lt;- 2
 
 
 BC &lt;- 0</code></pre>
-<pre class="r"><code>n.obs.per.edge &lt;- 1
+<pre class="r"><code>n.obs.per.edge &lt;- 3
 PtE &lt;- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -446,7 +446,7 @@ graph$add_observations(data = df_data, normalized = TRUE)</code></pre>
                  model = list(type = &quot;WhittleMatern&quot;, alpha = 2))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -12.28089</code></pre>
+<pre><code>## [1] -19.86125</code></pre>
 <pre class="r"><code>data &lt;- graph$get_data()
 
 Y &lt;- data$y
@@ -473,11 +473,11 @@ loglik_val &lt;- eval_likelihood_alpha2(
   BC      = 0
 )
 loglik_val</code></pre>
-<pre><code>## [1] -12.28089</code></pre>
+<pre><code>## [1] -19.86125</code></pre>
 <pre class="r"><code>fit &lt;- graph_lme_alpha2(y ~ -1, graph=graph, BC = 0)
 
 fit$loglik</code></pre>
-<pre><code>## [1] -12.28089</code></pre>
+<pre><code>## [1] -19.86125</code></pre>
 <pre class="r"><code>GRAPH &lt;- graph$clone()</code></pre>
 <pre class="r"><code>graph$observation_to_vertex()
 
@@ -514,10 +514,10 @@ loglik &lt;- sum(log(diag(L))) -
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -12.25776</code></pre>
+## [1,] -19.85988</code></pre>
 <pre class="r"><code>Q &lt;- MetricGraph:::Qalpha2(theta = c(tau, kappa),
                                          graph = GRAPH,
-                                         BC = 3000,
+                                         BC = 1000,
                                          build = TRUE)
 
 TT &lt;- precomp$Tc
@@ -583,7 +583,7 @@ loglik &lt;- loglik +
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -12.30542</code></pre>
+## [1,] -19.95533</code></pre>
 </div>
 
 

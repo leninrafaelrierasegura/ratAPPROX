@@ -1357,51 +1357,6 @@ gets_De_from_U <- function(graph, alpha){
 
 
 ```{r}
-buildKirchooffConditioningMatrixCaseAlphaEqual1 <- function(graph) {
-  E <- graph$E
-  degrees <- graph$get_degrees()
-  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
-  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
-  onesCounter <- 0
-  
-  edgeMatrixFlatten <- c(t(E))
-  for (vertex in seq_along(degrees)) {
-    degreeOfVertex <- degrees[vertex]
-    if (degreeOfVertex < 2) next
-    positionOfVertex <-  which(edgeMatrixFlatten == vertex)
-    whereToPutOne <- positionOfVertex[1]
-    whereToPutMinusOne <- positionOfVertex[-1]
-    howManyOnes <- length(whereToPutMinusOne)
-    K[cbind(c(1:howManyOnes) + onesCounter, rep(whereToPutOne,howManyOnes))] <- 1
-    K[cbind(c(1:howManyOnes) + onesCounter, whereToPutMinusOne)] <- -1
-    onesCounter <- onesCounter + howManyOnes
-  }
-  return(K)
-}
-
-buildKirchooffConditioningMatrixCaseAlphaEqualOneNonSparse <- function(graph) {
-  E <- graph$E
-  degrees <- graph$get_degrees()
-  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
-  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
-  onesCounter <- 0
-  
-  edgeMatrixFlatten <- c(t(E))
-  for (vertex in seq_along(degrees)) {
-    degreeOfVertex <- degrees[vertex]
-    if (degreeOfVertex < 2) next
-    indicesOfVertex <-  which(edgeMatrixFlatten == vertex)
-    colIndicesForOne <- indicesOfVertex[-degreeOfVertex]
-    colIndicesForMinusOne <- indicesOfVertex[-1]
-    howManyContinuityConditions <- degreeOfVertex - 1
-    rowIndicesForBothOneAndMinusOne <- c(1:howManyContinuityConditions) + onesCounter
-    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForOne)] <- 1
-    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForMinusOne)] <- -1
-    onesCounter <- onesCounter + howManyContinuityConditions
-  }
-  return(K)
-}
-
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -1411,7 +1366,6 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   
   edgeMatrixFlatten <- c(t(edgeMatrix))
   
-  # Preallocate (each constraint has exactly 2 nonzeros)
   numberOfNonZero <- 2 * numberOfConstraints
   i_idx <- integer(numberOfNonZero)
   j_idx <- integer(numberOfNonZero)
@@ -1431,18 +1385,22 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
     
     howManyContinuityConditions <- degreeOfVertex - 1
     
-    rows <- seq_len(howManyContinuityConditions) + rowCounter
+    rowIndicesForBothOneAndMinusOne <- seq_len(howManyContinuityConditions) + rowCounter
     
     # fill +1 entries
     idx_range <- (indexCounter + 1):(indexCounter + howManyContinuityConditions)
-    i_idx[idx_range] <- rows
+    i_idx[idx_range] <- rowIndicesForBothOneAndMinusOne
     j_idx[idx_range] <- colIndicesForOne
     x_val[idx_range] <- 1
+    
+    # Note that the amount of indices to fill is 2 * howManyContinuityConditions
+    # Half for +1 entries, that is, from 1 to howManyContinuityConditions
+    # The remaining half for -1 entries, that is, from howManyContinuityConditions + 1 to 2 * howManyContinuityConditions
     
     # fill -1 entries
     idx_range <- (indexCounter + howManyContinuityConditions + 1):
                  (indexCounter + 2 * howManyContinuityConditions)
-    i_idx[idx_range] <- rows
+    i_idx[idx_range] <- rowIndicesForBothOneAndMinusOne
     j_idx[idx_range] <- colIndicesForMinusOne
     x_val[idx_range] <- -1
     
@@ -1459,6 +1417,441 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   
   return(K)
 }
+```
+
+
+
+```{r}
+buildMatrixAWhichMapsUToUv <- function(graph, alpha){
+  edgeMatrix <- graph$E
+  edgeMatrixFlattened <- c(t(edgeMatrix))
+  firstVertexOccurrence <- !duplicated(edgeMatrixFlattened)
+  positionsOfOriginalVertices <- seq(1, alpha*2*graph$nE - 1, by = alpha)
+  colIndicesOfNonZeroEntry <- positionsOfOriginalVertices[firstVertexOccurrence]
+  A <- Matrix::sparseMatrix(
+    i = seq_len(graph$nV),
+    j = colIndicesOfNonZeroEntry,
+    x = 1,
+    dims = c(graph$nV, alpha*2*graph$nE)
+  )
+  return(A)
+}
+
+```
+
+
+```{r}
+loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
+                                                    graph, 
+                                                    precomputeddata,
+                                                    data_name = NULL, 
+                                                    manual_y = NULL,
+                                                    X_cov = NULL, 
+                                                    repl, 
+                                                    BC, 
+                                                    parameterization = "spde") {
+  sigma_e <- exp(theta[1])
+  #build Q
+
+  repl_vec <- graph$.__enclos_env__$private$data[[".group"]]
+
+  if(is.null(repl)){
+    repl <- unique(repl_vec)
+  }
+
+  if(parameterization == "matern"){
+    kappa = sqrt(8 * 0.5) / exp(theta[3])
+  } else{
+    kappa = exp(theta[3])
+  }
+
+  reciprocal_tau <- exp(theta[2])
+
+  Q.list <- spde_precision(kappa = kappa, tau = 1/reciprocal_tau, alpha = 1,
+                           graph = graph, build = FALSE,BC=BC)
+
+  Qp <- Matrix::sparseMatrix(i = Q.list$i,
+                             j = Q.list$j,
+                             x = Q.list$x,
+                             dims = Q.list$dims)
+  R <- Matrix::Cholesky(Qp, LDL = FALSE, perm = TRUE)
+
+  det_R <- Matrix::determinant(R, sqrt=TRUE)$modulus[1]
+
+  #build BSIGMAB
+  PtE <- graph$get_PtE()
+  obs.edges <- precomputeddata$obs.edges
+
+  i_ <- j_ <- x_ <- rep(0, 4 * length(obs.edges))
+
+  if(is.null(repl)){
+    u_repl <- unique(graph$.__enclos_env__$private$data[[".group"]])
+  } else{
+    u_repl <- unique(repl)
+  }
+
+  loglik <- 0
+
+  det_R_count <- NULL
+  n.o <- 0
+
+  # Cache some values used in the loop
+  nV <- nrow(graph$V)
+
+  for(j in seq_along(u_repl)){
+      curr_repl <- u_repl[j]
+      repl_name <- paste0("repl_", curr_repl)
+
+      loglik <- loglik + det_R
+      count <- 0
+      Qpmu <- numeric(nV)
+
+    for (i in seq_along(obs.edges)) {
+      # Use pre-computed replicate indices
+      e <- obs.edges[i]
+      edge_name <- paste0("edge_", e)
+
+      # Get data for this edge and replicate
+      y_i <- precomputeddata$y[[repl_name]][[edge_name]]
+
+      # Skip if no observations
+      if(is.null(y_i) || length(y_i) == 0){
+        next
+      }
+
+      n.o <- n.o + length(y_i)
+
+      if(!is.null(X_cov)){
+        n_cov <- ncol(X_cov)
+        if(n_cov == 0){
+          X_cov_repl <- 0
+        } else{
+          y_i <- y_i - as.vector(precomputeddata$x[[repl_name]][[edge_name]] %*% theta[4:(3+n_cov)])
+        }
+      }
+      D_matrix <- precomputeddata$D_matrix[[repl_name]][[edge_name]]
+
+      # Pre-compute JointCovarianceMatrix of c(0,ell,\mathbf{t}_e) matrix
+      # That is, JointCovarianceMatrix = [Sigma_{X_tX_t} & Sigma_{X_tY} \\ Sigma_{YX_t} & Sigma_{YY}]
+      #  where Y = [u(0), u(ell)] and X_t = [u(t_1),...,u(t_{n_e})]
+      
+      JointCovarianceMatrix <- r_1(D_matrix, kappa = kappa, tau = 1/reciprocal_tau)
+
+      #covariance update see Art p.17
+      E.ind <- c(1:2)
+      Obs.ind <- -E.ind
+      
+      Sigma_YY <- JointCovarianceMatrix[E.ind, E.ind, drop = FALSE]
+      Sigma_YXt <- JointCovarianceMatrix[E.ind, Obs.ind, drop = FALSE]
+      Sigma_XtXt <- JointCovarianceMatrix[Obs.ind, Obs.ind, drop = FALSE]
+      Sigma_XtY <- JointCovarianceMatrix[Obs.ind, E.ind, drop = FALSE]
+      
+      Se_te_transposed <- solve(Sigma_YY, Sigma_YXt)
+      
+      Sigma_e <- Sigma_XtXt - Sigma_XtY  %*% Se_te_transposed
+      diag(Sigma_e) <- diag(Sigma_e) + sigma_e^2
+      
+      R <- base::chol(Sigma_e)
+
+      Sigma_e_inverse_Se_te <- backsolve(R, forwardsolve(t(R), t(Se_te_transposed)))
+
+      Se_te_transposed_Sigma_e_inverse_Se_te <- Se_te_transposed %*% Sigma_e_inverse_Se_te
+
+      E <- graph$E[e, ]
+
+      Se_te_transposed_Sigma_e_inverse_ye <- t(Sigma_e_inverse_Se_te) %*% y_i
+      if (E[1] == E[2]) {
+        # Pre-compute matrix product
+        Qpmu[E[1]] <- Qpmu[E[1]] + sum(as.vector(Se_te_transposed_Sigma_e_inverse_ye))
+        i_[count + 1] <- E[1]
+        j_[count + 1] <- E[1]
+        x_[count + 1] <- sum(Se_te_transposed_Sigma_e_inverse_Se_te)
+        count <- count + 1
+      } else {
+        # Pre-compute matrix product
+        y_prod <- as.vector(Se_te_transposed_Sigma_e_inverse_ye)
+        Qpmu[E] <- Qpmu[E] + y_prod
+
+        # More efficient indexing of arrays
+        idx <- count + 1:4
+        i_[idx] <- c(E[1], E[1], E[2], E[2])
+        j_[idx] <- c(E[1], E[2], E[1], E[2])
+        x_[idx] <- c(Se_te_transposed_Sigma_e_inverse_Se_te[1, 1], Se_te_transposed_Sigma_e_inverse_Se_te[1, 2],
+                     Se_te_transposed_Sigma_e_inverse_Se_te[1, 2], Se_te_transposed_Sigma_e_inverse_Se_te[2, 2])
+        count <- count + 4
+      }
+
+      # Compute log determinant only once
+      log_det <- sum(log(diag(R)))
+
+      # Avoid matrix inversion by using the Cholesky factor directly
+      v_i <- backsolve(R, forwardsolve(t(R), y_i))
+      quad_form <- sum(y_i * v_i)
+
+      loglik <- loglik - 0.5 * quad_form - log_det
+    }
+
+    if(is.null(det_R_count)){
+      i_ <- c(Q.list$i, i_[1:count])
+      j_ <- c(Q.list$j, j_[1:count])
+      x_ <- c(Q.list$x, x_[1:count])
+
+
+      Qp <- Matrix::sparseMatrix(i = i_,
+                                 j = j_,
+                                 x = x_,
+                                 dims = Q.list$dims)
+
+      R_count <- Matrix::Cholesky(Qp, LDL = FALSE, perm = TRUE)
+
+      det_R_count <- Matrix::determinant(R_count, sqrt=TRUE)$modulus[1]
+    }
+
+    loglik <- loglik - det_R_count
+
+    v <- c(as.matrix(Matrix::solve(R_count, Matrix::solve(R_count, Qpmu,
+                                                          system = "P"),
+                                   system = "L")))
+
+    loglik <- loglik + 0.5  * t(v) %*% v - 0.5 * n.o * log(2*pi)
+  }
+
+  return(loglik[1])
+}
+
+```
+
+
+```{r}
+loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
+                                                    precomputed_data, 
+                                                    BC = 1, 
+                                                    parameterization = "matern") {
+  # Extract parameters
+  sigma_e <- exp(theta[1])
+  reciprocal_tau <- exp(theta[2])
+  if(parameterization == "matern"){
+    kappa = sqrt(8 * 1.5) / exp(theta[3])
+  } else{
+    kappa = exp(theta[3])
+  }
+
+  # Build Q matrix once
+  Q <- spde_precision(kappa = kappa, tau = 1/reciprocal_tau,
+                     alpha = 2, graph = precomputed_data$graph, BC=BC)
+
+  R <- Matrix::Cholesky(forceSymmetric(precomputed_data$Tc%*%Q%*%t(precomputed_data$Tc)),
+                       LDL = FALSE, perm = TRUE)
+
+  # Get determinant once
+  loglik <- 0
+  det_R <- Matrix::determinant(R, sqrt=TRUE)$modulus[1]
+  det_R_count <- NULL
+
+  # Creating a large pre-allocated array for all potential entries
+  total_max_entries <- 16 * length(precomputed_data$obs.edges)
+  all_i <- all_j <- all_x <- numeric(total_max_entries)
+  all_count <- 0
+
+  n_obs_total <- 0
+
+  # Process each replicate
+  for(i in seq_along(precomputed_data$u_repl)) {
+    curr_repl <- precomputed_data$u_repl[i]
+    repl_name <- paste0("repl_", curr_repl)
+
+    loglik <- loglik + det_R
+
+    # Pre-allocate with exact size needed
+    Qpmu <- numeric(4 * precomputed_data$n_edges)
+
+    # Process each edge
+    for(j in seq_along(precomputed_data$obs.edges)) {
+      e <- precomputed_data$obs.edges[j]
+      edge_name <- paste0("edge_", e)
+
+      # Get data for this edge
+      y_i <- precomputed_data$y_data[[repl_name]][[edge_name]]
+
+      # Skip if no observations
+      if(is.null(y_i) || length(y_i) == 0) {
+        next
+      }
+
+      # Count observations for log determinant term
+      n_obs_total <- n_obs_total + length(y_i)
+
+      # Handle covariates if present
+      if(precomputed_data$n_cov > 0) {
+        X_cov_e <- precomputed_data$x_data[[repl_name]][[edge_name]]
+        n_cov <- ncol(X_cov_e)
+        if(n_cov > 0){
+          y_i <- y_i - as.vector(X_cov_e %*% theta[4:(3+n_cov)])
+        }
+      }
+
+      # Get precomputed distance data
+      t <- precomputed_data$t_data[[repl_name]][[edge_name]]
+      D <- precomputed_data$D_data[[repl_name]][[edge_name]]
+
+      # Pre-allocate matrix
+      n_pts <- length(t)
+      S <- matrix(0, n_pts + 2, n_pts + 2)
+
+      # Compute all submatrices
+      d.index <- c(1,2)
+      S[-d.index, -d.index] <- r_2(D, kappa = kappa,
+                                  tau = 1/reciprocal_tau, deriv = 0)
+      S[d.index, d.index] <- -r_2(as.matrix(dist(c(0,precomputed_data$edge_lengths[e]))),
+                                 kappa = kappa, tau = 1/reciprocal_tau,
+                                 deriv = 2)
+      S[d.index, -d.index] <- -r_2(D[1:2,], kappa = kappa,
+                                 tau = 1/reciprocal_tau, deriv = 1)
+      S[-d.index, d.index] <- t(S[d.index, -d.index])
+
+      # Covariance updates
+      E.ind <- c(1:4)
+      Obs.ind <- -E.ind
+      Bt <- solve(S[E.ind, E.ind], S[E.ind, Obs.ind, drop = FALSE])
+      Sigma_i <- S[Obs.ind,Obs.ind] - S[Obs.ind, E.ind] %*% Bt
+      diag(Sigma_i) <- diag(Sigma_i) + sigma_e^2
+
+      # Cache Cholesky decomposition
+      R_i <- base::chol(Sigma_i)
+
+      # Sigma_iB <- backsolve(R_i, forwardsolve(t(R_i), t(Bt)))
+      Sigma_iB <- solve(R_i, forwardsolve(t(R_i), t(Bt)))
+
+      BtSinvB <- Bt %*% Sigma_iB
+
+      E <- precomputed_data$graph$E[e, ]
+      if (E[1] == E[2]) {
+        warning("Circle not implemented")
+      }
+
+      BtSinvB <- BtSinvB[c(3,1,4,2), c(3,1,4,2)]
+      Qpmu[4 * (e - 1) + 1:4] <- Qpmu[4 * (e - 1) + 1:4] +
+        (t(Sigma_iB) %*% y_i)[c(3, 1, 4, 2)]
+
+      # Efficiently add precision matrix entries - use direct indexing instead of loop
+      # This is more efficient than using expand.grid in a loop
+      idx <- seq(all_count + 1, all_count + 16)
+
+      # Lower edge u diagonal
+      all_i[idx[1]] <- 4 * (e - 1) + 1
+      all_j[idx[1]] <- 4 * (e - 1) + 1
+      all_x[idx[1]] <- BtSinvB[1, 1]
+
+      # Lower edge u' diagonal
+      all_i[idx[2]] <- 4 * (e - 1) + 2
+      all_j[idx[2]] <- 4 * (e - 1) + 2
+      all_x[idx[2]] <- BtSinvB[2, 2]
+
+      # Upper edge u diagonal
+      all_i[idx[3]] <- 4 * (e - 1) + 3
+      all_j[idx[3]] <- 4 * (e - 1) + 3
+      all_x[idx[3]] <- BtSinvB[3, 3]
+
+      # Upper edge u' diagonal
+      all_i[idx[4]] <- 4 * (e - 1) + 4
+      all_j[idx[4]] <- 4 * (e - 1) + 4
+      all_x[idx[4]] <- BtSinvB[4, 4]
+
+      # Lower edge (u, u')
+      all_i[idx[5]] <- 4 * (e - 1) + 1
+      all_j[idx[5]] <- 4 * (e - 1) + 2
+      all_x[idx[5]] <- BtSinvB[1, 2]
+
+      all_i[idx[6]] <- 4 * (e - 1) + 2
+      all_j[idx[6]] <- 4 * (e - 1) + 1
+      all_x[idx[6]] <- BtSinvB[1, 2]
+
+      # Upper edge (u, u')
+      all_i[idx[7]] <- 4 * (e - 1) + 3
+      all_j[idx[7]] <- 4 * (e - 1) + 4
+      all_x[idx[7]] <- BtSinvB[3, 4]
+
+      all_i[idx[8]] <- 4 * (e - 1) + 4
+      all_j[idx[8]] <- 4 * (e - 1) + 3
+      all_x[idx[8]] <- BtSinvB[3, 4]
+
+      # Lower u, upper u
+      all_i[idx[9]] <- 4 * (e - 1) + 1
+      all_j[idx[9]] <- 4 * (e - 1) + 3
+      all_x[idx[9]] <- BtSinvB[1, 3]
+
+      all_i[idx[10]] <- 4 * (e - 1) + 3
+      all_j[idx[10]] <- 4 * (e - 1) + 1
+      all_x[idx[10]] <- BtSinvB[1, 3]
+
+      # Lower u, upper u'
+      all_i[idx[11]] <- 4 * (e - 1) + 1
+      all_j[idx[11]] <- 4 * (e - 1) + 4
+      all_x[idx[11]] <- BtSinvB[1, 4]
+
+      all_i[idx[12]] <- 4 * (e - 1) + 4
+      all_j[idx[12]] <- 4 * (e - 1) + 1
+      all_x[idx[12]] <- BtSinvB[1, 4]
+
+      # Lower u', upper u
+      all_i[idx[13]] <- 4 * (e - 1) + 2
+      all_j[idx[13]] <- 4 * (e - 1) + 3
+      all_x[idx[13]] <- BtSinvB[2, 3]
+
+      all_i[idx[14]] <- 4 * (e - 1) + 3
+      all_j[idx[14]] <- 4 * (e - 1) + 2
+      all_x[idx[14]] <- BtSinvB[2, 3]
+
+      # Lower u', upper u'
+      all_i[idx[15]] <- 4 * (e - 1) + 2
+      all_j[idx[15]] <- 4 * (e - 1) + 4
+      all_x[idx[15]] <- BtSinvB[2, 4]
+
+      all_i[idx[16]] <- 4 * (e - 1) + 4
+      all_j[idx[16]] <- 4 * (e - 1) + 2
+      all_x[idx[16]] <- BtSinvB[2, 4]
+
+      all_count <- all_count + 16
+
+      # Compute quadratic form directly with Cholesky
+      v_i <- backsolve(R_i, forwardsolve(t(R_i), y_i))
+      quad_form <- sum(y_i * v_i)
+
+      # Update log likelihood
+      loglik <- loglik - 0.5 * quad_form - sum(log(diag(R_i)))
+    }
+  }
+
+  # Build sparse matrix just once after collecting all entries
+  if(all_count > 0) {
+    BtSB <- Matrix::sparseMatrix(i = all_i[1:all_count],
+                               j = all_j[1:all_count],
+                               x = all_x[1:all_count],
+                               dims = dim(Q))
+    Qp <- Q + BtSB
+    Qp <- precomputed_data$Tc %*% Qp %*% t(precomputed_data$Tc)
+    R_count <- Matrix::Cholesky(forceSymmetric(Qp), LDL = FALSE, perm = TRUE)
+    det_R_count <- Matrix::determinant(R_count, sqrt=TRUE)$modulus[1]
+
+    for(i in seq_along(precomputed_data$u_repl)) {
+      curr_repl <- precomputed_data$u_repl[i]
+      repl_name <- paste0("repl_", curr_repl)
+
+      loglik <- loglik - det_R_count
+
+      v <- c(as.matrix(Matrix::solve(R_count, Matrix::solve(R_count, precomputed_data$Tc%*%Qpmu, system = 'P'),
+                                     system='L')))
+
+      loglik <- loglik + 0.5 * t(v) %*% v
+    }
+  }
+
+  # Add constant term
+  loglik <- loglik - 0.5 * n_obs_total * log(2 * pi)
+
+  return(as.numeric(loglik))
+}
+
 ```
 
 

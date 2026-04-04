@@ -49,6 +49,9 @@ graph$add_observations(
 # add observations as vertices
 graph$observation_to_vertex()
 
+
+
+
 data <- graph$get_data()
 
 da <- graph$.__enclos_env__$private$data %>% as.data.frame() # this is the same as data

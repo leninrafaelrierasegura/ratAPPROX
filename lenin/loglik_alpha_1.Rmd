@@ -200,6 +200,20 @@ naked_eval_likelihood_alpha1(
 )
 ```
 
+```{r}
+loglikelihoodForAlphaEqualOnePrecompute(theta =c(log(fit$coeff$measurement_error),
+                                                 log(1/fit$coeff$random_effects[["tau"]]),
+                                                 log(fit$coeff$random_effects[["kappa"]])), 
+                                                    graph = graph, 
+                                                    precomputeddata = precomp_data,
+                                                    data_name = NULL, 
+                                                    manual_y = NULL,
+                                                    X_cov = matrix(0, ncol = 0, nrow = 0), 
+                                                    repl =NULL, 
+                                                    BC=BC, 
+                                                    parameterization = "spde") 
+```
+
 
 ```{r}
 sigma_e      = fit$coeff$measurement_error
@@ -324,6 +338,8 @@ eva_likelihood_alpha1_v2_no_simplified(theta = theta,
                           repl = NULL,
                           BC = BC,
                           parameterization = "spde")
+
+
 ```
 
 
