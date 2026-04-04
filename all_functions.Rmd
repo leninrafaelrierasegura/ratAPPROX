@@ -1356,6 +1356,112 @@ gets_De_from_U <- function(graph, alpha){
 ```
 
 
+```{r}
+buildKirchooffConditioningMatrixCaseAlphaEqual1 <- function(graph) {
+  E <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
+  onesCounter <- 0
+  
+  edgeMatrixFlatten <- c(t(E))
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    positionOfVertex <-  which(edgeMatrixFlatten == vertex)
+    whereToPutOne <- positionOfVertex[1]
+    whereToPutMinusOne <- positionOfVertex[-1]
+    howManyOnes <- length(whereToPutMinusOne)
+    K[cbind(c(1:howManyOnes) + onesCounter, rep(whereToPutOne,howManyOnes))] <- 1
+    K[cbind(c(1:howManyOnes) + onesCounter, whereToPutMinusOne)] <- -1
+    onesCounter <- onesCounter + howManyOnes
+  }
+  return(K)
+}
+
+buildKirchooffConditioningMatrixCaseAlphaEqualOneNonSparse <- function(graph) {
+  E <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
+  onesCounter <- 0
+  
+  edgeMatrixFlatten <- c(t(E))
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    indicesOfVertex <-  which(edgeMatrixFlatten == vertex)
+    colIndicesForOne <- indicesOfVertex[-degreeOfVertex]
+    colIndicesForMinusOne <- indicesOfVertex[-1]
+    howManyContinuityConditions <- degreeOfVertex - 1
+    rowIndicesForBothOneAndMinusOne <- c(1:howManyContinuityConditions) + onesCounter
+    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForOne)] <- 1
+    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForMinusOne)] <- -1
+    onesCounter <- onesCounter + howManyContinuityConditions
+  }
+  return(K)
+}
+
+buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
+  edgeMatrix <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfEdges <- nrow(edgeMatrix)
+  
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  
+  edgeMatrixFlatten <- c(t(edgeMatrix))
+  
+  # Preallocate (each constraint has exactly 2 nonzeros)
+  numberOfNonZero <- 2 * numberOfConstraints
+  i_idx <- integer(numberOfNonZero)
+  j_idx <- integer(numberOfNonZero)
+  x_val <- numeric(numberOfNonZero)
+  
+  indexCounter <- 0
+  rowCounter <- 0
+  
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    
+    indicesOfVertex <- which(edgeMatrixFlatten == vertex)
+    
+    colIndicesForOne <- indicesOfVertex[-degreeOfVertex]
+    colIndicesForMinusOne <- indicesOfVertex[-1]
+    
+    howManyContinuityConditions <- degreeOfVertex - 1
+    
+    rows <- seq_len(howManyContinuityConditions) + rowCounter
+    
+    # fill +1 entries
+    idx_range <- (indexCounter + 1):(indexCounter + howManyContinuityConditions)
+    i_idx[idx_range] <- rows
+    j_idx[idx_range] <- colIndicesForOne
+    x_val[idx_range] <- 1
+    
+    # fill -1 entries
+    idx_range <- (indexCounter + howManyContinuityConditions + 1):
+                 (indexCounter + 2 * howManyContinuityConditions)
+    i_idx[idx_range] <- rows
+    j_idx[idx_range] <- colIndicesForMinusOne
+    x_val[idx_range] <- -1
+    
+    indexCounter <- indexCounter + 2 * howManyContinuityConditions
+    rowCounter <- rowCounter + howManyContinuityConditions
+  }
+  
+  K <- Matrix::sparseMatrix(
+    i = i_idx,
+    j = j_idx,
+    x = x_val,
+    dims = c(numberOfConstraints, 2 * numberOfEdges)
+  )
+  
+  return(K)
+}
+```
+
+
 ```
 {r}
 # Using V's implementation
@@ -1457,7 +1563,8 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m){
 
 ```
 
-```{r}
+```
+{r}
 
 
 # before I changed the constants

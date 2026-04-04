@@ -387,16 +387,16 @@ captioner &lt;- function(caption) {
   paste0(&quot;Figure &quot;, fig_count, &quot;: &quot;, caption)
 }</code></pre>
 <pre class="r"><code>capture.output(
-  knitr::purl(here::here(&quot;all_functions.Rmd&quot;), output = here::here(&quot;all_functions.R&quot;)),
+  knitr::purl(&quot;~/Desktop/ratAPPROX/all_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/all_functions.R&quot;),
   file = here::here(&quot;old/purl_log.txt&quot;)
 )
 capture.output(
-  knitr::purl(here::here(&quot;matern_functions.Rmd&quot;), output = here::here(&quot;matern_functions.R&quot;)),
+  knitr::purl(&quot;~/Desktop/ratAPPROX/matern_functions.Rmd&quot;, output = &quot;~/Desktop/ratAPPROX/matern_functions.R&quot;),
   file = here::here(&quot;old/purl_log.txt&quot;)
 )
 
-source(here::here(&quot;all_functions.R&quot;))
-source(here::here(&quot;matern_functions.R&quot;))</code></pre>
+source(&quot;~/Desktop/ratAPPROX/all_functions.R&quot;)
+source(&quot;~/Desktop/ratAPPROX/matern_functions.R&quot;)</code></pre>
 <pre class="r"><code>devtools::load_all(&quot;~/Desktop/MetricGraph&quot;)</code></pre>
 <pre class="r"><code>library(Matrix)
 library(dplyr)
@@ -420,8 +420,11 @@ tau &lt;- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1
 
 sigma_e &lt;- 0.5
 
-rspde.order &lt;- 2</code></pre>
-<pre class="r"><code>n.obs.per.edge &lt;- 30
+rspde.order &lt;- 2
+
+
+BC &lt;- 0</code></pre>
+<pre class="r"><code>n.obs.per.edge &lt;- 1
 PtE &lt;- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -429,7 +432,7 @@ for(i in 1:graph$nE){
 }
 
 u &lt;- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE)
+                 graph = graph, PtE = PtE, BC = BC)
 
 Y &lt;- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
 
@@ -439,12 +442,11 @@ df_data &lt;- data.frame(y = Y, edge_number = PtE[,1],
 graph$add_observations(data = df_data, normalized = TRUE)</code></pre>
 <div id="loglikelihood-using-graph_lme" class="section level1">
 <h1>Loglikelihood using <code>graph_lme</code></h1>
-<pre class="r"><code>BC &lt;- 0
-fit &lt;- graph_lme(y ~ -1, graph=graph, BC = BC,
+<pre class="r"><code>fit &lt;- graph_lme(y ~ -1, graph=graph, BC = BC,
                  model = list(type = &quot;WhittleMatern&quot;, alpha = 2))
 
 fit$loglik</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -12.28089</code></pre>
 <pre class="r"><code>data &lt;- graph$get_data()
 
 Y &lt;- data$y
@@ -471,11 +473,12 @@ loglik_val &lt;- eval_likelihood_alpha2(
   BC      = 0
 )
 loglik_val</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -12.28089</code></pre>
 <pre class="r"><code>fit &lt;- graph_lme_alpha2(y ~ -1, graph=graph, BC = 0)
 
 fit$loglik</code></pre>
-<pre><code>## [1] -152.1288</code></pre>
+<pre><code>## [1] -12.28089</code></pre>
+<pre class="r"><code>GRAPH &lt;- graph$clone()</code></pre>
 <pre class="r"><code>graph$observation_to_vertex()
 
 data &lt;- graph$get_data()
@@ -489,8 +492,9 @@ Approx_Sigma &lt;- rat_covariance(
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
-  m = m, build_cov = FALSE)</code></pre>
-<pre class="r"><code>AT_Ut &lt;- Approx_Sigma$A
+  m = m, build_cov = FALSE)
+
+AT_Ut &lt;- Approx_Sigma$A
 
 Q &lt;- Approx_Sigma$Q
 L &lt;- chol(Q)
@@ -510,7 +514,76 @@ loglik &lt;- sum(log(diag(L))) -
 loglik</code></pre>
 <pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
 ##           [,1]
-## [1,] -152.0756</code></pre>
+## [1,] -12.25776</code></pre>
+<pre class="r"><code>Q &lt;- MetricGraph:::Qalpha2(theta = c(tau, kappa),
+                                         graph = GRAPH,
+                                         BC = 3000,
+                                         build = TRUE)
+
+TT &lt;- precomp$Tc
+
+Lv &lt;- chol(TT %*% Q %*% t(TT))
+
+SIGMA &lt;- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+
+
+loglik &lt;- 0
+
+PtE &lt;- GRAPH$get_PtE() # data location, edge_number, distance_on_edge (norm)
+
+n &lt;- nrow(PtE)
+obs.edges &lt;- precomp$obs.edges # edges where data is
+
+aux_list1 &lt;- list()
+aux_list2 &lt;- list()
+De &lt;- gets_De_from_U(GRAPH, alpha)
+for (e in seq_along(obs.edges)){
+  edge_name &lt;- paste0(&quot;edge_&quot;, e)
+  ell &lt;- GRAPH$edge_lengths[e] # get edge_length of edge e
+  tt &lt;- PtE[PtE[,1] == e, 2]*ell # get the edge coordinate location
+  Sigma_e &lt;- gets_Sigma_e(t_vector = tt, 
+                         kappa = kappa,
+                         alpha = alpha,
+                         sigma = SIGMA,
+                         sigma_e = sigma_e,
+                         ell = ell)
+  chol_Sigma_e &lt;- chol(Sigma_e)
+  y_e &lt;- precomp$y$repl_1[[edge_name]]
+  
+  Sigma_e_inv_y_e &lt;- solve(Sigma_e, y_e)
+  loglik &lt;- loglik - # accumulates the sum
+    sum(log(diag(chol_Sigma_e))) - # this is -0.5*log|Sigma_e|
+    0.5 * t(y_e) %*% Sigma_e_inv_y_e # this is -0.5*y_e^\top Sigma_e^{-1}y_e
+  
+  list_mat_Se &lt;- list()
+  for (i in 1:length(tt)) {
+    list_mat_Se[[i]] &lt;- S_mat(t1 = tt[i],
+                              kappa = kappa,
+                              alpha = alpha,
+                              sigma = SIGMA,
+                              ell = ell)
+  }
+  Se &lt;- do.call(rbind, list_mat_Se)
+  SeDe &lt;- Se %*% De[[e]]
+  aux_list1[[e]] &lt;- t(SeDe) %*% solve(Sigma_e, SeDe)
+  aux_list2[[e]] &lt;- t(SeDe) %*% Sigma_e_inv_y_e
+}
+
+Qv_tilde &lt;- TT %*% (Q + Reduce(`+`, aux_list1)) %*% t(TT)
+Lv_tilde &lt;- chol(Qv_tilde)
+mu &lt;- solve(Qv_tilde, TT %*% Reduce(`+`, aux_list2))
+
+loglik &lt;- loglik +
+  sum(log(diag(Lv))) - # this is 0.5*log|Qv|
+  sum(log(diag(Lv_tilde))) + # this is -0.5*log|Qv_tilde|
+  0.5 * t(mu) %*% Qv_tilde %*% mu -
+  0.5 * n * log(2*pi)
+
+loglik</code></pre>
+<pre><code>## 1 x 1 Matrix of class &quot;dgeMatrix&quot;
+##           [,1]
+## [1,] -12.30542</code></pre>
 </div>
 
 

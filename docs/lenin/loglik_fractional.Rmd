@@ -1,0 +1,218 @@
+---
+title: "loglik_fractional"
+output: html_document
+---
+
+
+```{r}
+rm(list = ls())
+# Create a clipboard button on the rendeblack HTML page
+# Set seed for reproducibility
+set.seed(1982) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+
+```
+
+
+```{r}
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/all_functions.Rmd", output = "~/Desktop/ratAPPROX/all_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+capture.output(
+  knitr::purl("~/Desktop/ratAPPROX/matern_functions.Rmd", output = "~/Desktop/ratAPPROX/matern_functions.R"),
+  file = here::here("old/purl_log.txt")
+)
+
+source("~/Desktop/ratAPPROX/all_functions.R")
+source("~/Desktop/ratAPPROX/matern_functions.R")
+```
+
+
+
+```{r}
+devtools::load_all("~/Desktop/MetricGraph")
+```
+
+
+```{r, eval = TRUE}
+library(Matrix)
+library(dplyr)
+library(rSPDE)
+source("~/Desktop/ratAPPROX/lenin/minimal_functions.R")
+```
+
+
+```{r}
+edge1 <- rbind(c(0,0),c(1,0))
+edge2 <- rbind(c(0,0),c(0,1))
+edge3 <- rbind(c(0,1),c(-1,1))
+theta <- seq(from=pi,to=3*pi/2,length.out = 20)
+edge4 <- cbind(sin(theta),1+ cos(theta))
+edges = list(edge1, edge2, edge3, edge4)
+graph_initial <- metric_graph$new(edges = edges)
+
+graph_rat <- graph_initial$clone()
+graph_FEM <- graph_initial$clone()
+
+graph_FEM$build_mesh(h = 0.01)
+
+alpha <- 1.9
+nu <- alpha - 1/2
+sigma <- 1.3
+range <- 0.15
+kappa <- sqrt(8*nu)/range
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+sigma_e <- 0.5
+
+m <- 2
+
+BC <- 0
+```
+
+
+
+
+```{r}
+op <- matern.operators(alpha = alpha,
+                       kappa = kappa,
+                       tau = tau,
+                       parameterization = "spde",
+                       m = m,
+                       graph = graph_FEM)
+
+
+u <- simulate(op)
+
+obs.per.edge <- 50
+obs.loc <- NULL
+for(i in 1:graph_FEM$nE) {
+  obs.loc <- rbind(obs.loc,
+                   cbind(rep(i,obs.per.edge), runif(obs.per.edge)))
+}
+n.obs <- obs.per.edge*graph_FEM$nE
+A <- graph_FEM$fem_basis(obs.loc)
+
+Y <- as.vector(A %*% u + sigma_e * rnorm(n.obs))
+df_data <- data.frame(y = Y, edge_number = obs.loc[,1],
+                      distance_on_edge = obs.loc[,2])
+graph_rat$add_observations(data = df_data, normalized = TRUE)
+
+graph_FEM$add_observations(data = df_data, normalized = TRUE)
+```
+
+# Loglikelihood using `graph_lme`
+
+```{r}
+if(alpha == 1){
+  model <- "WM1"
+  graph_aux <- graph_rat
+} else if(alpha == 2){
+  model <- "WM2"
+  graph_aux <- graph_rat
+} else {
+  model <- "WM"
+  graph_aux <- graph_FEM
+}
+fit <- MetricGraph::graph_lme(y ~ -1, 
+                 graph = graph_aux,
+                 BC = BC,
+                 model = model)
+
+fit$loglik
+```
+
+
+
+```{r}
+sigma_e      = fit$coeff$measurement_error
+tau          = fit$coeff$random_effects[["tau"]]
+kappa        = fit$coeff$random_effects[["kappa"]]
+alpha <- ifelse(model == "WM", fit$coeff$random_effects[["alpha"]], alpha)
+
+theta <- c(log(sigma_e), log(1/tau), log(kappa))
+
+loglik <- rat_loglikelihood(graph = graph_rat,
+                  theta = theta,
+                  alpha = alpha, 
+                  m = m,
+                  BC = BC)
+loglik
+```
+
+
+```{r}
+data <- graph_aux$get_data()
+#Y <- data$y
+repl <- data$.group
+
+
+object <- matern.operators(alpha = alpha,
+                       kappa = kappa,
+                       tau = tau,
+                       parameterization = "spde",
+                       m = m,
+                       graph = graph_aux)
+
+A_list <- list()
+A_list[["1"]] <- do.call(cbind, rep(list(A), m+1))
+FEM_loglikelihood(object = object, 
+                  y = Y, 
+                  X_cov = matrix(0, nrow = 0, ncol = 0),
+                  repl = repl,
+                  A_list = A_list, 
+                  sigma_e = sigma_e, 
+                  beta_cov)
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

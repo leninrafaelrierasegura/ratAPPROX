@@ -90,11 +90,14 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 sigma_e <- 0.5
 
 rspde.order <- 2
+
+
+BC <- 0
 ```
 
 
 ```{r}
-n.obs.per.edge <- 30
+n.obs.per.edge <- 3
 PtE <- NULL
 for(i in 1:graph$nE){
   #add locations sampled at random to each edge
@@ -102,7 +105,7 @@ for(i in 1:graph$nE){
 }
 
 u <- sample_spde(range = range, sigma = sigma, alpha = alpha,
-                 graph = graph, PtE = PtE)
+                 graph = graph, PtE = PtE, BC = BC)
 
 Y <- u + sigma_e*rnorm(n.obs.per.edge * graph$nE)
 
@@ -119,7 +122,6 @@ graph$add_observations(data = df_data, normalized = TRUE)
 
 ```{r}
 
-BC <- 0
 fit <- graph_lme(y ~ -1, graph=graph, BC = BC,
                  model = list(type = "WhittleMatern", alpha = 2))
 
@@ -166,6 +168,11 @@ fit$loglik
 ```
 
 
+```{r}
+GRAPH <- graph$clone()
+```
+
+
 
 ```{r}
 graph$observation_to_vertex()
@@ -182,11 +189,7 @@ Approx_Sigma <- rat_covariance(
   tau = tau, 
   alpha = alpha, 
   m = m, build_cov = FALSE)
-```
 
-
-
-```{r}
 AT_Ut <- Approx_Sigma$A
 
 Q <- Approx_Sigma$Q
@@ -209,6 +212,73 @@ loglik
 
 ```{r}
 
+Q <- MetricGraph:::Qalpha2(theta = c(tau, kappa),
+                                         graph = GRAPH,
+                                         BC = 3000,
+                                         build = TRUE)
+
+TT <- precomp$Tc
+
+Lv <- chol(TT %*% Q %*% t(TT))
+
+SIGMA <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+
+
+
+loglik <- 0
+
+PtE <- GRAPH$get_PtE() # data location, edge_number, distance_on_edge (norm)
+
+n <- nrow(PtE)
+obs.edges <- precomp$obs.edges # edges where data is
+
+aux_list1 <- list()
+aux_list2 <- list()
+De <- gets_De_from_U(GRAPH, alpha)
+for (e in seq_along(obs.edges)){
+  edge_name <- paste0("edge_", e)
+  ell <- GRAPH$edge_lengths[e] # get edge_length of edge e
+  tt <- PtE[PtE[,1] == e, 2]*ell # get the edge coordinate location
+  Sigma_e <- gets_Sigma_e(t_vector = tt, 
+                         kappa = kappa,
+                         alpha = alpha,
+                         sigma = SIGMA,
+                         sigma_e = sigma_e,
+                         ell = ell)
+  chol_Sigma_e <- chol(Sigma_e)
+  y_e <- precomp$y$repl_1[[edge_name]]
+  
+  Sigma_e_inv_y_e <- solve(Sigma_e, y_e)
+  loglik <- loglik - # accumulates the sum
+    sum(log(diag(chol_Sigma_e))) - # this is -0.5*log|Sigma_e|
+    0.5 * t(y_e) %*% Sigma_e_inv_y_e # this is -0.5*y_e^\top Sigma_e^{-1}y_e
+  
+  list_mat_Se <- list()
+  for (i in 1:length(tt)) {
+    list_mat_Se[[i]] <- S_mat(t1 = tt[i],
+                              kappa = kappa,
+                              alpha = alpha,
+                              sigma = SIGMA,
+                              ell = ell)
+  }
+  Se <- do.call(rbind, list_mat_Se)
+  SeDe <- Se %*% De[[e]]
+  aux_list1[[e]] <- t(SeDe) %*% solve(Sigma_e, SeDe)
+  aux_list2[[e]] <- t(SeDe) %*% Sigma_e_inv_y_e
+}
+
+Qv_tilde <- TT %*% (Q + Reduce(`+`, aux_list1)) %*% t(TT)
+Lv_tilde <- chol(Qv_tilde)
+mu <- solve(Qv_tilde, TT %*% Reduce(`+`, aux_list2))
+
+loglik <- loglik +
+  sum(log(diag(Lv))) - # this is 0.5*log|Qv|
+  sum(log(diag(Lv_tilde))) + # this is -0.5*log|Qv_tilde|
+  0.5 * t(mu) %*% Qv_tilde %*% mu -
+  0.5 * n * log(2*pi)
+
+loglik
+
 ```
 
 
@@ -216,6 +286,9 @@ loglik
 
 
 
+```{r}
+
+```
 
 
 

@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 gives.indices <- function(graph, factor, constant){
   index.obs1 <- sapply(graph$PtV, 
                        function(i){
@@ -222,7 +222,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -360,7 +360,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -446,7 +446,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -475,7 +475,7 @@ rat_covariance <- function(graph,
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -514,7 +514,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -545,7 +545,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -602,7 +602,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -625,7 +625,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## ---------------------------------------------------------------------------------------
+## ------------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -647,118 +647,107 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## ---------------------------------------------------------------------------------------
-
-
-# before I changed the constants
-
-gets_cov_mat_rat_approx_alpha_1_to_2_old <- function(graph, kappa, tau, alpha, m){
-
-  # get rational approximation coefficients
-  coeff <- rSPDE:::interp_rational_coefficients(
-    order = m, 
-    type_rational_approx = "chebfun", 
-    type_interp = "spline", 
-    alpha = alpha)
+## ------------------------------------------------------------------------------------
+buildKirchooffConditioningMatrixCaseAlphaEqual1 <- function(graph) {
+  E <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
+  onesCounter <- 0
   
-  r <- coeff$r
-  p <- coeff$p
-  k <- coeff$k
-  
-  # compute parameters
-  fa <- floor(alpha)
-  ca <- ceiling(alpha)
-  
-  nu <- alpha - 1/2
-  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
-  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
-  c_1 <- gamma(fa)/gamma(fa - 0.5)
-  
-  # get edge lengths
-  L_e <- graph$edge_lengths
-  
-  # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
-  Qtilde_i <- list() 
-  for(i in 1:m){
-    
-    # compute r_(0,0)
-    r00 <- matern.p.joint(
-      s = 0, 
-      t = 0, 
-      kappa = kappa, 
-      p = p[i], 
-      alpha = alpha)
-    
-    # compute r_(0,0)^(-1)
-    r00_inverse <- solve(r00, Diagonal(ca))
-    
-    # define zero block 
-    zero_block <- matrix(0, ca, ca)
-    
-    # build correction term
-    correction_term <- rbind(
-      cbind(r00_inverse, zero_block),
-      cbind(zero_block, r00_inverse))
-    
-    # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
-    Qtilde_i[[i]] <- list()
-    for(e in 1:length(L_e)){
-      
-      # compute Q_{i,e}
-      Q_e <- matern.p.precision(
-        loc = c(0, L_e[e]),
-        kappa = kappa, 
-        p = p[i],
-        equally_spaced = FALSE, 
-        alpha = alpha)$Q
-      
-      # store Qtilde_{i,e}
-      Qtilde_i[[i]][[e]] <- Q_e - 0.5 * correction_term
-    }
-    # build block diagonal matrix Qtilde_i[[i]]
-    Qtilde_i[[i]] <- bdiag(Qtilde_i[[i]])
+  edgeMatrixFlatten <- c(t(E))
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    positionOfVertex <-  which(edgeMatrixFlatten == vertex)
+    whereToPutOne <- positionOfVertex[1]
+    whereToPutMinusOne <- positionOfVertex[-1]
+    howManyOnes <- length(whereToPutMinusOne)
+    K[cbind(c(1:howManyOnes) + onesCounter, rep(whereToPutOne,howManyOnes))] <- 1
+    K[cbind(c(1:howManyOnes) + onesCounter, whereToPutMinusOne)] <- -1
+    onesCounter <- onesCounter + howManyOnes
   }
-  
-  # --------------------------------------------------
-  # CASE i = 0
-  # --------------------------------------------------
-  
-  factor_0 <- c_1/(2 * k * c_alpha * kappa * sigma^2 * tau^2)
-
-  
-  Qtilde_0_star_UU <- MetricGraph:::Qalpha1(
-    theta = c(tau, kappa), 
-    graph = graph, 
-    BC = 3000, 
-    build = TRUE) * factor_0
-  
-  A_0 <- graph$.__enclos_env__$private$A()
-
-  # --------------------------------------------------
-  # CASE i = 1,...,m
-  # --------------------------------------------------
-  
-  # build conditioning matrix
-  graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
-  COND_i <- graph$CoB
-  Tc <- COND_i$T[-c(1:length(COND_i$S)), ]
-  
-  factor_i <- (2 * kappa^(2 * alpha - 1) * c_alpha * sqrt(pi) * tau^2)/r
-  
-  Qtilde_i_star_UU <- purrr::map2(
-    Qtilde_i, 
-    factor_i, 
-    function(Q, x) Tc %*% Q %*% t(Tc) * x)
-
-  index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
-  A_i <- t(Tc)[index.obs_i, ] 
-  
-  # Build matrix A and Q_UU
-  A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
-  Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
-  # Return Sigma
-  Sigma <- A %*% solve(Q_UU, t(A)) 
-  return(Sigma)
+  return(K)
 }
 
+buildKirchooffConditioningMatrixCaseAlphaEqualOneNonSparse <- function(graph) {
+  E <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  K <- matrix(0, nrow = numberOfConstraints, ncol = 2*nrow(E))
+  onesCounter <- 0
+  
+  edgeMatrixFlatten <- c(t(E))
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    indicesOfVertex <-  which(edgeMatrixFlatten == vertex)
+    colIndicesForOne <- indicesOfVertex[-degreeOfVertex]
+    colIndicesForMinusOne <- indicesOfVertex[-1]
+    howManyContinuityConditions <- degreeOfVertex - 1
+    rowIndicesForBothOneAndMinusOne <- c(1:howManyContinuityConditions) + onesCounter
+    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForOne)] <- 1
+    K[cbind(rowIndicesForBothOneAndMinusOne, colIndicesForMinusOne)] <- -1
+    onesCounter <- onesCounter + howManyContinuityConditions
+  }
+  return(K)
+}
+
+buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
+  edgeMatrix <- graph$E
+  degrees <- graph$get_degrees()
+  numberOfEdges <- nrow(edgeMatrix)
+  
+  numberOfConstraints <- sum(degrees[degrees > 1] - 1)
+  
+  edgeMatrixFlatten <- c(t(edgeMatrix))
+  
+  # Preallocate (each constraint has exactly 2 nonzeros)
+  numberOfNonZero <- 2 * numberOfConstraints
+  i_idx <- integer(numberOfNonZero)
+  j_idx <- integer(numberOfNonZero)
+  x_val <- numeric(numberOfNonZero)
+  
+  indexCounter <- 0
+  rowCounter <- 0
+  
+  for (vertex in seq_along(degrees)) {
+    degreeOfVertex <- degrees[vertex]
+    if (degreeOfVertex < 2) next
+    
+    indicesOfVertex <- which(edgeMatrixFlatten == vertex)
+    
+    colIndicesForOne <- indicesOfVertex[-degreeOfVertex]
+    colIndicesForMinusOne <- indicesOfVertex[-1]
+    
+    howManyContinuityConditions <- degreeOfVertex - 1
+    
+    rows <- seq_len(howManyContinuityConditions) + rowCounter
+    
+    # fill +1 entries
+    idx_range <- (indexCounter + 1):(indexCounter + howManyContinuityConditions)
+    i_idx[idx_range] <- rows
+    j_idx[idx_range] <- colIndicesForOne
+    x_val[idx_range] <- 1
+    
+    # fill -1 entries
+    idx_range <- (indexCounter + howManyContinuityConditions + 1):
+                 (indexCounter + 2 * howManyContinuityConditions)
+    i_idx[idx_range] <- rows
+    j_idx[idx_range] <- colIndicesForMinusOne
+    x_val[idx_range] <- -1
+    
+    indexCounter <- indexCounter + 2 * howManyContinuityConditions
+    rowCounter <- rowCounter + howManyContinuityConditions
+  }
+  
+  K <- Matrix::sparseMatrix(
+    i = i_idx,
+    j = j_idx,
+    x = x_val,
+    dims = c(numberOfConstraints, 2 * numberOfEdges)
+  )
+  
+  return(K)
+}
 

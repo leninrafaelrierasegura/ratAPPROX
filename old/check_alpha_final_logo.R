@@ -13,7 +13,7 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.1
+h <- 1
 kappa <- 0.3
 sigma <- 1
 alpha <- 1.5
@@ -48,6 +48,9 @@ graph$add_observations(
 
 # add observations as vertices
 graph$observation_to_vertex()
+
+
+
 
 data <- graph$get_data()
 

@@ -929,7 +929,7 @@ S_mat <-  function(t1, kappa, alpha, sigma, ell){
 
 
 
-Simga_e <- function(t_vector, kappa, alpha, sigma, sigma_e, ell){
+gets_Sigma_e <- function(t_vector, kappa, alpha, sigma, sigma_e, ell){
 
   n_obs <- length(t_vector)
   Sigma <- matrix(NA, nrow = n_obs, ncol = n_obs)
