@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gives.indices <- function(graph, factor, constant){
   index.obs1 <- sapply(graph$PtV, 
                        function(i){
@@ -222,7 +222,58 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+computesListOfMatricesQTildeUnconstraint <- function(p,
+                                                     kappa, 
+                                                     alpha, 
+                                                     edge_lengths){
+  ca <- ceiling(alpha)
+  # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
+  Qtilde_i <- list() 
+  for(i in seq_along(p)){
+    
+    # compute r_(0,0)
+    r00 <- matern.p.joint(
+      s = 0, 
+      t = 0, 
+      kappa = kappa, 
+      p = p[i], 
+      alpha = alpha)
+    
+    # compute r_(0,0)^(-1)
+    r00_inverse <- solve(r00, Diagonal(ca))
+    
+    # define zero block 
+    zero_block <- matrix(0, ca, ca)
+    
+    # build correction term
+    correction_term <- rbind(
+      cbind(r00_inverse, zero_block),
+      cbind(zero_block, r00_inverse))
+    
+    # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
+    Qtilde_i[[i]] <- list()
+    for(e in seq_along(edge_lengths)){
+      
+      # compute Q_{i,e}
+      Q_e <- matern.p.precision(
+        loc = c(0, edge_lengths[e]),
+        kappa = kappa, 
+        p = p[i],
+        equally_spaced = FALSE, 
+        alpha = alpha)$Q
+      
+      # store Qtilde_{i,e}
+      Qtilde_i[[i]][[e]] <- Q_e - 0.5 * correction_term
+    }
+    # build block diagonal matrix Qtilde_i[[i]]
+    Qtilde_i[[i]] <- bdiag(Qtilde_i[[i]])
+  }
+  return(Qtilde_i)
+}
+
+
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -267,50 +318,9 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   c_1 <- gamma(fa)/gamma(fa - 0.5)
   
   # get edge lengths
-  L_e <- graph$edge_lengths
-  
-  # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
-  Qtilde_i <- list() 
-  for(i in 1:m){
-    
-    # compute r_(0,0)
-    r00 <- matern.p.joint(
-      s = 0, 
-      t = 0, 
-      kappa = kappa, 
-      p = p[i], 
-      alpha = alpha)
-    
-    # compute r_(0,0)^(-1)
-    r00_inverse <- solve(r00, Diagonal(ca))
-    
-    # define zero block 
-    zero_block <- matrix(0, ca, ca)
-    
-    # build correction term
-    correction_term <- rbind(
-      cbind(r00_inverse, zero_block),
-      cbind(zero_block, r00_inverse))
-    
-    # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
-    Qtilde_i[[i]] <- list()
-    for(e in 1:length(L_e)){
-      
-      # compute Q_{i,e}
-      Q_e <- matern.p.precision(
-        loc = c(0, L_e[e]),
-        kappa = kappa, 
-        p = p[i],
-        equally_spaced = FALSE, 
-        alpha = alpha)$Q
-      
-      # store Qtilde_{i,e}
-      Qtilde_i[[i]][[e]] <- Q_e - 0.5 * correction_term
-    }
-    # build block diagonal matrix Qtilde_i[[i]]
-    Qtilde_i[[i]] <- bdiag(Qtilde_i[[i]])
-  }
-  
+  edge_lengths <- graph$edge_lengths
+
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p, kappa,  alpha,  edge_lengths)
   # --------------------------------------------------
   # CASE i = 0
   # --------------------------------------------------
@@ -348,8 +358,8 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
   
   # Compare the above to 
-  # A=buildMatrixAWhichMapsUToUv(graph, 2)
-  # which(A == 1, arr.ind = TRUE)[, "col"]
+  # A <- buildMatrixAWhichMapsUToUv(graph, 2)
+  # index.obs_i <- which(A == 1, arr.ind = TRUE)[, "col"]
   
   A_i <- t(Tc)[index.obs_i, ] 
   
@@ -365,7 +375,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -451,7 +461,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -480,7 +490,7 @@ rat_covariance <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -519,7 +529,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -550,7 +560,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -607,7 +617,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -630,7 +640,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -652,7 +662,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -715,7 +725,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
@@ -743,7 +753,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -761,7 +771,7 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -942,7 +952,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 

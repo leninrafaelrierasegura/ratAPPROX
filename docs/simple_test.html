@@ -553,6 +553,11 @@ div.tocify {
 <div id="case-alpha1" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Case <span
 class="math inline">\(\alpha=1\)</span></h1>
+<div id="mathbfk-and-mathbft-by-hand" class="section level2"
+number="1.1">
+<h2><span class="header-section-number">1.1</span> <span
+class="math inline">\(\mathbf{K}\)</span> and <span
+class="math inline">\(\mathbf{T}\)</span> by hand</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>theta1 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span>pi,<span class="at">to=</span><span class="dv">0</span>,<span class="at">length.out =</span> <span class="dv">1000</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>theta2 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="sc">-</span>pi,<span class="at">to=</span><span class="dv">0</span>,<span class="at">length.out =</span> <span class="dv">1000</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
@@ -561,391 +566,465 @@ class="math inline">\(\alpha=1\)</span></h1>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>edge3 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span><span class="sc">/</span>pi<span class="sc">+</span><span class="fu">cos</span>(theta2)<span class="sc">/</span>pi,<span class="fu">sin</span>(theta2)<span class="sc">/</span>pi)</span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">list</span>(edge1, edge2, edge3)</span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>graph <span class="ot">&lt;-</span> metric_graph<span class="sc">$</span><span class="fu">new</span>(<span class="at">edges =</span> edges)</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">set_manual_edge_lengths</span>(<span class="at">edge_lengths =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span><span class="sc">/</span>pi,<span class="dv">1</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">4</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">4</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="fl">0.5</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualOne</span>(graph)</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,</span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">rbind</span>(K, <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>ca <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(alpha)</span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>r00 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(</span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>      <span class="at">s =</span> <span class="dv">0</span>, </span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>      <span class="at">t =</span> <span class="dv">0</span>, </span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>      <span class="at">kappa =</span> kappa, </span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>      <span class="at">p =</span> <span class="dv">0</span>, </span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>      <span class="at">alpha =</span> alpha)</span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>    </span>
-<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a><span class="co"># compute r_(0,0)^(-1)</span></span>
-<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>r00_inverse <span class="ot">&lt;-</span> <span class="fu">solve</span>(r00, <span class="fu">Diagonal</span>(ca))</span>
-<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a><span class="co"># define zero block </span></span>
-<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>zero_block <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, ca, ca)</span>
-<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a></span>
-<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a><span class="co"># build correction term</span></span>
-<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a>correction_term <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a>  <span class="fu">cbind</span>(r00_inverse, zero_block),</span>
-<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a>  <span class="fu">cbind</span>(zero_block, r00_inverse))</span>
-<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a></span>
-<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a>L_e <span class="ot">&lt;-</span> graph<span class="sc">$</span>edge_lengths</span>
-<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a>Qtilde_e <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a></span>
-<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a><span class="cf">for</span>(e <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(L_e)){</span>
-<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a>  </span>
-<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a>  <span class="co"># compute Q_{i,e}</span></span>
-<span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a>  Q_e <span class="ot">&lt;-</span> <span class="fu">matern.p.precision</span>(</span>
-<span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a>    <span class="at">loc =</span> <span class="fu">c</span>(<span class="dv">0</span>, L_e[e]),</span>
-<span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a>    <span class="at">kappa =</span> kappa, </span>
-<span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a>    <span class="at">p =</span> <span class="dv">0</span>,</span>
-<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a>    <span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a>    <span class="at">alpha =</span> alpha)<span class="sc">$</span>Q</span>
-<span id="cb7-59"><a href="#cb7-59" tabindex="-1"></a>  </span>
-<span id="cb7-60"><a href="#cb7-60" tabindex="-1"></a>  <span class="co"># store Qtilde_{i,e}</span></span>
-<span id="cb7-61"><a href="#cb7-61" tabindex="-1"></a>  Qtilde_e[[e]] <span class="ot">&lt;-</span> Q_e <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> correction_term</span>
-<span id="cb7-62"><a href="#cb7-62" tabindex="-1"></a>}</span>
-<span id="cb7-63"><a href="#cb7-63" tabindex="-1"></a></span>
-<span id="cb7-64"><a href="#cb7-64" tabindex="-1"></a>Q_tilde <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(Qtilde_e)</span>
-<span id="cb7-65"><a href="#cb7-65" tabindex="-1"></a></span>
-<span id="cb7-66"><a href="#cb7-66" tabindex="-1"></a>Q_tilde_star <span class="ot">&lt;-</span> TT <span class="sc">%*%</span> Q_tilde <span class="sc">%*%</span> <span class="fu">t</span>(TT)</span>
-<span id="cb7-67"><a href="#cb7-67" tabindex="-1"></a></span>
-<span id="cb7-68"><a href="#cb7-68" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
-<span id="cb7-69"><a href="#cb7-69" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-70"><a href="#cb7-70" tabindex="-1"></a></span>
-<span id="cb7-71"><a href="#cb7-71" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">buildMatrixAWhichMapsUToUv</span>(graph, alpha)</span>
-<span id="cb7-72"><a href="#cb7-72" tabindex="-1"></a></span>
-<span id="cb7-73"><a href="#cb7-73" tabindex="-1"></a>T_U <span class="ot">&lt;-</span> TT[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>,]</span>
-<span id="cb7-74"><a href="#cb7-74" tabindex="-1"></a></span>
-<span id="cb7-75"><a href="#cb7-75" tabindex="-1"></a>Q_tilde_star_UU <span class="ot">&lt;-</span> Q_tilde_star[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb7-76"><a href="#cb7-76" tabindex="-1"></a></span>
-<span id="cb7-77"><a href="#cb7-77" tabindex="-1"></a>Sigma_build <span class="ot">&lt;-</span> A <span class="sc">%*%</span> <span class="fu">t</span>(T_U) <span class="sc">%*%</span> <span class="fu">solve</span>(Q_tilde_star_UU, T_U <span class="sc">%*%</span> <span class="fu">t</span>(A))</span>
-<span id="cb7-78"><a href="#cb7-78" tabindex="-1"></a></span>
-<span id="cb7-79"><a href="#cb7-79" tabindex="-1"></a></span>
-<span id="cb7-80"><a href="#cb7-80" tabindex="-1"></a>vertex_loc <span class="ot">&lt;-</span> graph<span class="sc">$</span>V <span class="sc">%&gt;%</span> </span>
-<span id="cb7-81"><a href="#cb7-81" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-82"><a href="#cb7-82" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">coord_x =</span> X, <span class="at">coord_y =</span> Y) <span class="sc">%&gt;%</span></span>
-<span id="cb7-83"><a href="#cb7-83" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>)</span>
-<span id="cb7-84"><a href="#cb7-84" tabindex="-1"></a></span>
-<span id="cb7-85"><a href="#cb7-85" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
-<span id="cb7-86"><a href="#cb7-86" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
-<span id="cb7-87"><a href="#cb7-87" tabindex="-1"></a>  <span class="at">data =</span> vertex_loc,</span>
-<span id="cb7-88"><a href="#cb7-88" tabindex="-1"></a>  <span class="at">coord_x =</span> <span class="st">&quot;coord_x&quot;</span>,</span>
-<span id="cb7-89"><a href="#cb7-89" tabindex="-1"></a>  <span class="at">coord_y =</span> <span class="st">&quot;coord_y&quot;</span>,</span>
-<span id="cb7-90"><a href="#cb7-90" tabindex="-1"></a>  <span class="at">data_coords =</span> <span class="st">&quot;spatial&quot;</span>,</span>
-<span id="cb7-91"><a href="#cb7-91" tabindex="-1"></a>    )</span></code></pre></div>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">set_manual_edge_lengths</span>(<span class="at">edge_lengths =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span><span class="sc">/</span>pi,<span class="dv">1</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="fl">0.5</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualOne</span>(graph)</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">0</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">rbind</span>(K, <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">1</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>ca <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(alpha)</span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a>r00 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(</span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>      <span class="at">s =</span> <span class="dv">0</span>, </span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a>      <span class="at">t =</span> <span class="dv">0</span>, </span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a>      <span class="at">kappa =</span> kappa, </span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>      <span class="at">p =</span> <span class="dv">0</span>, </span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>      <span class="at">alpha =</span> alpha)</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>    </span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co"># compute r_(0,0)^(-1)</span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>r00_inverse <span class="ot">&lt;-</span> <span class="fu">solve</span>(r00, <span class="fu">Diagonal</span>(ca))</span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co"># define zero block </span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>zero_block <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, ca, ca)</span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co"># build correction term</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a>correction_term <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a>  <span class="fu">cbind</span>(r00_inverse, zero_block),</span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a>  <span class="fu">cbind</span>(zero_block, r00_inverse))</span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a>L_e <span class="ot">&lt;-</span> graph<span class="sc">$</span>edge_lengths</span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a>Qtilde_e <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="cf">for</span>(e <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(L_e)){</span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a>  </span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a>  <span class="co"># compute Q_{i,e}</span></span>
+<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a>  Q_e <span class="ot">&lt;-</span> <span class="fu">matern.p.precision</span>(</span>
+<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a>    <span class="at">loc =</span> <span class="fu">c</span>(<span class="dv">0</span>, L_e[e]),</span>
+<span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a>    <span class="at">kappa =</span> kappa, </span>
+<span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a>    <span class="at">p =</span> <span class="dv">0</span>,</span>
+<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a>    <span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a>    <span class="at">alpha =</span> alpha)<span class="sc">$</span>Q</span>
+<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a>  </span>
+<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a>  <span class="co"># store Qtilde_{i,e}</span></span>
+<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a>  Qtilde_e[[e]] <span class="ot">&lt;-</span> Q_e <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> correction_term</span>
+<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a>}</span>
+<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a>Q_tilde <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(Qtilde_e)</span>
+<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a></span>
+<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a>Q_tilde_star <span class="ot">&lt;-</span> TT <span class="sc">%*%</span> Q_tilde <span class="sc">%*%</span> <span class="fu">t</span>(TT)</span>
+<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a></span>
+<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a></span>
+<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">buildMatrixAWhichMapsUToUv</span>(graph, alpha)</span>
+<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a></span>
+<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a>T_U <span class="ot">&lt;-</span> TT[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>,]</span>
+<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a></span>
+<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a>Q_tilde_star_UU <span class="ot">&lt;-</span> Q_tilde_star[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a></span>
+<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a>Sigma_build <span class="ot">&lt;-</span> A <span class="sc">%*%</span> <span class="fu">t</span>(T_U) <span class="sc">%*%</span> <span class="fu">solve</span>(Q_tilde_star_UU, T_U <span class="sc">%*%</span> <span class="fu">t</span>(A))</span>
+<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a></span>
+<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a></span>
+<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a>vertex_loc <span class="ot">&lt;-</span> graph<span class="sc">$</span>V <span class="sc">%&gt;%</span> </span>
+<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">coord_x =</span> X, <span class="at">coord_y =</span> Y) <span class="sc">%&gt;%</span></span>
+<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>)</span>
+<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a></span>
+<span id="cb6-95"><a href="#cb6-95" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
+<span id="cb6-96"><a href="#cb6-96" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
+<span id="cb6-97"><a href="#cb6-97" tabindex="-1"></a>  <span class="at">data =</span> vertex_loc,</span>
+<span id="cb6-98"><a href="#cb6-98" tabindex="-1"></a>  <span class="at">coord_x =</span> <span class="st">&quot;coord_x&quot;</span>,</span>
+<span id="cb6-99"><a href="#cb6-99" tabindex="-1"></a>  <span class="at">coord_y =</span> <span class="st">&quot;coord_y&quot;</span>,</span>
+<span id="cb6-100"><a href="#cb6-100" tabindex="-1"></a>  <span class="at">data_coords =</span> <span class="st">&quot;spatial&quot;</span>,</span>
+<span id="cb6-101"><a href="#cb6-101" tabindex="-1"></a>    )</span></code></pre></div>
 <pre><code>## $removed
 ## [1] coord_x coord_y dummy  
 ## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># add observations as vertices</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">graph =</span> graph, </span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">kappa =</span> kappa, </span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">tau =</span> tau, </span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">alpha =</span> alpha, </span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">m =</span> m)</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>Approx_Sigma</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># add observations as vertices</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">graph =</span> graph, </span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">kappa =</span> kappa, </span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">tau =</span> tau, </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">alpha =</span> alpha, </span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">m =</span> m)</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>Approx_Sigma</span></code></pre></div>
 <pre><code>## 2 x 2 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                           
 ## [1,] 0.66755755 0.05116153
 ## [2,] 0.05116153 0.66755755</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>Sigma_build</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>Sigma_build</span></code></pre></div>
 <pre><code>## 2 x 2 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                           
 ## [1,] 0.66755755 0.05116153
 ## [2,] 0.05116153 0.66755755</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">direction =</span> T)</span></code></pre></div>
-<p><img src="simple_test_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">sum</span>(Approx_Sigma<span class="sc">-</span>Sigma_build)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">direction =</span> T)</span></code></pre></div>
+<p><img src="simple_test_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">sum</span>(Approx_Sigma<span class="sc">-</span>Sigma_build)</span></code></pre></div>
 <pre><code>## [1] 3.469447e-17</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualOne</span>(graph)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualOne</span>(graph)</span></code></pre></div>
 <pre><code>## 4 x 6 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                     
 ## [1,] 1 . -1  .  .  .
 ## [2,] . .  1  . -1  .
 ## [3,] . 1  . -1  .  .
 ## [4,] . .  .  1  . -1</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>TT[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>TT[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,]</span></code></pre></div>
 <pre><code>## 4 x 6 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                     
 ## [1,] 1 . -1  .  .  .
 ## [2,] . .  1  . -1  .
 ## [3,] . 1  . -1  .  .
 ## [4,] . .  .  1  . -1</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">buildC</span>()</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>graph<span class="sc">$</span>C[<span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>,<span class="dv">11</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">buildC</span>()</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>graph<span class="sc">$</span>C[<span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>,<span class="dv">11</span>)]</span></code></pre></div>
 <pre><code>## 4 x 6 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                     
 ## [1,] 1 . -1  .  .  .
 ## [2,] . .  1  . -1  .
 ## [3,] . 1  . -1  .  .
 ## [4,] . .  .  1  . -1</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>graph<span class="sc">$</span>CoB</span></code></pre></div>
-<pre><code>## $T
-## 12 x 12 sparse Matrix of class &quot;dgCMatrix&quot;
-##                                                                          
-##  [1,]  .         -0.5773503  .          .         .            -0.5773503
-##  [2,] -0.4082483  .          .          .         8.164966e-01  .        
-##  [3,] -0.7071068  .          .          .         5.551115e-17  .        
-##  [4,]  .          .          .         -0.5773503 .             .        
-##  [5,]  .          .         -0.4082483  .         .             .        
-##  [6,]  .          .         -0.7071068  .         .             .        
-##  [7,]  .         -0.5773503  .          .         .             0.7886751
-##  [8,]  .         -0.5773503  .          .         .            -0.2113249
-##  [9,]  0.5773503  .          .          .         5.773503e-01  .        
-## [10,]  .          .          .         -0.5773503 .             .        
-## [11,]  .          .          .         -0.5773503 .             .        
-## [12,]  .          .          0.5773503  .         .             .        
-##                                                                          
-##  [1,] .             .          .         -0.5773503  .          .        
-##  [2,] .             .         -0.4082483  .          .          .        
-##  [3,] .             .          0.7071068  .          .          .        
-##  [4,] .            -0.5773503  .          .          .         -0.5773503
-##  [5,] 8.164966e-01  .          .          .         -0.4082483  .        
-##  [6,] 5.551115e-17  .          .          .          0.7071068  .        
-##  [7,] .             .          .         -0.2113249  .          .        
-##  [8,] .             .          .          0.7886751  .          .        
-##  [9,] .             .          0.5773503  .          .          .        
-## [10,] .             0.7886751  .          .          .         -0.2113249
-## [11,] .            -0.2113249  .          .          .          0.7886751
-## [12,] 5.773503e-01  .          .          .          0.5773503  .        
-## 
-## $S
-## [1] 1.732051 1.732051 1.000000 1.732051 1.732051 1.000000
-## 
-## $U
-## 6 x 6 sparse Matrix of class &quot;dgCMatrix&quot;
-##                                                      
-## [1,] -1  .          .         .  .          .        
-## [2,]  . -0.7071068 -0.7071068 .  .          .        
-## [3,]  .  0.7071068 -0.7071068 .  .          .        
-## [4,]  .  .          .         1  .          .        
-## [5,]  .  .          .         . -0.7071068 -0.7071068
-## [6,]  .  .          .         .  0.7071068 -0.7071068
-## 
-## $larget.cluster
-## [1] 1 2
-## 
-## $cluster.n
-## [1] 1 2 1 2
-## 
-## $alpha
-## [1] 2</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>U <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>U</span>
-<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>T <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>T</span>
-<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>s <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>S</span>
-<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a></span>
-<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>S_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>)</span>
-<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="fu">diag</span>(S_mat) <span class="ot">&lt;-</span> s</span>
-<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a></span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="fu">sum</span>(graph<span class="sc">$</span>C<span class="sc">-</span> <span class="fu">round</span>(U <span class="sc">%*%</span> S_mat <span class="sc">%*%</span> T,<span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>U <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>U</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>T <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>T</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>s <span class="ot">&lt;-</span> graph<span class="sc">$</span>CoB<span class="sc">$</span>S</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>S_mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="fu">diag</span>(S_mat) <span class="ot">&lt;-</span> s</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="fu">sum</span>(graph<span class="sc">$</span>C<span class="sc">-</span> <span class="fu">round</span>(U <span class="sc">%*%</span> S_mat <span class="sc">%*%</span> T,<span class="dv">1</span>))</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
+</div>
+<div id="mathbfk-and-mathbft-by-using-cob" class="section level2"
+number="1.2">
+<h2><span class="header-section-number">1.2</span> <span
+class="math inline">\(\mathbf{K}\)</span> and <span
+class="math inline">\(\mathbf{T}\)</span> by using <code>CoB</code></h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>theta1 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span>pi,<span class="at">to=</span><span class="dv">0</span>,<span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>theta2 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="sc">-</span>pi,<span class="at">to=</span><span class="dv">0</span>,<span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>edge1 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span><span class="sc">/</span>pi<span class="sc">+</span><span class="fu">cos</span>(theta1)<span class="sc">/</span>pi,<span class="fu">sin</span>(theta1)<span class="sc">/</span>pi)</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>edge2 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),<span class="fu">c</span>(<span class="dv">2</span><span class="sc">/</span>pi,<span class="dv">0</span>))</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>edge3 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span><span class="sc">/</span>pi<span class="sc">+</span><span class="fu">cos</span>(theta2)<span class="sc">/</span>pi,<span class="fu">sin</span>(theta2)<span class="sc">/</span>pi)</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">list</span>(edge1, edge2, edge3)</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>graph <span class="ot">&lt;-</span> metric_graph<span class="sc">$</span><span class="fu">new</span>(<span class="at">edges =</span> edges)</span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">set_manual_edge_lengths</span>(<span class="at">edge_lengths =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span><span class="sc">/</span>pi,<span class="dv">1</span>))</span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb23-13"><a href="#cb23-13" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb23-14"><a href="#cb23-14" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb23-15"><a href="#cb23-15" tabindex="-1"></a>nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="fl">0.5</span></span>
+<span id="cb23-16"><a href="#cb23-16" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
+<span id="cb23-17"><a href="#cb23-17" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualOne</span>(graph)</span>
+<span id="cb23-19"><a href="#cb23-19" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" tabindex="-1"></a>CoB <span class="ot">&lt;-</span> MetricGraph<span class="sc">:::</span><span class="fu">c_basis2</span>(K)</span>
+<span id="cb23-22"><a href="#cb23-22" tabindex="-1"></a>TT <span class="ot">&lt;-</span> CoB<span class="sc">$</span>T[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(CoB<span class="sc">$</span>S)), ]</span>
+<span id="cb23-23"><a href="#cb23-23" tabindex="-1"></a></span>
+<span id="cb23-24"><a href="#cb23-24" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
+<span id="cb23-25"><a href="#cb23-25" tabindex="-1"></a>ca <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(alpha)</span>
+<span id="cb23-26"><a href="#cb23-26" tabindex="-1"></a></span>
+<span id="cb23-27"><a href="#cb23-27" tabindex="-1"></a>r00 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(</span>
+<span id="cb23-28"><a href="#cb23-28" tabindex="-1"></a>      <span class="at">s =</span> <span class="dv">0</span>, </span>
+<span id="cb23-29"><a href="#cb23-29" tabindex="-1"></a>      <span class="at">t =</span> <span class="dv">0</span>, </span>
+<span id="cb23-30"><a href="#cb23-30" tabindex="-1"></a>      <span class="at">kappa =</span> kappa, </span>
+<span id="cb23-31"><a href="#cb23-31" tabindex="-1"></a>      <span class="at">p =</span> <span class="dv">0</span>, </span>
+<span id="cb23-32"><a href="#cb23-32" tabindex="-1"></a>      <span class="at">alpha =</span> alpha)</span>
+<span id="cb23-33"><a href="#cb23-33" tabindex="-1"></a>    </span>
+<span id="cb23-34"><a href="#cb23-34" tabindex="-1"></a><span class="co"># compute r_(0,0)^(-1)</span></span>
+<span id="cb23-35"><a href="#cb23-35" tabindex="-1"></a>r00_inverse <span class="ot">&lt;-</span> <span class="fu">solve</span>(r00, <span class="fu">Diagonal</span>(ca))</span>
+<span id="cb23-36"><a href="#cb23-36" tabindex="-1"></a></span>
+<span id="cb23-37"><a href="#cb23-37" tabindex="-1"></a><span class="co"># define zero block </span></span>
+<span id="cb23-38"><a href="#cb23-38" tabindex="-1"></a>zero_block <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, ca, ca)</span>
+<span id="cb23-39"><a href="#cb23-39" tabindex="-1"></a></span>
+<span id="cb23-40"><a href="#cb23-40" tabindex="-1"></a><span class="co"># build correction term</span></span>
+<span id="cb23-41"><a href="#cb23-41" tabindex="-1"></a>correction_term <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb23-42"><a href="#cb23-42" tabindex="-1"></a>  <span class="fu">cbind</span>(r00_inverse, zero_block),</span>
+<span id="cb23-43"><a href="#cb23-43" tabindex="-1"></a>  <span class="fu">cbind</span>(zero_block, r00_inverse))</span>
+<span id="cb23-44"><a href="#cb23-44" tabindex="-1"></a></span>
+<span id="cb23-45"><a href="#cb23-45" tabindex="-1"></a>L_e <span class="ot">&lt;-</span> graph<span class="sc">$</span>edge_lengths</span>
+<span id="cb23-46"><a href="#cb23-46" tabindex="-1"></a>Qtilde_e <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb23-47"><a href="#cb23-47" tabindex="-1"></a></span>
+<span id="cb23-48"><a href="#cb23-48" tabindex="-1"></a><span class="cf">for</span>(e <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(L_e)){</span>
+<span id="cb23-49"><a href="#cb23-49" tabindex="-1"></a>  </span>
+<span id="cb23-50"><a href="#cb23-50" tabindex="-1"></a>  <span class="co"># compute Q_{i,e}</span></span>
+<span id="cb23-51"><a href="#cb23-51" tabindex="-1"></a>  Q_e <span class="ot">&lt;-</span> <span class="fu">matern.p.precision</span>(</span>
+<span id="cb23-52"><a href="#cb23-52" tabindex="-1"></a>    <span class="at">loc =</span> <span class="fu">c</span>(<span class="dv">0</span>, L_e[e]),</span>
+<span id="cb23-53"><a href="#cb23-53" tabindex="-1"></a>    <span class="at">kappa =</span> kappa, </span>
+<span id="cb23-54"><a href="#cb23-54" tabindex="-1"></a>    <span class="at">p =</span> <span class="dv">0</span>,</span>
+<span id="cb23-55"><a href="#cb23-55" tabindex="-1"></a>    <span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb23-56"><a href="#cb23-56" tabindex="-1"></a>    <span class="at">alpha =</span> alpha)<span class="sc">$</span>Q</span>
+<span id="cb23-57"><a href="#cb23-57" tabindex="-1"></a>  </span>
+<span id="cb23-58"><a href="#cb23-58" tabindex="-1"></a>  <span class="co"># store Qtilde_{i,e}</span></span>
+<span id="cb23-59"><a href="#cb23-59" tabindex="-1"></a>  Qtilde_e[[e]] <span class="ot">&lt;-</span> Q_e <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> correction_term</span>
+<span id="cb23-60"><a href="#cb23-60" tabindex="-1"></a>}</span>
+<span id="cb23-61"><a href="#cb23-61" tabindex="-1"></a></span>
+<span id="cb23-62"><a href="#cb23-62" tabindex="-1"></a>Q_tilde <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(Qtilde_e)</span>
+<span id="cb23-63"><a href="#cb23-63" tabindex="-1"></a></span>
+<span id="cb23-64"><a href="#cb23-64" tabindex="-1"></a>Q_tilde_star <span class="ot">&lt;-</span> TT <span class="sc">%*%</span> Q_tilde <span class="sc">%*%</span> <span class="fu">t</span>(TT)</span>
+<span id="cb23-65"><a href="#cb23-65" tabindex="-1"></a></span>
+<span id="cb23-66"><a href="#cb23-66" tabindex="-1"></a></span>
+<span id="cb23-67"><a href="#cb23-67" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">buildMatrixAWhichMapsUToUv</span>(graph, alpha)</span>
+<span id="cb23-68"><a href="#cb23-68" tabindex="-1"></a></span>
+<span id="cb23-69"><a href="#cb23-69" tabindex="-1"></a>index.obs_i <span class="ot">&lt;-</span> <span class="fu">which</span>(A <span class="sc">==</span> <span class="dv">1</span>, <span class="at">arr.ind =</span> <span class="cn">TRUE</span>)[, <span class="st">&quot;col&quot;</span>]</span>
+<span id="cb23-70"><a href="#cb23-70" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">t</span>(TT)[index.obs_i, ] </span>
+<span id="cb23-71"><a href="#cb23-71" tabindex="-1"></a>  </span>
+<span id="cb23-72"><a href="#cb23-72" tabindex="-1"></a>T_U <span class="ot">&lt;-</span> TT</span>
+<span id="cb23-73"><a href="#cb23-73" tabindex="-1"></a></span>
+<span id="cb23-74"><a href="#cb23-74" tabindex="-1"></a>Q_tilde_star_UU <span class="ot">&lt;-</span> Q_tilde_star</span>
+<span id="cb23-75"><a href="#cb23-75" tabindex="-1"></a></span>
+<span id="cb23-76"><a href="#cb23-76" tabindex="-1"></a>Sigma_build <span class="ot">&lt;-</span> A <span class="sc">%*%</span>  <span class="fu">solve</span>(Q_tilde_star_UU, <span class="fu">t</span>(A))</span>
+<span id="cb23-77"><a href="#cb23-77" tabindex="-1"></a></span>
+<span id="cb23-78"><a href="#cb23-78" tabindex="-1"></a></span>
+<span id="cb23-79"><a href="#cb23-79" tabindex="-1"></a>vertex_loc <span class="ot">&lt;-</span> graph<span class="sc">$</span>V <span class="sc">%&gt;%</span> </span>
+<span id="cb23-80"><a href="#cb23-80" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-81"><a href="#cb23-81" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">coord_x =</span> X, <span class="at">coord_y =</span> Y) <span class="sc">%&gt;%</span></span>
+<span id="cb23-82"><a href="#cb23-82" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>)</span>
+<span id="cb23-83"><a href="#cb23-83" tabindex="-1"></a></span>
+<span id="cb23-84"><a href="#cb23-84" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
+<span id="cb23-85"><a href="#cb23-85" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
+<span id="cb23-86"><a href="#cb23-86" tabindex="-1"></a>  <span class="at">data =</span> vertex_loc,</span>
+<span id="cb23-87"><a href="#cb23-87" tabindex="-1"></a>  <span class="at">coord_x =</span> <span class="st">&quot;coord_x&quot;</span>,</span>
+<span id="cb23-88"><a href="#cb23-88" tabindex="-1"></a>  <span class="at">coord_y =</span> <span class="st">&quot;coord_y&quot;</span>,</span>
+<span id="cb23-89"><a href="#cb23-89" tabindex="-1"></a>  <span class="at">data_coords =</span> <span class="st">&quot;spatial&quot;</span>,</span>
+<span id="cb23-90"><a href="#cb23-90" tabindex="-1"></a>    )</span></code></pre></div>
+<pre><code>## $removed
+## [1] coord_x coord_y dummy  
+## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co"># add observations as vertices</span></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>  <span class="at">graph =</span> graph, </span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>  <span class="at">kappa =</span> kappa, </span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>  <span class="at">tau =</span> tau, </span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a>  <span class="at">alpha =</span> alpha, </span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a>  <span class="at">m =</span> m)</span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a>Approx_Sigma</span></code></pre></div>
+<pre><code>## 2 x 2 sparse Matrix of class &quot;dgCMatrix&quot;
+##                           
+## [1,] 0.66755755 0.05116153
+## [2,] 0.05116153 0.66755755</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>Sigma_build</span></code></pre></div>
+<pre><code>## 2 x 2 sparse Matrix of class &quot;dgCMatrix&quot;
+##                           
+## [1,]  0.3262563 -0.5650925
+## [2,] -0.5650925  0.9787689</code></pre>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">sum</span>(Approx_Sigma<span class="sc">-</span>Sigma_build)</span></code></pre></div>
+<pre><code>## [1] 1.262598</code></pre>
+</div>
 </div>
 <div id="case-alpha2" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Case <span
 class="math inline">\(\alpha=2\)</span></h1>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">4</span></span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">4</span></span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="fl">0.5</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a></span>
-<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a><span class="co"># build a graph with a mesh</span></span>
-<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a>graph_initial <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">flip_edge =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb26-13"><a href="#cb26-13" tabindex="-1"></a>graph <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span><span class="fu">clone</span>()</span>
-<span id="cb26-14"><a href="#cb26-14" tabindex="-1"></a></span>
-<span id="cb26-15"><a href="#cb26-15" tabindex="-1"></a></span>
-<span id="cb26-16"><a href="#cb26-16" tabindex="-1"></a>graph_initial<span class="sc">$</span><span class="fu">build_mesh</span>(<span class="at">h =</span> h)</span>
-<span id="cb26-17"><a href="#cb26-17" tabindex="-1"></a></span>
-<span id="cb26-18"><a href="#cb26-18" tabindex="-1"></a></span>
-<span id="cb26-19"><a href="#cb26-19" tabindex="-1"></a>mesh_XY <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span>mesh<span class="sc">$</span>V <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
-<span id="cb26-20"><a href="#cb26-20" tabindex="-1"></a></span>
-<span id="cb26-21"><a href="#cb26-21" tabindex="-1"></a></span>
-<span id="cb26-22"><a href="#cb26-22" tabindex="-1"></a>mesh_locations <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span><span class="fu">get_mesh_locations</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb26-23"><a href="#cb26-23" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb26-24"><a href="#cb26-24" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-25"><a href="#cb26-25" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">edge_number =</span> V1, <span class="at">distance_on_edge =</span> V2)</span>
-<span id="cb26-26"><a href="#cb26-26" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
-<span id="cb26-28"><a href="#cb26-28" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
-<span id="cb26-29"><a href="#cb26-29" tabindex="-1"></a>  <span class="at">data =</span> mesh_locations,</span>
-<span id="cb26-30"><a href="#cb26-30" tabindex="-1"></a>  <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-31"><a href="#cb26-31" tabindex="-1"></a></span>
-<span id="cb26-32"><a href="#cb26-32" tabindex="-1"></a><span class="co"># add observations as vertices</span></span>
-<span id="cb26-33"><a href="#cb26-33" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span>
-<span id="cb26-34"><a href="#cb26-34" tabindex="-1"></a></span>
-<span id="cb26-35"><a href="#cb26-35" tabindex="-1"></a>data <span class="ot">&lt;-</span> graph<span class="sc">$</span><span class="fu">get_data</span>()</span>
-<span id="cb26-36"><a href="#cb26-36" tabindex="-1"></a></span>
-<span id="cb26-37"><a href="#cb26-37" tabindex="-1"></a>order <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb26-38"><a href="#cb26-38" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-39"><a href="#cb26-39" tabindex="-1"></a>  <span class="fu">select</span>(.coord_x, .coord_y) <span class="sc">%&gt;%</span></span>
-<span id="cb26-40"><a href="#cb26-40" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">X =</span> .coord_x, <span class="at">Y =</span> .coord_y)</span>
-<span id="cb26-41"><a href="#cb26-41" tabindex="-1"></a></span>
-<span id="cb26-42"><a href="#cb26-42" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
-<span id="cb26-43"><a href="#cb26-43" tabindex="-1"></a>  <span class="at">graph =</span> graph, </span>
-<span id="cb26-44"><a href="#cb26-44" tabindex="-1"></a>  <span class="at">kappa =</span> kappa, </span>
-<span id="cb26-45"><a href="#cb26-45" tabindex="-1"></a>  <span class="at">tau =</span> tau, </span>
-<span id="cb26-46"><a href="#cb26-46" tabindex="-1"></a>  <span class="at">alpha =</span> alpha, </span>
-<span id="cb26-47"><a href="#cb26-47" tabindex="-1"></a>  <span class="at">m =</span> m)</span>
-<span id="cb26-48"><a href="#cb26-48" tabindex="-1"></a></span>
-<span id="cb26-49"><a href="#cb26-49" tabindex="-1"></a>digits <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb26-50"><a href="#cb26-50" tabindex="-1"></a></span>
-<span id="cb26-51"><a href="#cb26-51" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">match</span>(</span>
-<span id="cb26-52"><a href="#cb26-52" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">round</span>(mesh_XY<span class="sc">$</span>X, digits), <span class="fu">round</span>(mesh_XY<span class="sc">$</span>Y, digits)),</span>
-<span id="cb26-53"><a href="#cb26-53" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">round</span>(order<span class="sc">$</span>X, digits), <span class="fu">round</span>(order<span class="sc">$</span>Y, digits))</span>
-<span id="cb26-54"><a href="#cb26-54" tabindex="-1"></a>)</span>
-<span id="cb26-55"><a href="#cb26-55" tabindex="-1"></a></span>
-<span id="cb26-56"><a href="#cb26-56" tabindex="-1"></a></span>
-<span id="cb26-57"><a href="#cb26-57" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> Approx_Sigma[idx, idx]</span>
-<span id="cb26-58"><a href="#cb26-58" tabindex="-1"></a></span>
-<span id="cb26-59"><a href="#cb26-59" tabindex="-1"></a></span>
-<span id="cb26-60"><a href="#cb26-60" tabindex="-1"></a><span class="co"># 1. Define Column Names (extracted from your LaTeX)</span></span>
-<span id="cb26-61"><a href="#cb26-61" tabindex="-1"></a>col_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb26-62"><a href="#cb26-62" tabindex="-1"></a>  <span class="st">&quot;u1(e1_low)&quot;</span>, <span class="st">&quot;u&#39;1(e1_low)&quot;</span>, <span class="st">&quot;u1(e1_high)&quot;</span>, <span class="st">&quot;u&#39;1(e1_high)&quot;</span>,</span>
-<span id="cb26-63"><a href="#cb26-63" tabindex="-1"></a>  <span class="st">&quot;u2(e2_low)&quot;</span>, <span class="st">&quot;u&#39;2(e2_low)&quot;</span>, <span class="st">&quot;u2(e2_high)&quot;</span>, <span class="st">&quot;u&#39;2(e2_high)&quot;</span>,</span>
-<span id="cb26-64"><a href="#cb26-64" tabindex="-1"></a>  <span class="st">&quot;u3(e3_low)&quot;</span>, <span class="st">&quot;u&#39;3(e3_low)&quot;</span>, <span class="st">&quot;u3(e3_high)&quot;</span>, <span class="st">&quot;u&#39;3(e3_high)&quot;</span></span>
-<span id="cb26-65"><a href="#cb26-65" tabindex="-1"></a>)</span>
-<span id="cb26-66"><a href="#cb26-66" tabindex="-1"></a></span>
-<span id="cb26-67"><a href="#cb26-67" tabindex="-1"></a><span class="co"># 2. Create Matrix K</span></span>
-<span id="cb26-68"><a href="#cb26-68" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb26-69"><a href="#cb26-69" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-70"><a href="#cb26-70" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,</span>
-<span id="cb26-71"><a href="#cb26-71" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-72"><a href="#cb26-72" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-73"><a href="#cb26-73" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb26-74"><a href="#cb26-74" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">0</span></span>
-<span id="cb26-75"><a href="#cb26-75" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-76"><a href="#cb26-76" tabindex="-1"></a></span>
-<span id="cb26-77"><a href="#cb26-77" tabindex="-1"></a></span>
-<span id="cb26-78"><a href="#cb26-78" tabindex="-1"></a><span class="co">#K &lt;- as(K, &quot;sparseMatrix&quot;)</span></span>
-<span id="cb26-79"><a href="#cb26-79" tabindex="-1"></a><span class="co"># 3. Create Matrix L</span></span>
-<span id="cb26-80"><a href="#cb26-80" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
-<span id="cb26-81"><a href="#cb26-81" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-82"><a href="#cb26-82" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>,</span>
-<span id="cb26-83"><a href="#cb26-83" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-84"><a href="#cb26-84" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-85"><a href="#cb26-85" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
-<span id="cb26-86"><a href="#cb26-86" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span></span>
-<span id="cb26-87"><a href="#cb26-87" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-88"><a href="#cb26-88" tabindex="-1"></a></span>
-<span id="cb26-89"><a href="#cb26-89" tabindex="-1"></a><span class="co">#L &lt;- as(L, &quot;sparseMatrix&quot;)</span></span>
-<span id="cb26-90"><a href="#cb26-90" tabindex="-1"></a></span>
-<span id="cb26-91"><a href="#cb26-91" tabindex="-1"></a><span class="co"># 4. Combine K and L vertically</span></span>
-<span id="cb26-92"><a href="#cb26-92" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">rbind</span>(K, L)</span>
-<span id="cb26-93"><a href="#cb26-93" tabindex="-1"></a></span>
-<span id="cb26-94"><a href="#cb26-94" tabindex="-1"></a><span class="co"># Add column names for clarity</span></span>
-<span id="cb26-95"><a href="#cb26-95" tabindex="-1"></a><span class="fu">colnames</span>(TT) <span class="ot">&lt;-</span> col_labels</span>
-<span id="cb26-96"><a href="#cb26-96" tabindex="-1"></a></span>
-<span id="cb26-97"><a href="#cb26-97" tabindex="-1"></a></span>
-<span id="cb26-98"><a href="#cb26-98" tabindex="-1"></a></span>
-<span id="cb26-99"><a href="#cb26-99" tabindex="-1"></a></span>
-<span id="cb26-100"><a href="#cb26-100" tabindex="-1"></a></span>
-<span id="cb26-101"><a href="#cb26-101" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
-<span id="cb26-102"><a href="#cb26-102" tabindex="-1"></a>ca <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(alpha)</span>
-<span id="cb26-103"><a href="#cb26-103" tabindex="-1"></a></span>
-<span id="cb26-104"><a href="#cb26-104" tabindex="-1"></a>r00 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(</span>
-<span id="cb26-105"><a href="#cb26-105" tabindex="-1"></a>      <span class="at">s =</span> <span class="dv">0</span>, </span>
-<span id="cb26-106"><a href="#cb26-106" tabindex="-1"></a>      <span class="at">t =</span> <span class="dv">0</span>, </span>
-<span id="cb26-107"><a href="#cb26-107" tabindex="-1"></a>      <span class="at">kappa =</span> kappa, </span>
-<span id="cb26-108"><a href="#cb26-108" tabindex="-1"></a>      <span class="at">p =</span> <span class="dv">0</span>, </span>
-<span id="cb26-109"><a href="#cb26-109" tabindex="-1"></a>      <span class="at">alpha =</span> alpha)</span>
-<span id="cb26-110"><a href="#cb26-110" tabindex="-1"></a>    </span>
-<span id="cb26-111"><a href="#cb26-111" tabindex="-1"></a><span class="co"># compute r_(0,0)^(-1)</span></span>
-<span id="cb26-112"><a href="#cb26-112" tabindex="-1"></a>r00_inverse <span class="ot">&lt;-</span> <span class="fu">solve</span>(r00, <span class="fu">Diagonal</span>(ca))</span>
-<span id="cb26-113"><a href="#cb26-113" tabindex="-1"></a></span>
-<span id="cb26-114"><a href="#cb26-114" tabindex="-1"></a><span class="co"># define zero block </span></span>
-<span id="cb26-115"><a href="#cb26-115" tabindex="-1"></a>zero_block <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, ca, ca)</span>
-<span id="cb26-116"><a href="#cb26-116" tabindex="-1"></a></span>
-<span id="cb26-117"><a href="#cb26-117" tabindex="-1"></a><span class="co"># build correction term</span></span>
-<span id="cb26-118"><a href="#cb26-118" tabindex="-1"></a>correction_term <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb26-119"><a href="#cb26-119" tabindex="-1"></a>  <span class="fu">cbind</span>(r00_inverse, zero_block),</span>
-<span id="cb26-120"><a href="#cb26-120" tabindex="-1"></a>  <span class="fu">cbind</span>(zero_block, r00_inverse))</span>
-<span id="cb26-121"><a href="#cb26-121" tabindex="-1"></a></span>
-<span id="cb26-122"><a href="#cb26-122" tabindex="-1"></a>L_e <span class="ot">&lt;-</span> graph<span class="sc">$</span>edge_lengths</span>
-<span id="cb26-123"><a href="#cb26-123" tabindex="-1"></a>Qtilde_e <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb26-124"><a href="#cb26-124" tabindex="-1"></a></span>
-<span id="cb26-125"><a href="#cb26-125" tabindex="-1"></a><span class="cf">for</span>(e <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(L_e)){</span>
-<span id="cb26-126"><a href="#cb26-126" tabindex="-1"></a>  </span>
-<span id="cb26-127"><a href="#cb26-127" tabindex="-1"></a>  <span class="co"># compute Q_{i,e}</span></span>
-<span id="cb26-128"><a href="#cb26-128" tabindex="-1"></a>  Q_e <span class="ot">&lt;-</span> <span class="fu">matern.p.precision</span>(</span>
-<span id="cb26-129"><a href="#cb26-129" tabindex="-1"></a>    <span class="at">loc =</span> <span class="fu">c</span>(<span class="dv">0</span>, L_e[e]),</span>
-<span id="cb26-130"><a href="#cb26-130" tabindex="-1"></a>    <span class="at">kappa =</span> kappa, </span>
-<span id="cb26-131"><a href="#cb26-131" tabindex="-1"></a>    <span class="at">p =</span> <span class="dv">0</span>,</span>
-<span id="cb26-132"><a href="#cb26-132" tabindex="-1"></a>    <span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb26-133"><a href="#cb26-133" tabindex="-1"></a>    <span class="at">alpha =</span> alpha)<span class="sc">$</span>Q</span>
-<span id="cb26-134"><a href="#cb26-134" tabindex="-1"></a>  </span>
-<span id="cb26-135"><a href="#cb26-135" tabindex="-1"></a>  <span class="co"># store Qtilde_{i,e}</span></span>
-<span id="cb26-136"><a href="#cb26-136" tabindex="-1"></a>  Qtilde_e[[e]] <span class="ot">&lt;-</span> Q_e <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> correction_term</span>
-<span id="cb26-137"><a href="#cb26-137" tabindex="-1"></a>}</span>
-<span id="cb26-138"><a href="#cb26-138" tabindex="-1"></a></span>
-<span id="cb26-139"><a href="#cb26-139" tabindex="-1"></a>Q_tilde <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(Qtilde_e)</span>
-<span id="cb26-140"><a href="#cb26-140" tabindex="-1"></a></span>
-<span id="cb26-141"><a href="#cb26-141" tabindex="-1"></a>Q_tilde_star <span class="ot">&lt;-</span> TT <span class="sc">%*%</span> Q_tilde <span class="sc">%*%</span> <span class="fu">t</span>(TT)</span>
-<span id="cb26-142"><a href="#cb26-142" tabindex="-1"></a></span>
-<span id="cb26-143"><a href="#cb26-143" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
-<span id="cb26-144"><a href="#cb26-144" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
-<span id="cb26-145"><a href="#cb26-145" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">12</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-146"><a href="#cb26-146" tabindex="-1"></a></span>
-<span id="cb26-147"><a href="#cb26-147" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">buildMatrixAWhichMapsUToUv</span>(graph, alpha)</span>
-<span id="cb26-148"><a href="#cb26-148" tabindex="-1"></a>  </span>
-<span id="cb26-149"><a href="#cb26-149" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(</span>
-<span id="cb26-150"><a href="#cb26-150" tabindex="-1"></a>  <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
-<span id="cb26-151"><a href="#cb26-151" tabindex="-1"></a>  <span class="at">j =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">12</span>,</span>
-<span id="cb26-152"><a href="#cb26-152" tabindex="-1"></a>  <span class="at">x =</span> <span class="dv">1</span>,</span>
-<span id="cb26-153"><a href="#cb26-153" tabindex="-1"></a>  <span class="at">dims =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>)</span>
-<span id="cb26-154"><a href="#cb26-154" tabindex="-1"></a>)</span>
-<span id="cb26-155"><a href="#cb26-155" tabindex="-1"></a></span>
-<span id="cb26-156"><a href="#cb26-156" tabindex="-1"></a>T_U <span class="ot">&lt;-</span> S <span class="sc">%*%</span> TT <span class="co">#TT[7:12,]</span></span>
-<span id="cb26-157"><a href="#cb26-157" tabindex="-1"></a></span>
-<span id="cb26-158"><a href="#cb26-158" tabindex="-1"></a>Q_tilde_star_UU <span class="ot">&lt;-</span> S <span class="sc">%*%</span> Q_tilde_star <span class="sc">%*%</span> <span class="fu">t</span>(S) <span class="co">#Q_tilde_star[7:12, 7:12]</span></span>
-<span id="cb26-159"><a href="#cb26-159" tabindex="-1"></a></span>
-<span id="cb26-160"><a href="#cb26-160" tabindex="-1"></a>Sigma_build <span class="ot">&lt;-</span> A <span class="sc">%*%</span> <span class="fu">t</span>(T_U) <span class="sc">%*%</span> <span class="fu">solve</span>(Q_tilde_star_UU, T_U <span class="sc">%*%</span> <span class="fu">t</span>(A))</span>
-<span id="cb26-161"><a href="#cb26-161" tabindex="-1"></a></span>
-<span id="cb26-162"><a href="#cb26-162" tabindex="-1"></a>Approx_Sigma</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="fl">0.5</span></span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a><span class="co"># build a graph with a mesh</span></span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>graph_initial <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">flip_edge =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>graph <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span><span class="fu">clone</span>()</span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a></span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a></span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>graph_initial<span class="sc">$</span><span class="fu">build_mesh</span>(<span class="at">h =</span> h)</span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a></span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>mesh_XY <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span>mesh<span class="sc">$</span>V <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a></span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a></span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a>mesh_locations <span class="ot">&lt;-</span> graph_initial<span class="sc">$</span><span class="fu">get_mesh_locations</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">edge_number =</span> V1, <span class="at">distance_on_edge =</span> V2)</span>
+<span id="cb31-26"><a href="#cb31-26" tabindex="-1"></a></span>
+<span id="cb31-27"><a href="#cb31-27" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
+<span id="cb31-28"><a href="#cb31-28" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
+<span id="cb31-29"><a href="#cb31-29" tabindex="-1"></a>  <span class="at">data =</span> mesh_locations,</span>
+<span id="cb31-30"><a href="#cb31-30" tabindex="-1"></a>  <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-31"><a href="#cb31-31" tabindex="-1"></a></span>
+<span id="cb31-32"><a href="#cb31-32" tabindex="-1"></a><span class="co"># add observations as vertices</span></span>
+<span id="cb31-33"><a href="#cb31-33" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span>
+<span id="cb31-34"><a href="#cb31-34" tabindex="-1"></a></span>
+<span id="cb31-35"><a href="#cb31-35" tabindex="-1"></a>data <span class="ot">&lt;-</span> graph<span class="sc">$</span><span class="fu">get_data</span>()</span>
+<span id="cb31-36"><a href="#cb31-36" tabindex="-1"></a></span>
+<span id="cb31-37"><a href="#cb31-37" tabindex="-1"></a>order <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb31-38"><a href="#cb31-38" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-39"><a href="#cb31-39" tabindex="-1"></a>  <span class="fu">select</span>(.coord_x, .coord_y) <span class="sc">%&gt;%</span></span>
+<span id="cb31-40"><a href="#cb31-40" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">X =</span> .coord_x, <span class="at">Y =</span> .coord_y)</span>
+<span id="cb31-41"><a href="#cb31-41" tabindex="-1"></a></span>
+<span id="cb31-42"><a href="#cb31-42" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
+<span id="cb31-43"><a href="#cb31-43" tabindex="-1"></a>  <span class="at">graph =</span> graph, </span>
+<span id="cb31-44"><a href="#cb31-44" tabindex="-1"></a>  <span class="at">kappa =</span> kappa, </span>
+<span id="cb31-45"><a href="#cb31-45" tabindex="-1"></a>  <span class="at">tau =</span> tau, </span>
+<span id="cb31-46"><a href="#cb31-46" tabindex="-1"></a>  <span class="at">alpha =</span> alpha, </span>
+<span id="cb31-47"><a href="#cb31-47" tabindex="-1"></a>  <span class="at">m =</span> m)</span>
+<span id="cb31-48"><a href="#cb31-48" tabindex="-1"></a></span>
+<span id="cb31-49"><a href="#cb31-49" tabindex="-1"></a>digits <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb31-50"><a href="#cb31-50" tabindex="-1"></a></span>
+<span id="cb31-51"><a href="#cb31-51" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">match</span>(</span>
+<span id="cb31-52"><a href="#cb31-52" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">round</span>(mesh_XY<span class="sc">$</span>X, digits), <span class="fu">round</span>(mesh_XY<span class="sc">$</span>Y, digits)),</span>
+<span id="cb31-53"><a href="#cb31-53" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">round</span>(order<span class="sc">$</span>X, digits), <span class="fu">round</span>(order<span class="sc">$</span>Y, digits))</span>
+<span id="cb31-54"><a href="#cb31-54" tabindex="-1"></a>)</span>
+<span id="cb31-55"><a href="#cb31-55" tabindex="-1"></a></span>
+<span id="cb31-56"><a href="#cb31-56" tabindex="-1"></a></span>
+<span id="cb31-57"><a href="#cb31-57" tabindex="-1"></a>Approx_Sigma <span class="ot">&lt;-</span> Approx_Sigma[idx, idx]</span>
+<span id="cb31-58"><a href="#cb31-58" tabindex="-1"></a></span>
+<span id="cb31-59"><a href="#cb31-59" tabindex="-1"></a></span>
+<span id="cb31-60"><a href="#cb31-60" tabindex="-1"></a><span class="co"># 1. Define Column Names (extracted from your LaTeX)</span></span>
+<span id="cb31-61"><a href="#cb31-61" tabindex="-1"></a>col_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb31-62"><a href="#cb31-62" tabindex="-1"></a>  <span class="st">&quot;u1(e1_low)&quot;</span>, <span class="st">&quot;u&#39;1(e1_low)&quot;</span>, <span class="st">&quot;u1(e1_high)&quot;</span>, <span class="st">&quot;u&#39;1(e1_high)&quot;</span>,</span>
+<span id="cb31-63"><a href="#cb31-63" tabindex="-1"></a>  <span class="st">&quot;u2(e2_low)&quot;</span>, <span class="st">&quot;u&#39;2(e2_low)&quot;</span>, <span class="st">&quot;u2(e2_high)&quot;</span>, <span class="st">&quot;u&#39;2(e2_high)&quot;</span>,</span>
+<span id="cb31-64"><a href="#cb31-64" tabindex="-1"></a>  <span class="st">&quot;u3(e3_low)&quot;</span>, <span class="st">&quot;u&#39;3(e3_low)&quot;</span>, <span class="st">&quot;u3(e3_high)&quot;</span>, <span class="st">&quot;u&#39;3(e3_high)&quot;</span></span>
+<span id="cb31-65"><a href="#cb31-65" tabindex="-1"></a>)</span>
+<span id="cb31-66"><a href="#cb31-66" tabindex="-1"></a></span>
+<span id="cb31-67"><a href="#cb31-67" tabindex="-1"></a><span class="co"># 2. Create Matrix K</span></span>
+<span id="cb31-68"><a href="#cb31-68" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb31-69"><a href="#cb31-69" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-70"><a href="#cb31-70" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,</span>
+<span id="cb31-71"><a href="#cb31-71" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">1</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-72"><a href="#cb31-72" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-73"><a href="#cb31-73" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb31-74"><a href="#cb31-74" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>,  <span class="dv">0</span>, <span class="dv">0</span>,  <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>,  <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb31-75"><a href="#cb31-75" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-76"><a href="#cb31-76" tabindex="-1"></a></span>
+<span id="cb31-77"><a href="#cb31-77" tabindex="-1"></a></span>
+<span id="cb31-78"><a href="#cb31-78" tabindex="-1"></a><span class="co">#K &lt;- as(K, &quot;sparseMatrix&quot;)</span></span>
+<span id="cb31-79"><a href="#cb31-79" tabindex="-1"></a><span class="co"># 3. Create Matrix L</span></span>
+<span id="cb31-80"><a href="#cb31-80" tabindex="-1"></a>L <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb31-81"><a href="#cb31-81" tabindex="-1"></a>  <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-82"><a href="#cb31-82" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>,</span>
+<span id="cb31-83"><a href="#cb31-83" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-84"><a href="#cb31-84" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-85"><a href="#cb31-85" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb31-86"><a href="#cb31-86" tabindex="-1"></a>  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span></span>
+<span id="cb31-87"><a href="#cb31-87" tabindex="-1"></a>), <span class="at">nrow =</span> <span class="dv">6</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-88"><a href="#cb31-88" tabindex="-1"></a></span>
+<span id="cb31-89"><a href="#cb31-89" tabindex="-1"></a><span class="co">#L &lt;- as(L, &quot;sparseMatrix&quot;)</span></span>
+<span id="cb31-90"><a href="#cb31-90" tabindex="-1"></a></span>
+<span id="cb31-91"><a href="#cb31-91" tabindex="-1"></a><span class="co"># 4. Combine K and L vertically</span></span>
+<span id="cb31-92"><a href="#cb31-92" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">rbind</span>(K, L)</span>
+<span id="cb31-93"><a href="#cb31-93" tabindex="-1"></a></span>
+<span id="cb31-94"><a href="#cb31-94" tabindex="-1"></a><span class="co"># Add column names for clarity</span></span>
+<span id="cb31-95"><a href="#cb31-95" tabindex="-1"></a><span class="fu">colnames</span>(TT) <span class="ot">&lt;-</span> col_labels</span>
+<span id="cb31-96"><a href="#cb31-96" tabindex="-1"></a></span>
+<span id="cb31-97"><a href="#cb31-97" tabindex="-1"></a></span>
+<span id="cb31-98"><a href="#cb31-98" tabindex="-1"></a></span>
+<span id="cb31-99"><a href="#cb31-99" tabindex="-1"></a></span>
+<span id="cb31-100"><a href="#cb31-100" tabindex="-1"></a></span>
+<span id="cb31-101"><a href="#cb31-101" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">floor</span>(alpha)</span>
+<span id="cb31-102"><a href="#cb31-102" tabindex="-1"></a>ca <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(alpha)</span>
+<span id="cb31-103"><a href="#cb31-103" tabindex="-1"></a></span>
+<span id="cb31-104"><a href="#cb31-104" tabindex="-1"></a>r00 <span class="ot">&lt;-</span> <span class="fu">matern.p.joint</span>(</span>
+<span id="cb31-105"><a href="#cb31-105" tabindex="-1"></a>      <span class="at">s =</span> <span class="dv">0</span>, </span>
+<span id="cb31-106"><a href="#cb31-106" tabindex="-1"></a>      <span class="at">t =</span> <span class="dv">0</span>, </span>
+<span id="cb31-107"><a href="#cb31-107" tabindex="-1"></a>      <span class="at">kappa =</span> kappa, </span>
+<span id="cb31-108"><a href="#cb31-108" tabindex="-1"></a>      <span class="at">p =</span> <span class="dv">0</span>, </span>
+<span id="cb31-109"><a href="#cb31-109" tabindex="-1"></a>      <span class="at">alpha =</span> alpha)</span>
+<span id="cb31-110"><a href="#cb31-110" tabindex="-1"></a>    </span>
+<span id="cb31-111"><a href="#cb31-111" tabindex="-1"></a><span class="co"># compute r_(0,0)^(-1)</span></span>
+<span id="cb31-112"><a href="#cb31-112" tabindex="-1"></a>r00_inverse <span class="ot">&lt;-</span> <span class="fu">solve</span>(r00, <span class="fu">Diagonal</span>(ca))</span>
+<span id="cb31-113"><a href="#cb31-113" tabindex="-1"></a></span>
+<span id="cb31-114"><a href="#cb31-114" tabindex="-1"></a><span class="co"># define zero block </span></span>
+<span id="cb31-115"><a href="#cb31-115" tabindex="-1"></a>zero_block <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, ca, ca)</span>
+<span id="cb31-116"><a href="#cb31-116" tabindex="-1"></a></span>
+<span id="cb31-117"><a href="#cb31-117" tabindex="-1"></a><span class="co"># build correction term</span></span>
+<span id="cb31-118"><a href="#cb31-118" tabindex="-1"></a>correction_term <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb31-119"><a href="#cb31-119" tabindex="-1"></a>  <span class="fu">cbind</span>(r00_inverse, zero_block),</span>
+<span id="cb31-120"><a href="#cb31-120" tabindex="-1"></a>  <span class="fu">cbind</span>(zero_block, r00_inverse))</span>
+<span id="cb31-121"><a href="#cb31-121" tabindex="-1"></a></span>
+<span id="cb31-122"><a href="#cb31-122" tabindex="-1"></a>L_e <span class="ot">&lt;-</span> graph<span class="sc">$</span>edge_lengths</span>
+<span id="cb31-123"><a href="#cb31-123" tabindex="-1"></a>Qtilde_e <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb31-124"><a href="#cb31-124" tabindex="-1"></a></span>
+<span id="cb31-125"><a href="#cb31-125" tabindex="-1"></a><span class="cf">for</span>(e <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(L_e)){</span>
+<span id="cb31-126"><a href="#cb31-126" tabindex="-1"></a>  </span>
+<span id="cb31-127"><a href="#cb31-127" tabindex="-1"></a>  <span class="co"># compute Q_{i,e}</span></span>
+<span id="cb31-128"><a href="#cb31-128" tabindex="-1"></a>  Q_e <span class="ot">&lt;-</span> <span class="fu">matern.p.precision</span>(</span>
+<span id="cb31-129"><a href="#cb31-129" tabindex="-1"></a>    <span class="at">loc =</span> <span class="fu">c</span>(<span class="dv">0</span>, L_e[e]),</span>
+<span id="cb31-130"><a href="#cb31-130" tabindex="-1"></a>    <span class="at">kappa =</span> kappa, </span>
+<span id="cb31-131"><a href="#cb31-131" tabindex="-1"></a>    <span class="at">p =</span> <span class="dv">0</span>,</span>
+<span id="cb31-132"><a href="#cb31-132" tabindex="-1"></a>    <span class="at">equally_spaced =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb31-133"><a href="#cb31-133" tabindex="-1"></a>    <span class="at">alpha =</span> alpha)<span class="sc">$</span>Q</span>
+<span id="cb31-134"><a href="#cb31-134" tabindex="-1"></a>  </span>
+<span id="cb31-135"><a href="#cb31-135" tabindex="-1"></a>  <span class="co"># store Qtilde_{i,e}</span></span>
+<span id="cb31-136"><a href="#cb31-136" tabindex="-1"></a>  Qtilde_e[[e]] <span class="ot">&lt;-</span> Q_e <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> correction_term</span>
+<span id="cb31-137"><a href="#cb31-137" tabindex="-1"></a>}</span>
+<span id="cb31-138"><a href="#cb31-138" tabindex="-1"></a></span>
+<span id="cb31-139"><a href="#cb31-139" tabindex="-1"></a>Q_tilde <span class="ot">&lt;-</span> <span class="fu">bdiag</span>(Qtilde_e)</span>
+<span id="cb31-140"><a href="#cb31-140" tabindex="-1"></a></span>
+<span id="cb31-141"><a href="#cb31-141" tabindex="-1"></a>Q_tilde_star <span class="ot">&lt;-</span> TT <span class="sc">%*%</span> Q_tilde <span class="sc">%*%</span> <span class="fu">t</span>(TT)</span>
+<span id="cb31-142"><a href="#cb31-142" tabindex="-1"></a></span>
+<span id="cb31-143"><a href="#cb31-143" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb31-144"><a href="#cb31-144" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb31-145"><a href="#cb31-145" tabindex="-1"></a>              <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">12</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-146"><a href="#cb31-146" tabindex="-1"></a></span>
+<span id="cb31-147"><a href="#cb31-147" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">buildMatrixAWhichMapsUToUv</span>(graph, alpha)</span>
+<span id="cb31-148"><a href="#cb31-148" tabindex="-1"></a>  </span>
+<span id="cb31-149"><a href="#cb31-149" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb31-150"><a href="#cb31-150" tabindex="-1"></a>  <span class="at">i =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
+<span id="cb31-151"><a href="#cb31-151" tabindex="-1"></a>  <span class="at">j =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">12</span>,</span>
+<span id="cb31-152"><a href="#cb31-152" tabindex="-1"></a>  <span class="at">x =</span> <span class="dv">1</span>,</span>
+<span id="cb31-153"><a href="#cb31-153" tabindex="-1"></a>  <span class="at">dims =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>)</span>
+<span id="cb31-154"><a href="#cb31-154" tabindex="-1"></a>)</span>
+<span id="cb31-155"><a href="#cb31-155" tabindex="-1"></a></span>
+<span id="cb31-156"><a href="#cb31-156" tabindex="-1"></a>T_U <span class="ot">&lt;-</span> S <span class="sc">%*%</span> TT <span class="co">#TT[7:12,]</span></span>
+<span id="cb31-157"><a href="#cb31-157" tabindex="-1"></a></span>
+<span id="cb31-158"><a href="#cb31-158" tabindex="-1"></a>Q_tilde_star_UU <span class="ot">&lt;-</span> S <span class="sc">%*%</span> Q_tilde_star <span class="sc">%*%</span> <span class="fu">t</span>(S) <span class="co">#Q_tilde_star[7:12, 7:12]</span></span>
+<span id="cb31-159"><a href="#cb31-159" tabindex="-1"></a></span>
+<span id="cb31-160"><a href="#cb31-160" tabindex="-1"></a>Sigma_build <span class="ot">&lt;-</span> A <span class="sc">%*%</span> <span class="fu">t</span>(T_U) <span class="sc">%*%</span> <span class="fu">solve</span>(Q_tilde_star_UU, T_U <span class="sc">%*%</span> <span class="fu">t</span>(A))</span>
+<span id="cb31-161"><a href="#cb31-161" tabindex="-1"></a></span>
+<span id="cb31-162"><a href="#cb31-162" tabindex="-1"></a>Approx_Sigma</span></code></pre></div>
 <pre><code>## 3 x 3 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                       
 ## [1,] 1.995982100 0.1222108 0.008051106
 ## [2,] 0.122210817 0.6706948 0.122210817
 ## [3,] 0.008051106 0.1222108 1.002016603</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>Sigma_build</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>Sigma_build</span></code></pre></div>
 <pre><code>## 3 x 3 Matrix of class &quot;dgeMatrix&quot;
 ##             [,1]      [,2]        [,3]
 ## [1,] 1.995982100 0.1222108 0.008051106
 ## [2,] 0.122210817 0.6706948 0.122210817
 ## [3,] 0.008051106 0.1222108 1.002016603</code></pre>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">direction =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">direction =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p><img src="simple_test_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">sum</span>(Approx_Sigma<span class="sc">-</span>Sigma_build)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="fu">sum</span>(Approx_Sigma<span class="sc">-</span>Sigma_build)</span></code></pre></div>
 <pre><code>## [1] -1.429412e-15</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">as</span>(K, <span class="st">&quot;sparseMatrix&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">as</span>(K, <span class="st">&quot;sparseMatrix&quot;</span>)</span></code></pre></div>
 <pre><code>## 6 x 12 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                   
 ## [1,] . . 1  . -1 . .  .  . .  .  .
@@ -954,7 +1033,7 @@ class="math inline">\(\alpha=2\)</span></h1>
 ## [4,] . 1 .  .  . . .  .  . .  .  .
 ## [5,] . . . -1  . 1 .  .  . .  . -1
 ## [6,] . . .  .  . . . -1  . 1  .  .</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>graph<span class="sc">$</span>C</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>graph<span class="sc">$</span>C</span></code></pre></div>
 <pre><code>## 6 x 12 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                   
 ## [1,] . 1  .  . . .  .  . . .  .  .
@@ -963,7 +1042,7 @@ class="math inline">\(\alpha=2\)</span></h1>
 ## [4,] . .  1  . . .  .  . . . -1  .
 ## [5,] . .  .  . . .  . -1 . 1  .  .
 ## [6,] . .  .  . . . -1  . 1 .  .  .</code></pre>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualThree</span>(graph)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="fu">buildKirchooffConditioningMatrixCaseAlphaEqualThree</span>(graph)</span></code></pre></div>
 <pre><code>## 9 x 18 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                                   
 ##  [1,] . 1 .  .  . . . .  .  .  . . . .  .  .  .  .
@@ -975,7 +1054,7 @@ class="math inline">\(\alpha=2\)</span></h1>
 ##  [7,] . . .  .  . 1 . . -1  .  . . . .  .  .  .  .
 ##  [8,] . . .  .  . . . .  1  .  . . . .  .  .  . -1
 ##  [9,] . . .  .  . . . .  .  .  . 1 . . -1  .  .  .</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>graph<span class="sc">$</span>buildC</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>graph<span class="sc">$</span>buildC</span></code></pre></div>
 <pre><code>## function (alpha = 2, edge_constraint = FALSE) 
 ## {
 ##     if (alpha == 2) {
@@ -991,8 +1070,8 @@ class="math inline">\(\alpha=2\)</span></h1>
 ##         error(&quot;only alpha=2 implemented&quot;)
 ##     }
 ## }
-## &lt;environment: 0x5f9a5f7be218&gt;</code></pre>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a>graph<span class="sc">$</span>C</span></code></pre></div>
+## &lt;environment: 0x60e92a61cc20&gt;</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>graph<span class="sc">$</span>C</span></code></pre></div>
 <pre><code>## 6 x 12 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                   
 ## [1,] . 1  .  . . .  .  . . .  .  .
@@ -1001,7 +1080,7 @@ class="math inline">\(\alpha=2\)</span></h1>
 ## [4,] . .  1  . . .  .  . . . -1  .
 ## [5,] . .  .  . . .  . -1 . 1  .  .
 ## [6,] . .  .  . . . -1  . 1 .  .  .</code></pre>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a><span class="fu">round</span>(graph<span class="sc">$</span>CoB<span class="sc">$</span>T,<span class="dv">3</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="fu">round</span>(graph<span class="sc">$</span>CoB<span class="sc">$</span>T,<span class="dv">3</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,]</span></code></pre></div>
 <pre><code>## 6 x 12 sparse Matrix of class &quot;dgCMatrix&quot;
 ##                                                                           
 ## [1,] . 1  .      .      .     .      .      .     .     .     .      .    
@@ -1010,16 +1089,16 @@ class="math inline">\(\alpha=2\)</span></h1>
 ## [4,] . .  0.000  .     -0.707 .      .      .     .     .     0.707  .    
 ## [5,] . .  .      .      .     .      .     -0.707 .     0.707 .      .    
 ## [6,] . .  .      .      .     .     -0.707  .     0.707 .     .      .</code></pre>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>MetricGraph<span class="sc">:::</span>c_basis2</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a>MetricGraph<span class="sc">:::</span>c_basis2</span></code></pre></div>
 <pre><code>## function (A, eps_limit = 1e-10) 
 ## {
 ##     .Call(`_MetricGraph_c_basis2`, A, eps_limit)
 ## }
-## &lt;bytecode: 0x5f9a52831518&gt;
+## &lt;bytecode: 0x60e92a8eaeb0&gt;
 ## &lt;environment: namespace:MetricGraph&gt;</code></pre>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiU2ltcGxlIHRlc3QgZnJvbSBTdGF0aXN0aWNhbCBwYXBlciIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IHRydWUKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQogIC0gXG5ld2NvbW1hbmR7XGFsbW9zdGV2ZXJ5d2hlcmV9e1xtYXRocm17YS5lLn1cO30KLS0tCgpHbyBiYWNrIHRvIHRoZSBbQ29udGVudHNdKGFib3V0Lmh0bWwpIHBhZ2UuCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVibGFjayBIVE1MIHBhZ2UKc291cmNlKGhlcmU6OmhlcmUoImNsaXBib2FyZC5SIikpOyBjbGlwYm9hcmQKIyBTZXQgc2VlZCBmb3IgcmVwcm9kdWNpYmlsaXR5CnNldC5zZWVkKDE5ODIpIAojIFNldCBnbG9iYWwgb3B0aW9ucyBmb3IgYWxsIGNvZGUgY2h1bmtzCmtuaXRyOjpvcHRzX2NodW5rJHNldCgKICAjIERpc2FibGUgbWVzc2FnZXMgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgbWVzc2FnZSA9IEZBTFNFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IEZBTFNFLCAgICAKICAjIFNob3cgUiBjb2RlIHdpdGhpbiBjb2RlIGNodW5rcyBpbiBvdXRwdXQKICBlY2hvID0gVFJVRSwgICAgICAgIAogICMgSW5jbHVkZSBib3RoIFIgY29kZSBhbmQgaXRzIHJlc3VsdHMgaW4gb3V0cHV0CiAgaW5jbHVkZSA9IFRSVUUsICAgICAKICAjIEV2YWx1YXRlIFIgY29kZSBjaHVua3MKICBldmFsID0gVFJVRSwgICAgICAgCiAgIyBFbmFibGUgY2FjaGluZyBvZiBSIGNvZGUgY2h1bmtzIGZvciBmYXN0ZXIgcmVuZGVyaW5nCiAgY2FjaGUgPSBGQUxTRSwgICAgICAKICAjIEFsaWduIGZpZ3VyZXMgaW4gdGhlIGNlbnRlciBvZiB0aGUgb3V0cHV0CiAgZmlnLmFsaWduID0gImNlbnRlciIsCiAgIyBFbmFibGUgcmV0aW5hIGRpc3BsYXkgZm9yIGhpZ2gtcmVzb2x1dGlvbiBmaWd1cmVzCiAgcmV0aW5hID0gMiwKICAjIFNob3cgZXJyb3JzIGluIHRoZSBvdXRwdXQgaW5zdGVhZCBvZiBzdG9wcGluZyByZW5kZXJpbmcKICBlcnJvciA9IFRSVUUsCiAgIyBEbyBub3QgY29sbGFwc2UgY29kZSBhbmQgb3V0cHV0IGludG8gYSBzaW5nbGUgYmxvY2sKICBjb2xsYXBzZSA9IEZBTFNFCikKIyBTdGFydCB0aGUgZmlndXJlIGNvdW50ZXIKZmlnX2NvdW50IDwtIDAKIyBEZWZpbmUgdGhlIGNhcHRpb25lciBmdW5jdGlvbgpjYXB0aW9uZXIgPC0gZnVuY3Rpb24oY2FwdGlvbikgewogIGZpZ19jb3VudCA8PC0gZmlnX2NvdW50ICsgMQogIHBhc3RlMCgiRmlndXJlICIsIGZpZ19jb3VudCwgIjogIiwgY2FwdGlvbikKfQoKYGBgCgpgYGB7ciwgZXZhbCA9IFRSVUV9CmxpYnJhcnkoTWF0cml4KQpsaWJyYXJ5KE1ldHJpY0dyYXBoKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkodmlyaWRpcykKbGlicmFyeShwbG90bHkpCmxpYnJhcnkocGF0Y2h3b3JrKQpsaWJyYXJ5KHNsYWNrcikKc291cmNlKCJrZXlzLlIiKQpzbGFja3Jfc2V0dXAodG9rZW4gPSB0b2tlbikgIyB0b2tlbiBjb21lcyBmcm9tIGtleXMuUgpgYGAKCgpgYGB7cn0KY2FwdHVyZS5vdXRwdXQoCiAga25pdHI6OnB1cmwoaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SbWQiKSwgb3V0cHV0ID0gaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SIikpLAogIGZpbGUgPSBoZXJlOjpoZXJlKCJvbGQvcHVybF9sb2cudHh0IikKKQpjYXB0dXJlLm91dHB1dCgKICBrbml0cjo6cHVybChoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlJtZCIpLCBvdXRwdXQgPSBoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlIiKSksCiAgZmlsZSA9IGhlcmU6OmhlcmUoIm9sZC9wdXJsX2xvZy50eHQiKQopCgpzb3VyY2UoaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SIikpCnNvdXJjZShoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlIiKSkKYGBgCgoKCgoKIyBDYXNlICRcYWxwaGE9MSQKCgoKCgpgYGB7cn0KdGhldGExIDwtIHNlcShmcm9tPXBpLHRvPTAsbGVuZ3RoLm91dCA9IDEwMDApCnRoZXRhMiA8LSBzZXEoZnJvbT0tcGksdG89MCxsZW5ndGgub3V0ID0gMTAwMCkKCmVkZ2UxIDwtIGNiaW5kKDEvcGkrY29zKHRoZXRhMSkvcGksc2luKHRoZXRhMSkvcGkpCmVkZ2UyIDwtIHJiaW5kKGMoMCwwKSxjKDIvcGksMCkpCmVkZ2UzIDwtIGNiaW5kKDEvcGkrY29zKHRoZXRhMikvcGksc2luKHRoZXRhMikvcGkpCmVkZ2VzIDwtIGxpc3QoZWRnZTEsIGVkZ2UyLCBlZGdlMykKZ3JhcGggPC0gbWV0cmljX2dyYXBoJG5ldyhlZGdlcyA9IGVkZ2VzKQpncmFwaCRzZXRfbWFudWFsX2VkZ2VfbGVuZ3RocyhlZGdlX2xlbmd0aHMgPSBjKDEsMi9waSwxKSkKYGBgCgoKCgpgYGB7cn0Ka2FwcGEgPC0gNApzaWdtYSA8LSAxCmFscGhhIDwtIDEKbSA8LSA0Cm51IDwtIGFscGhhIC0gMC41CnRhdSA8LSBzcXJ0KGdhbW1hKG51KSAvIChzaWdtYV4yICoga2FwcGFeKDIqbnUpICogKDQqcGkpXigxLzIpICogZ2FtbWEobnUgKyAxLzIpKSkKCksgPC0gYnVpbGRLaXJjaG9vZmZDb25kaXRpb25pbmdNYXRyaXhDYXNlQWxwaGFFcXVhbE9uZShncmFwaCkKClRUIDwtIG1hdHJpeChjKAogIDEsIDAsIC0xLCAgMCwgIDAsICAwLAogIDAsIDEsICAwLCAtMSwgIDAsICAwLAogIDAsIDAsICAxLCAgMCwgLTEsICAwLAogIDAsIDAsICAwLCAgMSwgIDAsIC0xLAogIDEsIDAsICAxLCAgMCwgIDEsICAwLAogIDAsIDEsICAwLCAgMSwgIDAsICAxCiksIG5yb3cgPSA2LCBieXJvdyA9IFRSVUUpCgoKVFQgPC0gcmJpbmQoSywgbWF0cml4KGMoCiAgMSwgMCwgIDEsICAwLCAgMSwgIDAsCiAgMCwgMSwgIDAsICAxLCAgMCwgIDEKKSwgbnJvdyA9IDIsIGJ5cm93ID0gVFJVRSkpCgoKZmEgPC0gZmxvb3IoYWxwaGEpCmNhIDwtIGNlaWxpbmcoYWxwaGEpCgpyMDAgPC0gbWF0ZXJuLnAuam9pbnQoCiAgICAgIHMgPSAwLCAKICAgICAgdCA9IDAsIAogICAgICBrYXBwYSA9IGthcHBhLCAKICAgICAgcCA9IDAsIAogICAgICBhbHBoYSA9IGFscGhhKQogICAgCiMgY29tcHV0ZSByXygwLDApXigtMSkKcjAwX2ludmVyc2UgPC0gc29sdmUocjAwLCBEaWFnb25hbChjYSkpCgojIGRlZmluZSB6ZXJvIGJsb2NrIAp6ZXJvX2Jsb2NrIDwtIG1hdHJpeCgwLCBjYSwgY2EpCgojIGJ1aWxkIGNvcnJlY3Rpb24gdGVybQpjb3JyZWN0aW9uX3Rlcm0gPC0gcmJpbmQoCiAgY2JpbmQocjAwX2ludmVyc2UsIHplcm9fYmxvY2spLAogIGNiaW5kKHplcm9fYmxvY2ssIHIwMF9pbnZlcnNlKSkKCkxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHMKUXRpbGRlX2UgPC0gbGlzdCgpCgpmb3IoZSBpbiAxOmxlbmd0aChMX2UpKXsKICAKICAjIGNvbXB1dGUgUV97aSxlfQogIFFfZSA8LSBtYXRlcm4ucC5wcmVjaXNpb24oCiAgICBsb2MgPSBjKDAsIExfZVtlXSksCiAgICBrYXBwYSA9IGthcHBhLCAKICAgIHAgPSAwLAogICAgZXF1YWxseV9zcGFjZWQgPSBGQUxTRSwgCiAgICBhbHBoYSA9IGFscGhhKSRRCiAgCiAgIyBzdG9yZSBRdGlsZGVfe2ksZX0KICBRdGlsZGVfZVtbZV1dIDwtIFFfZSAtIDAuNSAqIGNvcnJlY3Rpb25fdGVybQp9CgpRX3RpbGRlIDwtIGJkaWFnKFF0aWxkZV9lKQoKUV90aWxkZV9zdGFyIDwtIFRUICUqJSBRX3RpbGRlICUqJSB0KFRUKQoKQSA8LSBtYXRyaXgoYygxLDAsMCwwLDAsMCwKICAgICAgICAgICAgICAwLDEsMCwwLDAsMCksIG5yb3cgPSAyLCBuY29sID0gNiwgYnlyb3cgPSBUUlVFKQoKQSA8LSBidWlsZE1hdHJpeEFXaGljaE1hcHNVVG9VdihncmFwaCwgYWxwaGEpCgpUX1UgPC0gVFRbNTo2LF0KClFfdGlsZGVfc3Rhcl9VVSA8LSBRX3RpbGRlX3N0YXJbNTo2LCA1OjZdCgpTaWdtYV9idWlsZCA8LSBBICUqJSB0KFRfVSkgJSolIHNvbHZlKFFfdGlsZGVfc3Rhcl9VVSwgVF9VICUqJSB0KEEpKQoKCnZlcnRleF9sb2MgPC0gZ3JhcGgkViAlPiUgCiAgYXMuZGF0YS5mcmFtZSgpICU+JQogIHJlbmFtZShjb29yZF94ID0gWCwgY29vcmRfeSA9IFkpICU+JQogIG11dGF0ZShkdW1teSA9IDEpCgojIGFkZCBtZXNoIGxvY2F0aW9ucyBhcyBvYnNlcnZhdGlvbnMKZ3JhcGgkYWRkX29ic2VydmF0aW9ucygKICBkYXRhID0gdmVydGV4X2xvYywKICBjb29yZF94ID0gImNvb3JkX3giLAogIGNvb3JkX3kgPSAiY29vcmRfeSIsCiAgZGF0YV9jb29yZHMgPSAic3BhdGlhbCIsCiAgICApCgojIGFkZCBvYnNlcnZhdGlvbnMgYXMgdmVydGljZXMKZ3JhcGgkb2JzZXJ2YXRpb25fdG9fdmVydGV4KCkKCgpBcHByb3hfU2lnbWEgPC0gcmF0X2NvdmFyaWFuY2UoCiAgZ3JhcGggPSBncmFwaCwgCiAga2FwcGEgPSBrYXBwYSwgCiAgdGF1ID0gdGF1LCAKICBhbHBoYSA9IGFscGhhLCAKICBtID0gbSkKCgpBcHByb3hfU2lnbWEKClNpZ21hX2J1aWxkCgpncmFwaCRwbG90KGRpcmVjdGlvbiA9IFQpCgpzdW0oQXBwcm94X1NpZ21hLVNpZ21hX2J1aWxkKQpgYGAKCgpgYGB7cn0KYnVpbGRLaXJjaG9vZmZDb25kaXRpb25pbmdNYXRyaXhDYXNlQWxwaGFFcXVhbE9uZShncmFwaCkKVFRbMTo0LF0KZ3JhcGgkYnVpbGRDKCkKZ3JhcGgkQ1tjKDI6Myw1OjYpLGMoMSwzLDUsNyw5LDExKV0KZ3JhcGgkQ29CCgpVIDwtIGdyYXBoJENvQiRVClQgPC0gZ3JhcGgkQ29CJFQKcyA8LSBncmFwaCRDb0IkUwoKU19tYXQgPC0gbWF0cml4KDAsIDYsIDEyKQpkaWFnKFNfbWF0KSA8LSBzCgpzdW0oZ3JhcGgkQy0gcm91bmQoVSAlKiUgU19tYXQgJSolIFQsMSkpCmBgYAoKCgojIENhc2UgJFxhbHBoYT0yJAoKCgoKCmBgYHtyfQpoIDwtIDEKa2FwcGEgPC0gNApzaWdtYSA8LSAxCmFscGhhIDwtIDIKbSA8LSA0Cm51IDwtIGFscGhhIC0gMC41CnRhdSA8LSBzcXJ0KGdhbW1hKG51KSAvIChzaWdtYV4yICoga2FwcGFeKDIqbnUpICogKDQqcGkpXigxLzIpICogZ2FtbWEobnUgKyAxLzIpKSkKCgoKIyBidWlsZCBhIGdyYXBoIHdpdGggYSBtZXNoCmdyYXBoX2luaXRpYWwgPC0gZ2V0cy5ncmFwaC50YWRwb2xlKGZsaXBfZWRnZSA9IEZBTFNFKQpncmFwaCA8LSBncmFwaF9pbml0aWFsJGNsb25lKCkKCgpncmFwaF9pbml0aWFsJGJ1aWxkX21lc2goaCA9IGgpCgoKbWVzaF9YWSA8LSBncmFwaF9pbml0aWFsJG1lc2gkViAlPiUgYXMuZGF0YS5mcmFtZSgpCgoKbWVzaF9sb2NhdGlvbnMgPC0gZ3JhcGhfaW5pdGlhbCRnZXRfbWVzaF9sb2NhdGlvbnMoKSAlPiUgCiAgYXMuZGF0YS5mcmFtZSgpICU+JSAKICBtdXRhdGUoZHVtbXkgPSAxKSAlPiUKICByZW5hbWUoZWRnZV9udW1iZXIgPSBWMSwgZGlzdGFuY2Vfb25fZWRnZSA9IFYyKQoKIyBhZGQgbWVzaCBsb2NhdGlvbnMgYXMgb2JzZXJ2YXRpb25zCmdyYXBoJGFkZF9vYnNlcnZhdGlvbnMoCiAgZGF0YSA9IG1lc2hfbG9jYXRpb25zLAogIG5vcm1hbGl6ZWQgPSBUUlVFKQoKIyBhZGQgb2JzZXJ2YXRpb25zIGFzIHZlcnRpY2VzCmdyYXBoJG9ic2VydmF0aW9uX3RvX3ZlcnRleCgpCgpkYXRhIDwtIGdyYXBoJGdldF9kYXRhKCkKCm9yZGVyIDwtIGRhdGEgJT4lCiAgYXMuZGF0YS5mcmFtZSgpICU+JQogIHNlbGVjdCguY29vcmRfeCwgLmNvb3JkX3kpICU+JQogIHJlbmFtZShYID0gLmNvb3JkX3gsIFkgPSAuY29vcmRfeSkKCkFwcHJveF9TaWdtYSA8LSByYXRfY292YXJpYW5jZSgKICBncmFwaCA9IGdyYXBoLCAKICBrYXBwYSA9IGthcHBhLCAKICB0YXUgPSB0YXUsIAogIGFscGhhID0gYWxwaGEsIAogIG0gPSBtKQoKZGlnaXRzIDwtIDEwCgppZHggPC0gbWF0Y2goCiAgcGFzdGUocm91bmQobWVzaF9YWSRYLCBkaWdpdHMpLCByb3VuZChtZXNoX1hZJFksIGRpZ2l0cykpLAogIHBhc3RlKHJvdW5kKG9yZGVyJFgsIGRpZ2l0cyksIHJvdW5kKG9yZGVyJFksIGRpZ2l0cykpCikKCgpBcHByb3hfU2lnbWEgPC0gQXBwcm94X1NpZ21hW2lkeCwgaWR4XQoKCiMgMS4gRGVmaW5lIENvbHVtbiBOYW1lcyAoZXh0cmFjdGVkIGZyb20geW91ciBMYVRlWCkKY29sX2xhYmVscyA8LSBjKAogICJ1MShlMV9sb3cpIiwgInUnMShlMV9sb3cpIiwgInUxKGUxX2hpZ2gpIiwgInUnMShlMV9oaWdoKSIsCiAgInUyKGUyX2xvdykiLCAidScyKGUyX2xvdykiLCAidTIoZTJfaGlnaCkiLCAidScyKGUyX2hpZ2gpIiwKICAidTMoZTNfbG93KSIsICJ1JzMoZTNfbG93KSIsICJ1MyhlM19oaWdoKSIsICJ1JzMoZTNfaGlnaCkiCikKCiMgMi4gQ3JlYXRlIE1hdHJpeCBLCksgPC0gbWF0cml4KGMoCiAgMCwgMCwgMSwgIDAsIC0xLCAwLCAgMCwgMCwgIDAsIDAsICAwLCAwLAogIDAsIDAsIDAsICAwLCAgMSwgMCwgIDAsIDAsICAwLCAwLCAtMSwgMCwKICAwLCAwLCAwLCAgMCwgIDAsIDAsICAxLCAwLCAtMSwgMCwgIDAsIDAsCiAgMCwgMSwgMCwgIDAsICAwLCAwLCAgMCwgMCwgIDAsIDAsICAwLCAwLAogIDAsIDAsIDAsIC0xLCAgMCwgMSwgIDAsIDAsICAwLCAwLCAgMCwgLTEsCiAgMCwgMCwgMCwgIDAsICAwLCAwLCAgMCwgLTEsIDAsIDEsICAwLCAwCiksIG5yb3cgPSA2LCBieXJvdyA9IFRSVUUpCgoKI0sgPC0gYXMoSywgInNwYXJzZU1hdHJpeCIpCiMgMy4gQ3JlYXRlIE1hdHJpeCBMCkwgPC0gbWF0cml4KGMoCiAgMSwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwKICAwLCAwLCAxLCAwLCAxLCAwLCAwLCAwLCAwLCAwLCAxLCAwLAogIDAsIDAsIDAsIDAsIDAsIDAsIDEsIDAsIDEsIDAsIDAsIDAsCiAgMCwgMCwgMCwgMSwgMCwgMSwgMCwgMCwgMCwgMCwgMCwgMCwKICAwLCAwLCAwLCAwLCAwLCAwLCAwLCAxLCAwLCAxLCAwLCAwLAogIDAsIDAsIDAsIDAsIDAsIDEsIDAsIDAsIDAsIDAsIDAsIDEKKSwgbnJvdyA9IDYsIGJ5cm93ID0gVFJVRSkKCiNMIDwtIGFzKEwsICJzcGFyc2VNYXRyaXgiKQoKIyA0LiBDb21iaW5lIEsgYW5kIEwgdmVydGljYWxseQpUVCA8LSByYmluZChLLCBMKQoKIyBBZGQgY29sdW1uIG5hbWVzIGZvciBjbGFyaXR5CmNvbG5hbWVzKFRUKSA8LSBjb2xfbGFiZWxzCgoKCgoKZmEgPC0gZmxvb3IoYWxwaGEpCmNhIDwtIGNlaWxpbmcoYWxwaGEpCgpyMDAgPC0gbWF0ZXJuLnAuam9pbnQoCiAgICAgIHMgPSAwLCAKICAgICAgdCA9IDAsIAogICAgICBrYXBwYSA9IGthcHBhLCAKICAgICAgcCA9IDAsIAogICAgICBhbHBoYSA9IGFscGhhKQogICAgCiMgY29tcHV0ZSByXygwLDApXigtMSkKcjAwX2ludmVyc2UgPC0gc29sdmUocjAwLCBEaWFnb25hbChjYSkpCgojIGRlZmluZSB6ZXJvIGJsb2NrIAp6ZXJvX2Jsb2NrIDwtIG1hdHJpeCgwLCBjYSwgY2EpCgojIGJ1aWxkIGNvcnJlY3Rpb24gdGVybQpjb3JyZWN0aW9uX3Rlcm0gPC0gcmJpbmQoCiAgY2JpbmQocjAwX2ludmVyc2UsIHplcm9fYmxvY2spLAogIGNiaW5kKHplcm9fYmxvY2ssIHIwMF9pbnZlcnNlKSkKCkxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHMKUXRpbGRlX2UgPC0gbGlzdCgpCgpmb3IoZSBpbiAxOmxlbmd0aChMX2UpKXsKICAKICAjIGNvbXB1dGUgUV97aSxlfQogIFFfZSA8LSBtYXRlcm4ucC5wcmVjaXNpb24oCiAgICBsb2MgPSBjKDAsIExfZVtlXSksCiAgICBrYXBwYSA9IGthcHBhLCAKICAgIHAgPSAwLAogICAgZXF1YWxseV9zcGFjZWQgPSBGQUxTRSwgCiAgICBhbHBoYSA9IGFscGhhKSRRCiAgCiAgIyBzdG9yZSBRdGlsZGVfe2ksZX0KICBRdGlsZGVfZVtbZV1dIDwtIFFfZSAtIDAuNSAqIGNvcnJlY3Rpb25fdGVybQp9CgpRX3RpbGRlIDwtIGJkaWFnKFF0aWxkZV9lKQoKUV90aWxkZV9zdGFyIDwtIFRUICUqJSBRX3RpbGRlICUqJSB0KFRUKQoKQSA8LSBtYXRyaXgoYygxLDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwKICAgICAgICAgICAgICAwLDAsMSwwLDAsMCwwLDAsMCwwLDAsMCwKICAgICAgICAgICAgICAwLDAsMCwwLDAsMCwxLDAsMCwwLDAsMCksIG5yb3cgPSAzLCBuY29sID0gMTIsIGJ5cm93ID0gVFJVRSkKCkEgPC0gYnVpbGRNYXRyaXhBV2hpY2hNYXBzVVRvVXYoZ3JhcGgsIGFscGhhKQogIApTIDwtIHNwYXJzZU1hdHJpeCgKICBpID0gMTo2LAogIGogPSA3OjEyLAogIHggPSAxLAogIGRpbXMgPSBjKDYsIDEyKQopCgpUX1UgPC0gUyAlKiUgVFQgI1RUWzc6MTIsXQoKUV90aWxkZV9zdGFyX1VVIDwtIFMgJSolIFFfdGlsZGVfc3RhciAlKiUgdChTKSAjUV90aWxkZV9zdGFyWzc6MTIsIDc6MTJdCgpTaWdtYV9idWlsZCA8LSBBICUqJSB0KFRfVSkgJSolIHNvbHZlKFFfdGlsZGVfc3Rhcl9VVSwgVF9VICUqJSB0KEEpKQoKQXBwcm94X1NpZ21hCgpTaWdtYV9idWlsZAoKZ3JhcGgkcGxvdChkaXJlY3Rpb24gPSBUUlVFKQoKc3VtKEFwcHJveF9TaWdtYS1TaWdtYV9idWlsZCkKYGBgCgoKYGBge3J9CmFzKEssICJzcGFyc2VNYXRyaXgiKQpncmFwaCRDCmJ1aWxkS2lyY2hvb2ZmQ29uZGl0aW9uaW5nTWF0cml4Q2FzZUFscGhhRXF1YWxUaHJlZShncmFwaCkKYGBgCgpgYGB7cn0KZ3JhcGgkYnVpbGRDCmdyYXBoJEMKcm91bmQoZ3JhcGgkQ29CJFQsMylbMTo2LF0KTWV0cmljR3JhcGg6OjpjX2Jhc2lzMgpgYGAKCgoKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiU2ltcGxlIHRlc3QgZnJvbSBTdGF0aXN0aWNhbCBwYXBlciIKZGF0ZTogIkxhc3QgbW9kaWZpZWQ6IGByIGZvcm1hdChTeXMudGltZSgpLCAnJWQtJW0tJVkuJylgIgpvdXRwdXQ6CiAgaHRtbF9kb2N1bWVudDoKICAgIG1hdGhqYXg6ICJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL21hdGhqYXhAMy9lczUvdGV4LW1tbC1jaHRtbC5qcyIKICAgIGhpZ2hsaWdodDogcHlnbWVudHMKICAgIHRoZW1lOiBmbGF0bHkKICAgIGNvZGVfZm9sZGluZzogaGlkZSAjIGNsYXNzLnNvdXJjZSA9ICJmb2xkLWhpZGUiIHRvIGhpZGUgY29kZSBhbmQgYWRkIGEgYnV0dG9uIHRvIHNob3cgaXQKICAgIGRmX3ByaW50OiBwYWdlZAogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6CiAgICAgIGNvbGxhcHNlZDogdHJ1ZQogICAgICBzbW9vdGhfc2Nyb2xsOiB0cnVlCiAgICBudW1iZXJfc2VjdGlvbnM6IHRydWUKICAgIGZpZ19jYXB0aW9uOiB0cnVlCiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCiAgICBjc3M6IHZpc3VhbC5jc3MKYWx3YXlzX2FsbG93X2h0bWw6IHRydWUKYmlibGlvZ3JhcGh5OiAKICAtIHJlZmVyZW5jZXMuYmliCiAgLSBncmF0ZWZ1bC1yZWZzLmJpYgpoZWFkZXItaW5jbHVkZXM6CiAgLSBcbmV3Y29tbWFuZHtcYXJ9e1xtYXRoYmJ7Un19CiAgLSBcbmV3Y29tbWFuZHtcbGxhdn1bMV17XGxlZnRceyMxXHJpZ2h0XH19CiAgLSBcbmV3Y29tbWFuZHtccGFyZX1bMV17XGxlZnQoIzFccmlnaHQpfQogIC0gXG5ld2NvbW1hbmR7XE5jYWx9e1xtYXRoY2Fse059fQogIC0gXG5ld2NvbW1hbmR7XFZjYWx9e1xtYXRoY2Fse1Z9fQogIC0gXG5ld2NvbW1hbmR7XEVjYWx9e1xtYXRoY2Fse0V9fQogIC0gXG5ld2NvbW1hbmR7XFdjYWx9e1xtYXRoY2Fse1d9fQogIC0gXG5ld2NvbW1hbmR7XGFsbW9zdGV2ZXJ5d2hlcmV9e1xtYXRocm17YS5lLn1cO30KLS0tCgpHbyBiYWNrIHRvIHRoZSBbQ29udGVudHNdKGFib3V0Lmh0bWwpIHBhZ2UuCgo8ZGl2IHN0eWxlPSJjb2xvcjogIzJjM2U1MDsgdGV4dC1hbGlnbjogcmlnaHQ7Ij4KKioqKioqKiogIAo8c3Ryb25nPlByZXNzIFNob3cgdG8gcmV2ZWFsIHRoZSBjb2RlIGNodW5rcy48L3N0cm9uZz4gIAoKKioqKioqKioKPC9kaXY+CgoKYGBge3J9CiMgQ3JlYXRlIGEgY2xpcGJvYXJkIGJ1dHRvbiBvbiB0aGUgcmVuZGVibGFjayBIVE1MIHBhZ2UKc291cmNlKGhlcmU6OmhlcmUoImNsaXBib2FyZC5SIikpOyBjbGlwYm9hcmQKIyBTZXQgc2VlZCBmb3IgcmVwcm9kdWNpYmlsaXR5CnNldC5zZWVkKDE5ODIpIAojIFNldCBnbG9iYWwgb3B0aW9ucyBmb3IgYWxsIGNvZGUgY2h1bmtzCmtuaXRyOjpvcHRzX2NodW5rJHNldCgKICAjIERpc2FibGUgbWVzc2FnZXMgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgbWVzc2FnZSA9IEZBTFNFLCAgICAKICAjIERpc2FibGUgd2FybmluZ3MgcHJpbnRlZCBieSBSIGNvZGUgY2h1bmtzCiAgd2FybmluZyA9IEZBTFNFLCAgICAKICAjIFNob3cgUiBjb2RlIHdpdGhpbiBjb2RlIGNodW5rcyBpbiBvdXRwdXQKICBlY2hvID0gVFJVRSwgICAgICAgIAogICMgSW5jbHVkZSBib3RoIFIgY29kZSBhbmQgaXRzIHJlc3VsdHMgaW4gb3V0cHV0CiAgaW5jbHVkZSA9IFRSVUUsICAgICAKICAjIEV2YWx1YXRlIFIgY29kZSBjaHVua3MKICBldmFsID0gVFJVRSwgICAgICAgCiAgIyBFbmFibGUgY2FjaGluZyBvZiBSIGNvZGUgY2h1bmtzIGZvciBmYXN0ZXIgcmVuZGVyaW5nCiAgY2FjaGUgPSBGQUxTRSwgICAgICAKICAjIEFsaWduIGZpZ3VyZXMgaW4gdGhlIGNlbnRlciBvZiB0aGUgb3V0cHV0CiAgZmlnLmFsaWduID0gImNlbnRlciIsCiAgIyBFbmFibGUgcmV0aW5hIGRpc3BsYXkgZm9yIGhpZ2gtcmVzb2x1dGlvbiBmaWd1cmVzCiAgcmV0aW5hID0gMiwKICAjIFNob3cgZXJyb3JzIGluIHRoZSBvdXRwdXQgaW5zdGVhZCBvZiBzdG9wcGluZyByZW5kZXJpbmcKICBlcnJvciA9IFRSVUUsCiAgIyBEbyBub3QgY29sbGFwc2UgY29kZSBhbmQgb3V0cHV0IGludG8gYSBzaW5nbGUgYmxvY2sKICBjb2xsYXBzZSA9IEZBTFNFCikKIyBTdGFydCB0aGUgZmlndXJlIGNvdW50ZXIKZmlnX2NvdW50IDwtIDAKIyBEZWZpbmUgdGhlIGNhcHRpb25lciBmdW5jdGlvbgpjYXB0aW9uZXIgPC0gZnVuY3Rpb24oY2FwdGlvbikgewogIGZpZ19jb3VudCA8PC0gZmlnX2NvdW50ICsgMQogIHBhc3RlMCgiRmlndXJlICIsIGZpZ19jb3VudCwgIjogIiwgY2FwdGlvbikKfQoKYGBgCgpgYGB7ciwgZXZhbCA9IFRSVUV9CmxpYnJhcnkoTWF0cml4KQpsaWJyYXJ5KE1ldHJpY0dyYXBoKQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkocmVzaGFwZTIpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkodmlyaWRpcykKbGlicmFyeShwbG90bHkpCmxpYnJhcnkocGF0Y2h3b3JrKQpsaWJyYXJ5KHNsYWNrcikKc291cmNlKCJrZXlzLlIiKQpzbGFja3Jfc2V0dXAodG9rZW4gPSB0b2tlbikgIyB0b2tlbiBjb21lcyBmcm9tIGtleXMuUgpgYGAKCgpgYGB7cn0KY2FwdHVyZS5vdXRwdXQoCiAga25pdHI6OnB1cmwoaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SbWQiKSwgb3V0cHV0ID0gaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SIikpLAogIGZpbGUgPSBoZXJlOjpoZXJlKCJvbGQvcHVybF9sb2cudHh0IikKKQpjYXB0dXJlLm91dHB1dCgKICBrbml0cjo6cHVybChoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlJtZCIpLCBvdXRwdXQgPSBoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlIiKSksCiAgZmlsZSA9IGhlcmU6OmhlcmUoIm9sZC9wdXJsX2xvZy50eHQiKQopCgpzb3VyY2UoaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SIikpCnNvdXJjZShoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlIiKSkKYGBgCgoKCgoKIyBDYXNlICRcYWxwaGE9MSQKCgoKIyMgJFxtYXRoYmZ7S30kIGFuZCAkXG1hdGhiZntUfSQgYnkgaGFuZAoKCmBgYHtyfQp0aGV0YTEgPC0gc2VxKGZyb209cGksdG89MCxsZW5ndGgub3V0ID0gMTAwMCkKdGhldGEyIDwtIHNlcShmcm9tPS1waSx0bz0wLGxlbmd0aC5vdXQgPSAxMDAwKQoKZWRnZTEgPC0gY2JpbmQoMS9waStjb3ModGhldGExKS9waSxzaW4odGhldGExKS9waSkKZWRnZTIgPC0gcmJpbmQoYygwLDApLGMoMi9waSwwKSkKZWRnZTMgPC0gY2JpbmQoMS9waStjb3ModGhldGEyKS9waSxzaW4odGhldGEyKS9waSkKZWRnZXMgPC0gbGlzdChlZGdlMSwgZWRnZTIsIGVkZ2UzKQpncmFwaCA8LSBtZXRyaWNfZ3JhcGgkbmV3KGVkZ2VzID0gZWRnZXMpCmdyYXBoJHNldF9tYW51YWxfZWRnZV9sZW5ndGhzKGVkZ2VfbGVuZ3RocyA9IGMoMSwyL3BpLDEpKQoKa2FwcGEgPC0gNApzaWdtYSA8LSAxCmFscGhhIDwtIDEKbSA8LSA0Cm51IDwtIGFscGhhIC0gMC41CnRhdSA8LSBzcXJ0KGdhbW1hKG51KSAvIChzaWdtYV4yICoga2FwcGFeKDIqbnUpICogKDQqcGkpXigxLzIpICogZ2FtbWEobnUgKyAxLzIpKSkKCksgPC0gYnVpbGRLaXJjaG9vZmZDb25kaXRpb25pbmdNYXRyaXhDYXNlQWxwaGFFcXVhbE9uZShncmFwaCkKClRUIDwtIG1hdHJpeChjKAogIDEsIDAsIC0xLCAgMCwgIDAsICAwLAogIDAsIDEsICAwLCAtMSwgIDAsICAwLAogIDAsIDAsICAxLCAgMCwgLTEsICAwLAogIDAsIDAsICAwLCAgMSwgIDAsIC0xLAogIDEsIDAsICAxLCAgMCwgIDEsICAwLAogIDAsIDEsICAwLCAgMSwgIDAsICAxCiksIG5yb3cgPSA2LCBieXJvdyA9IFRSVUUpCgoKVFQgPC0gcmJpbmQoSywgbWF0cml4KGMoCiAgMSwgMCwgIDEsICAwLCAgMSwgIDAsCiAgMCwgMSwgIDAsICAxLCAgMCwgIDEKKSwgbnJvdyA9IDIsIGJ5cm93ID0gVFJVRSkpCgoKZmEgPC0gZmxvb3IoYWxwaGEpCmNhIDwtIGNlaWxpbmcoYWxwaGEpCgpyMDAgPC0gbWF0ZXJuLnAuam9pbnQoCiAgICAgIHMgPSAwLCAKICAgICAgdCA9IDAsIAogICAgICBrYXBwYSA9IGthcHBhLCAKICAgICAgcCA9IDAsIAogICAgICBhbHBoYSA9IGFscGhhKQogICAgCiMgY29tcHV0ZSByXygwLDApXigtMSkKcjAwX2ludmVyc2UgPC0gc29sdmUocjAwLCBEaWFnb25hbChjYSkpCgojIGRlZmluZSB6ZXJvIGJsb2NrIAp6ZXJvX2Jsb2NrIDwtIG1hdHJpeCgwLCBjYSwgY2EpCgojIGJ1aWxkIGNvcnJlY3Rpb24gdGVybQpjb3JyZWN0aW9uX3Rlcm0gPC0gcmJpbmQoCiAgY2JpbmQocjAwX2ludmVyc2UsIHplcm9fYmxvY2spLAogIGNiaW5kKHplcm9fYmxvY2ssIHIwMF9pbnZlcnNlKSkKCkxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHMKUXRpbGRlX2UgPC0gbGlzdCgpCgpmb3IoZSBpbiAxOmxlbmd0aChMX2UpKXsKICAKICAjIGNvbXB1dGUgUV97aSxlfQogIFFfZSA8LSBtYXRlcm4ucC5wcmVjaXNpb24oCiAgICBsb2MgPSBjKDAsIExfZVtlXSksCiAgICBrYXBwYSA9IGthcHBhLCAKICAgIHAgPSAwLAogICAgZXF1YWxseV9zcGFjZWQgPSBGQUxTRSwgCiAgICBhbHBoYSA9IGFscGhhKSRRCiAgCiAgIyBzdG9yZSBRdGlsZGVfe2ksZX0KICBRdGlsZGVfZVtbZV1dIDwtIFFfZSAtIDAuNSAqIGNvcnJlY3Rpb25fdGVybQp9CgpRX3RpbGRlIDwtIGJkaWFnKFF0aWxkZV9lKQoKUV90aWxkZV9zdGFyIDwtIFRUICUqJSBRX3RpbGRlICUqJSB0KFRUKQoKQSA8LSBtYXRyaXgoYygxLDAsMCwwLDAsMCwKICAgICAgICAgICAgICAwLDEsMCwwLDAsMCksIG5yb3cgPSAyLCBuY29sID0gNiwgYnlyb3cgPSBUUlVFKQoKQSA8LSBidWlsZE1hdHJpeEFXaGljaE1hcHNVVG9VdihncmFwaCwgYWxwaGEpCgpUX1UgPC0gVFRbNTo2LF0KClFfdGlsZGVfc3Rhcl9VVSA8LSBRX3RpbGRlX3N0YXJbNTo2LCA1OjZdCgpTaWdtYV9idWlsZCA8LSBBICUqJSB0KFRfVSkgJSolIHNvbHZlKFFfdGlsZGVfc3Rhcl9VVSwgVF9VICUqJSB0KEEpKQoKCnZlcnRleF9sb2MgPC0gZ3JhcGgkViAlPiUgCiAgYXMuZGF0YS5mcmFtZSgpICU+JQogIHJlbmFtZShjb29yZF94ID0gWCwgY29vcmRfeSA9IFkpICU+JQogIG11dGF0ZShkdW1teSA9IDEpCgojIGFkZCBtZXNoIGxvY2F0aW9ucyBhcyBvYnNlcnZhdGlvbnMKZ3JhcGgkYWRkX29ic2VydmF0aW9ucygKICBkYXRhID0gdmVydGV4X2xvYywKICBjb29yZF94ID0gImNvb3JkX3giLAogIGNvb3JkX3kgPSAiY29vcmRfeSIsCiAgZGF0YV9jb29yZHMgPSAic3BhdGlhbCIsCiAgICApCgojIGFkZCBvYnNlcnZhdGlvbnMgYXMgdmVydGljZXMKZ3JhcGgkb2JzZXJ2YXRpb25fdG9fdmVydGV4KCkKCgpBcHByb3hfU2lnbWEgPC0gcmF0X2NvdmFyaWFuY2UoCiAgZ3JhcGggPSBncmFwaCwgCiAga2FwcGEgPSBrYXBwYSwgCiAgdGF1ID0gdGF1LCAKICBhbHBoYSA9IGFscGhhLCAKICBtID0gbSkKCgpBcHByb3hfU2lnbWEKClNpZ21hX2J1aWxkCgpncmFwaCRwbG90KGRpcmVjdGlvbiA9IFQpCgpzdW0oQXBwcm94X1NpZ21hLVNpZ21hX2J1aWxkKQpgYGAKCgpgYGB7cn0KYnVpbGRLaXJjaG9vZmZDb25kaXRpb25pbmdNYXRyaXhDYXNlQWxwaGFFcXVhbE9uZShncmFwaCkKVFRbMTo0LF0KZ3JhcGgkYnVpbGRDKCkKZ3JhcGgkQ1tjKDI6Myw1OjYpLGMoMSwzLDUsNyw5LDExKV0KCgpVIDwtIGdyYXBoJENvQiRVClQgPC0gZ3JhcGgkQ29CJFQKcyA8LSBncmFwaCRDb0IkUwoKU19tYXQgPC0gbWF0cml4KDAsIDYsIDEyKQpkaWFnKFNfbWF0KSA8LSBzCgpzdW0oZ3JhcGgkQy0gcm91bmQoVSAlKiUgU19tYXQgJSolIFQsMSkpCmBgYAoKCgoKIyMgJFxtYXRoYmZ7S30kIGFuZCAkXG1hdGhiZntUfSQgYnkgdXNpbmcgYENvQmAKCgpgYGB7cn0KdGhldGExIDwtIHNlcShmcm9tPXBpLHRvPTAsbGVuZ3RoLm91dCA9IDEwMDApCnRoZXRhMiA8LSBzZXEoZnJvbT0tcGksdG89MCxsZW5ndGgub3V0ID0gMTAwMCkKCmVkZ2UxIDwtIGNiaW5kKDEvcGkrY29zKHRoZXRhMSkvcGksc2luKHRoZXRhMSkvcGkpCmVkZ2UyIDwtIHJiaW5kKGMoMCwwKSxjKDIvcGksMCkpCmVkZ2UzIDwtIGNiaW5kKDEvcGkrY29zKHRoZXRhMikvcGksc2luKHRoZXRhMikvcGkpCmVkZ2VzIDwtIGxpc3QoZWRnZTEsIGVkZ2UyLCBlZGdlMykKZ3JhcGggPC0gbWV0cmljX2dyYXBoJG5ldyhlZGdlcyA9IGVkZ2VzKQpncmFwaCRzZXRfbWFudWFsX2VkZ2VfbGVuZ3RocyhlZGdlX2xlbmd0aHMgPSBjKDEsMi9waSwxKSkKCmthcHBhIDwtIDQKc2lnbWEgPC0gMQphbHBoYSA8LSAxCm0gPC0gNApudSA8LSBhbHBoYSAtIDAuNQp0YXUgPC0gc3FydChnYW1tYShudSkgLyAoc2lnbWFeMiAqIGthcHBhXigyKm51KSAqICg0KnBpKV4oMS8yKSAqIGdhbW1hKG51ICsgMS8yKSkpCgpLIDwtIGJ1aWxkS2lyY2hvb2ZmQ29uZGl0aW9uaW5nTWF0cml4Q2FzZUFscGhhRXF1YWxPbmUoZ3JhcGgpCgoKQ29CIDwtIE1ldHJpY0dyYXBoOjo6Y19iYXNpczIoSykKVFQgPC0gQ29CJFRbLWMoMTpsZW5ndGgoQ29CJFMpKSwgXQoKZmEgPC0gZmxvb3IoYWxwaGEpCmNhIDwtIGNlaWxpbmcoYWxwaGEpCgpyMDAgPC0gbWF0ZXJuLnAuam9pbnQoCiAgICAgIHMgPSAwLCAKICAgICAgdCA9IDAsIAogICAgICBrYXBwYSA9IGthcHBhLCAKICAgICAgcCA9IDAsIAogICAgICBhbHBoYSA9IGFscGhhKQogICAgCiMgY29tcHV0ZSByXygwLDApXigtMSkKcjAwX2ludmVyc2UgPC0gc29sdmUocjAwLCBEaWFnb25hbChjYSkpCgojIGRlZmluZSB6ZXJvIGJsb2NrIAp6ZXJvX2Jsb2NrIDwtIG1hdHJpeCgwLCBjYSwgY2EpCgojIGJ1aWxkIGNvcnJlY3Rpb24gdGVybQpjb3JyZWN0aW9uX3Rlcm0gPC0gcmJpbmQoCiAgY2JpbmQocjAwX2ludmVyc2UsIHplcm9fYmxvY2spLAogIGNiaW5kKHplcm9fYmxvY2ssIHIwMF9pbnZlcnNlKSkKCkxfZSA8LSBncmFwaCRlZGdlX2xlbmd0aHMKUXRpbGRlX2UgPC0gbGlzdCgpCgpmb3IoZSBpbiAxOmxlbmd0aChMX2UpKXsKICAKICAjIGNvbXB1dGUgUV97aSxlfQogIFFfZSA8LSBtYXRlcm4ucC5wcmVjaXNpb24oCiAgICBsb2MgPSBjKDAsIExfZVtlXSksCiAgICBrYXBwYSA9IGthcHBhLCAKICAgIHAgPSAwLAogICAgZXF1YWxseV9zcGFjZWQgPSBGQUxTRSwgCiAgICBhbHBoYSA9IGFscGhhKSRRCiAgCiAgIyBzdG9yZSBRdGlsZGVfe2ksZX0KICBRdGlsZGVfZVtbZV1dIDwtIFFfZSAtIDAuNSAqIGNvcnJlY3Rpb25fdGVybQp9CgpRX3RpbGRlIDwtIGJkaWFnKFF0aWxkZV9lKQoKUV90aWxkZV9zdGFyIDwtIFRUICUqJSBRX3RpbGRlICUqJSB0KFRUKQoKCkEgPC0gYnVpbGRNYXRyaXhBV2hpY2hNYXBzVVRvVXYoZ3JhcGgsIGFscGhhKQoKaW5kZXgub2JzX2kgPC0gd2hpY2goQSA9PSAxLCBhcnIuaW5kID0gVFJVRSlbLCAiY29sIl0KQSA8LSB0KFRUKVtpbmRleC5vYnNfaSwgXSAKICAKVF9VIDwtIFRUCgpRX3RpbGRlX3N0YXJfVVUgPC0gUV90aWxkZV9zdGFyCgpTaWdtYV9idWlsZCA8LSBBICUqJSAgc29sdmUoUV90aWxkZV9zdGFyX1VVLCB0KEEpKQoKCnZlcnRleF9sb2MgPC0gZ3JhcGgkViAlPiUgCiAgYXMuZGF0YS5mcmFtZSgpICU+JQogIHJlbmFtZShjb29yZF94ID0gWCwgY29vcmRfeSA9IFkpICU+JQogIG11dGF0ZShkdW1teSA9IDEpCgojIGFkZCBtZXNoIGxvY2F0aW9ucyBhcyBvYnNlcnZhdGlvbnMKZ3JhcGgkYWRkX29ic2VydmF0aW9ucygKICBkYXRhID0gdmVydGV4X2xvYywKICBjb29yZF94ID0gImNvb3JkX3giLAogIGNvb3JkX3kgPSAiY29vcmRfeSIsCiAgZGF0YV9jb29yZHMgPSAic3BhdGlhbCIsCiAgICApCgojIGFkZCBvYnNlcnZhdGlvbnMgYXMgdmVydGljZXMKZ3JhcGgkb2JzZXJ2YXRpb25fdG9fdmVydGV4KCkKCgpBcHByb3hfU2lnbWEgPC0gcmF0X2NvdmFyaWFuY2UoCiAgZ3JhcGggPSBncmFwaCwgCiAga2FwcGEgPSBrYXBwYSwgCiAgdGF1ID0gdGF1LCAKICBhbHBoYSA9IGFscGhhLCAKICBtID0gbSkKCgpBcHByb3hfU2lnbWEKClNpZ21hX2J1aWxkCgoKc3VtKEFwcHJveF9TaWdtYS1TaWdtYV9idWlsZCkKYGBgCgoKCgoKCgoKCgoKCiMgQ2FzZSAkXGFscGhhPTIkCgoKCgoKYGBge3J9CmggPC0gMQprYXBwYSA8LSA0CnNpZ21hIDwtIDEKYWxwaGEgPC0gMgptIDwtIDQKbnUgPC0gYWxwaGEgLSAwLjUKdGF1IDwtIHNxcnQoZ2FtbWEobnUpIC8gKHNpZ21hXjIgKiBrYXBwYV4oMipudSkgKiAoNCpwaSleKDEvMikgKiBnYW1tYShudSArIDEvMikpKQoKCgojIGJ1aWxkIGEgZ3JhcGggd2l0aCBhIG1lc2gKZ3JhcGhfaW5pdGlhbCA8LSBnZXRzLmdyYXBoLnRhZHBvbGUoZmxpcF9lZGdlID0gRkFMU0UpCmdyYXBoIDwtIGdyYXBoX2luaXRpYWwkY2xvbmUoKQoKCmdyYXBoX2luaXRpYWwkYnVpbGRfbWVzaChoID0gaCkKCgptZXNoX1hZIDwtIGdyYXBoX2luaXRpYWwkbWVzaCRWICU+JSBhcy5kYXRhLmZyYW1lKCkKCgptZXNoX2xvY2F0aW9ucyA8LSBncmFwaF9pbml0aWFsJGdldF9tZXNoX2xvY2F0aW9ucygpICU+JSAKICBhcy5kYXRhLmZyYW1lKCkgJT4lIAogIG11dGF0ZShkdW1teSA9IDEpICU+JQogIHJlbmFtZShlZGdlX251bWJlciA9IFYxLCBkaXN0YW5jZV9vbl9lZGdlID0gVjIpCgojIGFkZCBtZXNoIGxvY2F0aW9ucyBhcyBvYnNlcnZhdGlvbnMKZ3JhcGgkYWRkX29ic2VydmF0aW9ucygKICBkYXRhID0gbWVzaF9sb2NhdGlvbnMsCiAgbm9ybWFsaXplZCA9IFRSVUUpCgojIGFkZCBvYnNlcnZhdGlvbnMgYXMgdmVydGljZXMKZ3JhcGgkb2JzZXJ2YXRpb25fdG9fdmVydGV4KCkKCmRhdGEgPC0gZ3JhcGgkZ2V0X2RhdGEoKQoKb3JkZXIgPC0gZGF0YSAlPiUKICBhcy5kYXRhLmZyYW1lKCkgJT4lCiAgc2VsZWN0KC5jb29yZF94LCAuY29vcmRfeSkgJT4lCiAgcmVuYW1lKFggPSAuY29vcmRfeCwgWSA9IC5jb29yZF95KQoKQXBwcm94X1NpZ21hIDwtIHJhdF9jb3ZhcmlhbmNlKAogIGdyYXBoID0gZ3JhcGgsIAogIGthcHBhID0ga2FwcGEsIAogIHRhdSA9IHRhdSwgCiAgYWxwaGEgPSBhbHBoYSwgCiAgbSA9IG0pCgpkaWdpdHMgPC0gMTAKCmlkeCA8LSBtYXRjaCgKICBwYXN0ZShyb3VuZChtZXNoX1hZJFgsIGRpZ2l0cyksIHJvdW5kKG1lc2hfWFkkWSwgZGlnaXRzKSksCiAgcGFzdGUocm91bmQob3JkZXIkWCwgZGlnaXRzKSwgcm91bmQob3JkZXIkWSwgZGlnaXRzKSkKKQoKCkFwcHJveF9TaWdtYSA8LSBBcHByb3hfU2lnbWFbaWR4LCBpZHhdCgoKIyAxLiBEZWZpbmUgQ29sdW1uIE5hbWVzIChleHRyYWN0ZWQgZnJvbSB5b3VyIExhVGVYKQpjb2xfbGFiZWxzIDwtIGMoCiAgInUxKGUxX2xvdykiLCAidScxKGUxX2xvdykiLCAidTEoZTFfaGlnaCkiLCAidScxKGUxX2hpZ2gpIiwKICAidTIoZTJfbG93KSIsICJ1JzIoZTJfbG93KSIsICJ1MihlMl9oaWdoKSIsICJ1JzIoZTJfaGlnaCkiLAogICJ1MyhlM19sb3cpIiwgInUnMyhlM19sb3cpIiwgInUzKGUzX2hpZ2gpIiwgInUnMyhlM19oaWdoKSIKKQoKIyAyLiBDcmVhdGUgTWF0cml4IEsKSyA8LSBtYXRyaXgoYygKICAwLCAwLCAxLCAgMCwgLTEsIDAsICAwLCAwLCAgMCwgMCwgIDAsIDAsCiAgMCwgMCwgMCwgIDAsICAxLCAwLCAgMCwgMCwgIDAsIDAsIC0xLCAwLAogIDAsIDAsIDAsICAwLCAgMCwgMCwgIDEsIDAsIC0xLCAwLCAgMCwgMCwKICAwLCAxLCAwLCAgMCwgIDAsIDAsICAwLCAwLCAgMCwgMCwgIDAsIDAsCiAgMCwgMCwgMCwgLTEsICAwLCAxLCAgMCwgMCwgIDAsIDAsICAwLCAtMSwKICAwLCAwLCAwLCAgMCwgIDAsIDAsICAwLCAtMSwgMCwgMSwgIDAsIDAKKSwgbnJvdyA9IDYsIGJ5cm93ID0gVFJVRSkKCgojSyA8LSBhcyhLLCAic3BhcnNlTWF0cml4IikKIyAzLiBDcmVhdGUgTWF0cml4IEwKTCA8LSBtYXRyaXgoYygKICAxLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwLAogIDAsIDAsIDEsIDAsIDEsIDAsIDAsIDAsIDAsIDAsIDEsIDAsCiAgMCwgMCwgMCwgMCwgMCwgMCwgMSwgMCwgMSwgMCwgMCwgMCwKICAwLCAwLCAwLCAxLCAwLCAxLCAwLCAwLCAwLCAwLCAwLCAwLAogIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDEsIDAsIDEsIDAsIDAsCiAgMCwgMCwgMCwgMCwgMCwgMSwgMCwgMCwgMCwgMCwgMCwgMQopLCBucm93ID0gNiwgYnlyb3cgPSBUUlVFKQoKI0wgPC0gYXMoTCwgInNwYXJzZU1hdHJpeCIpCgojIDQuIENvbWJpbmUgSyBhbmQgTCB2ZXJ0aWNhbGx5ClRUIDwtIHJiaW5kKEssIEwpCgojIEFkZCBjb2x1bW4gbmFtZXMgZm9yIGNsYXJpdHkKY29sbmFtZXMoVFQpIDwtIGNvbF9sYWJlbHMKCgoKCgpmYSA8LSBmbG9vcihhbHBoYSkKY2EgPC0gY2VpbGluZyhhbHBoYSkKCnIwMCA8LSBtYXRlcm4ucC5qb2ludCgKICAgICAgcyA9IDAsIAogICAgICB0ID0gMCwgCiAgICAgIGthcHBhID0ga2FwcGEsIAogICAgICBwID0gMCwgCiAgICAgIGFscGhhID0gYWxwaGEpCiAgICAKIyBjb21wdXRlIHJfKDAsMCleKC0xKQpyMDBfaW52ZXJzZSA8LSBzb2x2ZShyMDAsIERpYWdvbmFsKGNhKSkKCiMgZGVmaW5lIHplcm8gYmxvY2sgCnplcm9fYmxvY2sgPC0gbWF0cml4KDAsIGNhLCBjYSkKCiMgYnVpbGQgY29ycmVjdGlvbiB0ZXJtCmNvcnJlY3Rpb25fdGVybSA8LSByYmluZCgKICBjYmluZChyMDBfaW52ZXJzZSwgemVyb19ibG9jayksCiAgY2JpbmQoemVyb19ibG9jaywgcjAwX2ludmVyc2UpKQoKTF9lIDwtIGdyYXBoJGVkZ2VfbGVuZ3RocwpRdGlsZGVfZSA8LSBsaXN0KCkKCmZvcihlIGluIDE6bGVuZ3RoKExfZSkpewogIAogICMgY29tcHV0ZSBRX3tpLGV9CiAgUV9lIDwtIG1hdGVybi5wLnByZWNpc2lvbigKICAgIGxvYyA9IGMoMCwgTF9lW2VdKSwKICAgIGthcHBhID0ga2FwcGEsIAogICAgcCA9IDAsCiAgICBlcXVhbGx5X3NwYWNlZCA9IEZBTFNFLCAKICAgIGFscGhhID0gYWxwaGEpJFEKICAKICAjIHN0b3JlIFF0aWxkZV97aSxlfQogIFF0aWxkZV9lW1tlXV0gPC0gUV9lIC0gMC41ICogY29ycmVjdGlvbl90ZXJtCn0KClFfdGlsZGUgPC0gYmRpYWcoUXRpbGRlX2UpCgpRX3RpbGRlX3N0YXIgPC0gVFQgJSolIFFfdGlsZGUgJSolIHQoVFQpCgpBIDwtIG1hdHJpeChjKDEsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLAogICAgICAgICAgICAgIDAsMCwxLDAsMCwwLDAsMCwwLDAsMCwwLAogICAgICAgICAgICAgIDAsMCwwLDAsMCwwLDEsMCwwLDAsMCwwKSwgbnJvdyA9IDMsIG5jb2wgPSAxMiwgYnlyb3cgPSBUUlVFKQoKQSA8LSBidWlsZE1hdHJpeEFXaGljaE1hcHNVVG9VdihncmFwaCwgYWxwaGEpCiAgClMgPC0gc3BhcnNlTWF0cml4KAogIGkgPSAxOjYsCiAgaiA9IDc6MTIsCiAgeCA9IDEsCiAgZGltcyA9IGMoNiwgMTIpCikKClRfVSA8LSBTICUqJSBUVCAjVFRbNzoxMixdCgpRX3RpbGRlX3N0YXJfVVUgPC0gUyAlKiUgUV90aWxkZV9zdGFyICUqJSB0KFMpICNRX3RpbGRlX3N0YXJbNzoxMiwgNzoxMl0KClNpZ21hX2J1aWxkIDwtIEEgJSolIHQoVF9VKSAlKiUgc29sdmUoUV90aWxkZV9zdGFyX1VVLCBUX1UgJSolIHQoQSkpCgpBcHByb3hfU2lnbWEKClNpZ21hX2J1aWxkCgpncmFwaCRwbG90KGRpcmVjdGlvbiA9IFRSVUUpCgpzdW0oQXBwcm94X1NpZ21hLVNpZ21hX2J1aWxkKQpgYGAKCgpgYGB7cn0KYXMoSywgInNwYXJzZU1hdHJpeCIpCmdyYXBoJEMKYnVpbGRLaXJjaG9vZmZDb25kaXRpb25pbmdNYXRyaXhDYXNlQWxwaGFFcXVhbFRocmVlKGdyYXBoKQpgYGAKCmBgYHtyfQpncmFwaCRidWlsZEMKZ3JhcGgkQwpyb3VuZChncmFwaCRDb0IkVCwzKVsxOjYsXQpNZXRyaWNHcmFwaDo6OmNfYmFzaXMyCmBgYAoKCgoKCg==</div>
 
 
 </div>

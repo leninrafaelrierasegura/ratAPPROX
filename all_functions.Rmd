@@ -922,6 +922,60 @@ $$
 $$
 
 
+
+```{r}
+computesListOfMatricesQTildeUnconstraint <- function(p,
+                                                     kappa, 
+                                                     alpha, 
+                                                     edge_lengths){
+  ca <- ceiling(alpha)
+  # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
+  Qtilde_i <- list() 
+  for(i in seq_along(p)){
+    
+    # compute r_(0,0)
+    r00 <- matern.p.joint(
+      s = 0, 
+      t = 0, 
+      kappa = kappa, 
+      p = p[i], 
+      alpha = alpha)
+    
+    # compute r_(0,0)^(-1)
+    r00_inverse <- solve(r00, Diagonal(ca))
+    
+    # define zero block 
+    zero_block <- matrix(0, ca, ca)
+    
+    # build correction term
+    correction_term <- rbind(
+      cbind(r00_inverse, zero_block),
+      cbind(zero_block, r00_inverse))
+    
+    # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
+    Qtilde_i[[i]] <- list()
+    for(e in seq_along(edge_lengths)){
+      
+      # compute Q_{i,e}
+      Q_e <- matern.p.precision(
+        loc = c(0, edge_lengths[e]),
+        kappa = kappa, 
+        p = p[i],
+        equally_spaced = FALSE, 
+        alpha = alpha)$Q
+      
+      # store Qtilde_{i,e}
+      Qtilde_i[[i]][[e]] <- Q_e - 0.5 * correction_term
+    }
+    # build block diagonal matrix Qtilde_i[[i]]
+    Qtilde_i[[i]] <- bdiag(Qtilde_i[[i]])
+  }
+  return(Qtilde_i)
+}
+```
+
+
+
 ```{r}
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
@@ -967,50 +1021,9 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   c_1 <- gamma(fa)/gamma(fa - 0.5)
   
   # get edge lengths
-  L_e <- graph$edge_lengths
-  
-  # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
-  Qtilde_i <- list() 
-  for(i in 1:m){
-    
-    # compute r_(0,0)
-    r00 <- matern.p.joint(
-      s = 0, 
-      t = 0, 
-      kappa = kappa, 
-      p = p[i], 
-      alpha = alpha)
-    
-    # compute r_(0,0)^(-1)
-    r00_inverse <- solve(r00, Diagonal(ca))
-    
-    # define zero block 
-    zero_block <- matrix(0, ca, ca)
-    
-    # build correction term
-    correction_term <- rbind(
-      cbind(r00_inverse, zero_block),
-      cbind(zero_block, r00_inverse))
-    
-    # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
-    Qtilde_i[[i]] <- list()
-    for(e in 1:length(L_e)){
-      
-      # compute Q_{i,e}
-      Q_e <- matern.p.precision(
-        loc = c(0, L_e[e]),
-        kappa = kappa, 
-        p = p[i],
-        equally_spaced = FALSE, 
-        alpha = alpha)$Q
-      
-      # store Qtilde_{i,e}
-      Qtilde_i[[i]][[e]] <- Q_e - 0.5 * correction_term
-    }
-    # build block diagonal matrix Qtilde_i[[i]]
-    Qtilde_i[[i]] <- bdiag(Qtilde_i[[i]])
-  }
-  
+  edge_lengths <- graph$edge_lengths
+
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p, kappa,  alpha,  edge_lengths)
   # --------------------------------------------------
   # CASE i = 0
   # --------------------------------------------------
@@ -1048,8 +1061,8 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
   
   # Compare the above to 
-  # A=buildMatrixAWhichMapsUToUv(graph, 2)
-  # which(A == 1, arr.ind = TRUE)[, "col"]
+  # A <- buildMatrixAWhichMapsUToUv(graph, 2)
+  # index.obs_i <- which(A == 1, arr.ind = TRUE)[, "col"]
   
   A_i <- t(Tc)[index.obs_i, ] 
   
