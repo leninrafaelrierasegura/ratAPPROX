@@ -214,7 +214,7 @@ loglik
 
 Q <- MetricGraph:::Qalpha2(theta = c(tau, kappa),
                                          graph = GRAPH,
-                                         BC = 3000,
+                                         BC = 1000,
                                          build = TRUE)
 
 TT <- precomp$Tc

@@ -346,6 +346,11 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
     function(Q, x) Tc %*% Q %*% t(Tc) * x)
 
   index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
+  
+  # Compare the above to 
+  # A=buildMatrixAWhichMapsUToUv(graph, 2)
+  # which(A == 1, arr.ind = TRUE)[, "col"]
+  
   A_i <- t(Tc)[index.obs_i, ] 
   
   # Build matrix A and Q_UU
@@ -707,6 +712,34 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   )
   
   return(K)
+}
+
+
+## -----------------------------------------------------------------------------
+buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
+  alpha <- 2
+  n <- 2*alpha*graph$nE
+  
+  if(is.null(graph$C)) graph$buildC(alpha = alpha)
+  K2 <- graph$C
+  # indicesOfProcessValues <- seq(1, n - 1, by = alpha)
+  # aux <- K2[, indicesOfProcessValues]
+  # K1 <- aux[rowSums(aux != 0) > 0, , drop = FALSE]
+  
+  # This may fail, if so, comment the line below and uncomment the above
+  # 
+  K1 <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph) 
+  
+  n <- ncol(K1)
+  K3 <- Matrix::Matrix(0, nrow(K1), 3*n, sparse = TRUE)
+  K3[, seq(3, 3*n, by = 3)] <- K1
+  
+  n <- ncol(K2)
+  K2WithColumnsExpanded <- Matrix::Matrix(0, nrow(K2), n + n/2, sparse = TRUE)
+  K2WithColumnsExpanded[, as.vector(rbind(seq(1, n + n/2, by = 3),
+                        seq(2, n + n/2, by = 3)))] <- K2
+
+  return(rbind(K2WithColumnsExpanded, K3))
 }
 
 

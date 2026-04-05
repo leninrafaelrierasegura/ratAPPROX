@@ -42,3 +42,71 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOneNonSparse <- function(graph) {
   }
   return(K)
 }
+
+
+gets_graph_circle <- function(n){
+  r = 1/(pi)
+  theta <- seq(from=-pi,to=pi,length.out = 10000)
+  edge <- cbind(1+r+r*cos(theta),r*sin(theta))
+  edges = list(edge)
+  graph <- metric_graph$new(edges = edges)
+  graph$set_manual_edge_lengths(edge_lengths = 2)
+  graph$build_mesh(n = n)
+  return(graph)
+}
+
+gets_graph_double_circle <- function(n){
+  r = 1/(pi)
+  theta1 <- seq(from=-pi,to=pi,length.out = 1000)
+  theta2 <- seq(from=0,to=2*pi,length.out = 1000)
+  edge1 <- cbind(1+r+r*cos(theta1),r*sin(theta1))
+  edge2 <- cbind(1-r+r*cos(theta2),r*sin(theta2))  
+  edges = list(edge1,edge2)
+  graph <- metric_graph$new(edges = edges)
+  graph$set_manual_edge_lengths(edge_lengths = c(2,2))
+  graph$build_mesh(n = n)
+  return(graph)
+}
+
+
+
+
+graph <- gets_graph_double_circle(10)
+graph$plot(direction = TRUE)
+
+graph$E
+
+buildMatrixAWhichMapsUToUv(graph, alpha)
+buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+  
+  
+K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+
+MetricGraph:::c_basis2(K)
+graph$buildC()
+graph$C
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

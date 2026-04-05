@@ -16,7 +16,7 @@ source(here::here("matern_functions.R"))
 h <- 0.2
 kappa <- 5
 sigma <- 0.8
-alpha <- 0.9
+alpha <- 1.5
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
