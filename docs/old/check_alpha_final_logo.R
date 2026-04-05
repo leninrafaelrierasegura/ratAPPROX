@@ -13,10 +13,10 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.1
+h <- 1
 kappa <- 0.3
 sigma <- 1
-alpha <- 1.5
+alpha <- 1.9
 m <- 3
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))

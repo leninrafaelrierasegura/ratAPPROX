@@ -13,10 +13,10 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.1
+h <- 1
 kappa <- 0.3
 sigma <- 1
-alpha <- 1.5
+alpha <- 1.9
 m <- 3
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -101,19 +101,19 @@ op <- matern.operators(alpha = alpha,
 FEM_Sigma <- covariance_mesh(op)
 
 
-graph_initial$plot_function(X = Approx_Sigma_reordered[,100],  
-                            type = "plotly", 
-                            line_color = "red", 
-                            interpolate_plot = FALSE, 
-                            name = "rat", 
-                            showlegend = TRUE) %>%
-  graph_initial$plot_function(X = FEM_Sigma[,100],  
-                              p = .,
-                              type = "plotly", 
-                              line_color = "green", 
-                              interpolate_plot = FALSE, 
-                              name = "FEM", 
-                              showlegend = TRUE)
+# graph_initial$plot_function(X = Approx_Sigma_reordered[,100],  
+#                             type = "plotly", 
+#                             line_color = "red", 
+#                             interpolate_plot = FALSE, 
+#                             name = "rat", 
+#                             showlegend = TRUE) %>%
+#   graph_initial$plot_function(X = FEM_Sigma[,100],  
+#                               p = .,
+#                               type = "plotly", 
+#                               line_color = "green", 
+#                               interpolate_plot = FALSE, 
+#                               name = "FEM", 
+#                               showlegend = TRUE)
 
 
 L_2_error <- sqrt(as.double(t(graph_initial$mesh$weights)%*%(Approx_Sigma_reordered - FEM_Sigma)^2%*%graph_initial$mesh$weights))

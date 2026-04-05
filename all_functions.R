@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,26 +155,22 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+# Typically, factor = 4, constant = 3
 gives.indices <- function(graph, factor, constant){
-  index.obs1 <- sapply(graph$PtV, 
-                       function(i){
-                         idx_temp <- i == graph$E[,1]
-                         idx_temp <- which(idx_temp)
-                         return(idx_temp[1])}
-                       )
+  # Here, after doing graph$observation_to_vertex() 
+  # graph$PtV is just from 1 to graph$nV in some order
+  index.obs1 <- sapply(graph$PtV, function(i) which(i == graph$E[,1])[1]) 
+  # The above just identifies the first index (that is why [1]) in graph$E[,1]
+  # where vertex v_i with index graph$PtV[i] appears, it may have NA's
+  # as not all vertices are the start of some edge
   index.obs1 <- (index.obs1 - 1) * factor + 1
   index.obs4 <- NULL
   na_obs1 <- is.na(index.obs1)
   if(any(na_obs1)){
     idx_na <- which(na_obs1)
     PtV_NA <- graph$PtV[idx_na]
-    index.obs4 <- sapply(PtV_NA, 
-                         function(i){
-                           idx_temp <- i == graph$E[,2]
-                           idx_temp <- which(idx_temp)
-                           return(idx_temp[1])}
-                         )
+    index.obs4 <- sapply(PtV_NA, function(i) which(i == graph$E[,2])[1])
     index.obs1[na_obs1] <- (index.obs4 - 1 ) * factor + constant                                                                      
   }
   return(index.obs1)
@@ -222,11 +218,11 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 computesListOfMatricesQTildeUnconstraint <- function(p,
                                                      kappa, 
                                                      alpha, 
-                                                     edge_lengths){
+                                                     edgeLengths){
   ca <- ceiling(alpha)
   # initialize Qtilde_i, a list containing block diagonal matrices with blocks Qtilde_{i,e} for each i
   Qtilde_i <- list() 
@@ -253,11 +249,11 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
     
     # initialize Qtilde_i[[i]], a list containing Qtilde_{i,e} for each edge e
     Qtilde_i[[i]] <- list()
-    for(e in seq_along(edge_lengths)){
+    for(e in seq_along(edgeLengths)){
       
       # compute Q_{i,e}
       Q_e <- matern.p.precision(
-        loc = c(0, edge_lengths[e]),
+        loc = c(0, edgeLengths[e]),
         kappa = kappa, 
         p = p[i],
         equally_spaced = FALSE, 
@@ -273,7 +269,7 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -318,9 +314,9 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   c_1 <- gamma(fa)/gamma(fa - 0.5)
   
   # get edge lengths
-  edge_lengths <- graph$edge_lengths
+  edgeLengths <- graph$edge_lengths
 
-  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p, kappa,  alpha,  edge_lengths)
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p, kappa,  alpha,  edgeLengths)
   # --------------------------------------------------
   # CASE i = 0
   # --------------------------------------------------
@@ -375,7 +371,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -461,7 +457,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -490,7 +486,7 @@ rat_covariance <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -529,7 +525,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -560,7 +556,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -617,7 +613,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -640,7 +636,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -662,7 +658,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -725,7 +721,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
@@ -753,7 +749,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -771,7 +767,49 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+getsSmallCovarianceMatrices <- function(D_matrix,
+                                        kappa,
+                                        tau,
+                                        sigma_e,
+                                        y_e){
+  JointCovarianceMatrix <- MetricGraph:::r_1(D_matrix, kappa = kappa, tau = tau)
+
+  #covariance update see Art p.17
+  E.ind <- c(1:2)
+  Obs.ind <- -E.ind
+  
+  Sigma_YY <- JointCovarianceMatrix[E.ind, E.ind, drop = FALSE]
+  Sigma_YXt_e <- JointCovarianceMatrix[E.ind, Obs.ind, drop = FALSE]
+  Sigma_Xt_eXt_e <- JointCovarianceMatrix[Obs.ind, Obs.ind, drop = FALSE]
+  Sigma_Xt_eY <- JointCovarianceMatrix[Obs.ind, E.ind, drop = FALSE]
+  
+  Se_te_transposed <- solve(Sigma_YY, Sigma_YXt_e)
+  
+  Sigma_e <- Sigma_Xt_eXt_e - Sigma_Xt_eY  %*% Se_te_transposed
+  diag(Sigma_e) <- diag(Sigma_e) + sigma_e^2
+  
+  chol_Sigma_e <- base::chol(Sigma_e)
+
+  Sigma_e_inverse_Se_te <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), t(Se_te_transposed)))
+
+  Sigma_e_inverse_y_e <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), y_e))
+  y_e_transposed_Sigma_e_inverse_y_e <- sum(y_e * Sigma_e_inverse_y_e)
+  
+  
+  Se_te_transposed_Sigma_e_inverse_Se_te <- Se_te_transposed %*% Sigma_e_inverse_Se_te
+  Se_te_transposed_Sigma_e_inverse_ye <- t(Sigma_e_inverse_Se_te) %*% y_e
+  
+  half_log_det_Sigma_e <- sum(log(diag(chol_Sigma_e)))
+  
+  return(list(Se_te_transposed_Sigma_e_inverse_Se_te = Se_te_transposed_Sigma_e_inverse_Se_te,
+              Se_te_transposed_Sigma_e_inverse_ye = Se_te_transposed_Sigma_e_inverse_ye,
+              y_e_transposed_Sigma_e_inverse_y_e = y_e_transposed_Sigma_e_inverse_y_e,
+              half_log_det_Sigma_e = half_log_det_Sigma_e))
+}
+
+
+## -----------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -824,7 +862,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
   loglik <- 0
 
   det_R_count <- NULL
-  n.o <- 0
+  numberOfObservations <- 0
 
   # Cache some values used in the loop
   nV <- nrow(graph$V)
@@ -843,21 +881,21 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
       edge_name <- paste0("edge_", e)
 
       # Get data for this edge and replicate
-      y_i <- precomputeddata$y[[repl_name]][[edge_name]]
+      y_e <- precomputeddata$y[[repl_name]][[edge_name]]
 
       # Skip if no observations
-      if(is.null(y_i) || length(y_i) == 0){
+      if(is.null(y_e) || length(y_e) == 0){
         next
       }
 
-      n.o <- n.o + length(y_i)
+      numberOfObservations <- numberOfObservations + length(y_e) # update the counter of number of observations
 
       if(!is.null(X_cov)){
         n_cov <- ncol(X_cov)
         if(n_cov == 0){
           X_cov_repl <- 0
         } else{
-          y_i <- y_i - as.vector(precomputeddata$x[[repl_name]][[edge_name]] %*% theta[4:(3+n_cov)])
+          y_e <- y_e - as.vector(precomputeddata$x[[repl_name]][[edge_name]] %*% theta[4:(3+n_cov)])
         }
       }
       D_matrix <- precomputeddata$D_matrix[[repl_name]][[edge_name]]
@@ -866,31 +904,50 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
       # That is, JointCovarianceMatrix = [Sigma_{X_tX_t} & Sigma_{X_tY} \\ Sigma_{YX_t} & Sigma_{YY}]
       #  where Y = [u(0), u(ell)] and X_t = [u(t_1),...,u(t_{n_e})]
       
-      JointCovarianceMatrix <- r_1(D_matrix, kappa = kappa, tau = 1/reciprocal_tau)
+      # JointCovarianceMatrix <- MetricGraph:::r_1(D_matrix, kappa = kappa, tau = 1/reciprocal_tau)
+      # 
+      # #covariance update see Art p.17
+      # E.ind <- c(1:2)
+      # Obs.ind <- -E.ind
+      # 
+      # Sigma_YY <- JointCovarianceMatrix[E.ind, E.ind, drop = FALSE]
+      # Sigma_YXt_e <- JointCovarianceMatrix[E.ind, Obs.ind, drop = FALSE]
+      # Sigma_Xt_eXt_e <- JointCovarianceMatrix[Obs.ind, Obs.ind, drop = FALSE]
+      # Sigma_Xt_eY <- JointCovarianceMatrix[Obs.ind, E.ind, drop = FALSE]
+      # 
+      # Se_te_transposed <- solve(Sigma_YY, Sigma_YXt_e)
+      # 
+      # Sigma_e <- Sigma_Xt_eXt_e - Sigma_Xt_eY  %*% Se_te_transposed
+      # diag(Sigma_e) <- diag(Sigma_e) + sigma_e^2
+      # 
+      # chol_Sigma_e <- base::chol(Sigma_e)
+      # 
+      # Sigma_e_inverse_Se_te <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), t(Se_te_transposed)))
+      # 
+      # Sigma_e_inverse_y_e <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), y_e))
+      # y_e_transposed_Sigma_e_inverse_y_e <- sum(y_e * Sigma_e_inverse_y_e)
+      # 
+      # 
+      # Se_te_transposed_Sigma_e_inverse_Se_te <- Se_te_transposed %*% Sigma_e_inverse_Se_te
+      # Se_te_transposed_Sigma_e_inverse_ye <- t(Sigma_e_inverse_Se_te) %*% y_e
+      # 
+      # half_log_det_Sigma_e <- sum(log(diag(chol_Sigma_e)))
 
-      #covariance update see Art p.17
-      E.ind <- c(1:2)
-      Obs.ind <- -E.ind
+      AUX <- getsSmallCovarianceMatrices(D_matrix = D_matrix,
+                                         kappa = kappa, 
+                                         tau = 1/reciprocal_tau, 
+                                         sigma_e = sigma_e,
+                                         y_e = y_e)
       
-      Sigma_YY <- JointCovarianceMatrix[E.ind, E.ind, drop = FALSE]
-      Sigma_YXt <- JointCovarianceMatrix[E.ind, Obs.ind, drop = FALSE]
-      Sigma_XtXt <- JointCovarianceMatrix[Obs.ind, Obs.ind, drop = FALSE]
-      Sigma_XtY <- JointCovarianceMatrix[Obs.ind, E.ind, drop = FALSE]
-      
-      Se_te_transposed <- solve(Sigma_YY, Sigma_YXt)
-      
-      Sigma_e <- Sigma_XtXt - Sigma_XtY  %*% Se_te_transposed
-      diag(Sigma_e) <- diag(Sigma_e) + sigma_e^2
-      
-      R <- base::chol(Sigma_e)
+      Se_te_transposed_Sigma_e_inverse_Se_te <- AUX$Se_te_transposed_Sigma_e_inverse_Se_te
+      Se_te_transposed_Sigma_e_inverse_ye <- AUX$Se_te_transposed_Sigma_e_inverse_ye
+      y_e_transposed_Sigma_e_inverse_y_e <- AUX$y_e_transposed_Sigma_e_inverse_y_e
+      half_log_det_Sigma_e <- AUX$half_log_det_Sigma_e
 
-      Sigma_e_inverse_Se_te <- backsolve(R, forwardsolve(t(R), t(Se_te_transposed)))
-
-      Se_te_transposed_Sigma_e_inverse_Se_te <- Se_te_transposed %*% Sigma_e_inverse_Se_te
-
+      loglik <- loglik - 0.5 * y_e_transposed_Sigma_e_inverse_y_e - half_log_det_Sigma_e
+      
+      
       E <- graph$E[e, ]
-
-      Se_te_transposed_Sigma_e_inverse_ye <- t(Sigma_e_inverse_Se_te) %*% y_i
       if (E[1] == E[2]) {
         # Pre-compute matrix product
         Qpmu[E[1]] <- Qpmu[E[1]] + sum(as.vector(Se_te_transposed_Sigma_e_inverse_ye))
@@ -912,14 +969,6 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
         count <- count + 4
       }
 
-      # Compute log determinant only once
-      log_det <- sum(log(diag(R)))
-
-      # Avoid matrix inversion by using the Cholesky factor directly
-      v_i <- backsolve(R, forwardsolve(t(R), y_i))
-      quad_form <- sum(y_i * v_i)
-
-      loglik <- loglik - 0.5 * quad_form - log_det
     }
 
     if(is.null(det_R_count)){
@@ -944,7 +993,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
                                                           system = "P"),
                                    system = "L")))
 
-    loglik <- loglik + 0.5  * t(v) %*% v - 0.5 * n.o * log(2*pi)
+    loglik <- loglik + 0.5  * t(v) %*% v - 0.5 * numberOfObservations * log(2*pi)
   }
 
   return(loglik[1])
@@ -952,7 +1001,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 

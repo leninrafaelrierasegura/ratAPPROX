@@ -216,6 +216,11 @@ loglikelihoodForAlphaEqualOnePrecompute(theta =c(log(fit$coeff$measurement_error
 
 
 ```{r}
+
+```
+
+
+```{r}
 sigma_e      = fit$coeff$measurement_error
 tau          = fit$coeff$random_effects[["tau"]]
 kappa        = fit$coeff$random_effects[["kappa"]]
