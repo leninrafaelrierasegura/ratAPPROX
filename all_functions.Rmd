@@ -1490,6 +1490,11 @@ getsSmallCovarianceMatrices <- function(D_matrix,
                                         tau,
                                         sigma_e,
                                         y_e){
+  
+  # Pre-compute JointCovarianceMatrix of c(0,ell,\mathbf{t}_e) matrix
+  # That is, JointCovarianceMatrix = [Sigma_{X_tX_t} & Sigma_{X_tY} \\ Sigma_{YX_t} & Sigma_{YY}]
+  #  where Y = [u(0), u(ell)] and X_t = [u(t_1),...,u(t_{n_e})]
+
   JointCovarianceMatrix <- MetricGraph:::r_1(D_matrix, kappa = kappa, tau = tau)
 
   #covariance update see Art p.17
@@ -1538,7 +1543,6 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
                                                     BC, 
                                                     parameterization = "spde") {
   sigma_e <- exp(theta[1])
-  #build Q
 
   repl_vec <- graph$.__enclos_env__$private$data[[".group"]]
 
@@ -1555,18 +1559,13 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
   reciprocal_tau <- exp(theta[2])
 
   Q.list <- spde_precision(kappa = kappa, tau = 1/reciprocal_tau, alpha = 1,
-                           graph = graph, build = FALSE,BC=BC)
+                           graph = graph, build = FALSE, BC = BC)
 
-  Qp <- Matrix::sparseMatrix(i = Q.list$i,
-                             j = Q.list$j,
-                             x = Q.list$x,
-                             dims = Q.list$dims)
-  R <- Matrix::Cholesky(Qp, LDL = FALSE, perm = TRUE)
+  Qv <- Matrix::sparseMatrix(i = Q.list$i, j = Q.list$j, x = Q.list$x, dims = Q.list$dims)
+  chol_Qv <- Matrix::Cholesky(Qv, LDL = FALSE, perm = TRUE)
+  half_log_det_Qv <- Matrix::determinant(chol_Qv, sqrt=TRUE)$modulus[1]
 
-  det_R <- Matrix::determinant(R, sqrt=TRUE)$modulus[1]
-
-  #build BSIGMAB
-  PtE <- graph$get_PtE()
+  #PtE <- graph$get_PtE()
   obs.edges <- precomputeddata$obs.edges
 
   i_ <- j_ <- x_ <- rep(0, 4 * length(obs.edges))
@@ -1579,7 +1578,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
   loglik <- 0
 
-  det_R_count <- NULL
+  half_log_det_Qp <- NULL
   numberOfObservations <- 0
 
   # Cache some values used in the loop
@@ -1589,9 +1588,9 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
       curr_repl <- u_repl[j]
       repl_name <- paste0("repl_", curr_repl)
 
-      loglik <- loglik + det_R
+      loglik <- loglik + half_log_det_Qv # we add 0.5 * log|Qv| n_repl times
       count <- 0
-      Qpmu <- numeric(nV)
+      Qp_mu <- numeric(nV)
 
     for (i in seq_along(obs.edges)) {
       # Use pre-computed replicate indices
@@ -1618,67 +1617,38 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
       }
       D_matrix <- precomputeddata$D_matrix[[repl_name]][[edge_name]]
 
-      # Pre-compute JointCovarianceMatrix of c(0,ell,\mathbf{t}_e) matrix
-      # That is, JointCovarianceMatrix = [Sigma_{X_tX_t} & Sigma_{X_tY} \\ Sigma_{YX_t} & Sigma_{YY}]
-      #  where Y = [u(0), u(ell)] and X_t = [u(t_1),...,u(t_{n_e})]
-      
-      # JointCovarianceMatrix <- MetricGraph:::r_1(D_matrix, kappa = kappa, tau = 1/reciprocal_tau)
-      # 
-      # #covariance update see Art p.17
-      # E.ind <- c(1:2)
-      # Obs.ind <- -E.ind
-      # 
-      # Sigma_YY <- JointCovarianceMatrix[E.ind, E.ind, drop = FALSE]
-      # Sigma_YXt_e <- JointCovarianceMatrix[E.ind, Obs.ind, drop = FALSE]
-      # Sigma_Xt_eXt_e <- JointCovarianceMatrix[Obs.ind, Obs.ind, drop = FALSE]
-      # Sigma_Xt_eY <- JointCovarianceMatrix[Obs.ind, E.ind, drop = FALSE]
-      # 
-      # Se_te_transposed <- solve(Sigma_YY, Sigma_YXt_e)
-      # 
-      # Sigma_e <- Sigma_Xt_eXt_e - Sigma_Xt_eY  %*% Se_te_transposed
-      # diag(Sigma_e) <- diag(Sigma_e) + sigma_e^2
-      # 
-      # chol_Sigma_e <- base::chol(Sigma_e)
-      # 
-      # Sigma_e_inverse_Se_te <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), t(Se_te_transposed)))
-      # 
-      # Sigma_e_inverse_y_e <- backsolve(chol_Sigma_e, forwardsolve(t(chol_Sigma_e), y_e))
-      # y_e_transposed_Sigma_e_inverse_y_e <- sum(y_e * Sigma_e_inverse_y_e)
-      # 
-      # 
-      # Se_te_transposed_Sigma_e_inverse_Se_te <- Se_te_transposed %*% Sigma_e_inverse_Se_te
-      # Se_te_transposed_Sigma_e_inverse_ye <- t(Sigma_e_inverse_Se_te) %*% y_e
-      # 
-      # half_log_det_Sigma_e <- sum(log(diag(chol_Sigma_e)))
-
       AUX <- getsSmallCovarianceMatrices(D_matrix = D_matrix,
                                          kappa = kappa, 
                                          tau = 1/reciprocal_tau, 
                                          sigma_e = sigma_e,
                                          y_e = y_e)
-      
+      # Se_te_transposed_Sigma_e_inverse_Se_te is of size 2\alpha x 2\alpha
       Se_te_transposed_Sigma_e_inverse_Se_te <- AUX$Se_te_transposed_Sigma_e_inverse_Se_te
+      # Se_te_transposed_Sigma_e_inverse_ye is of size 2\alpha \times 1, for alpha = 1, is 2x1, one for each vertex connecting e
       Se_te_transposed_Sigma_e_inverse_ye <- AUX$Se_te_transposed_Sigma_e_inverse_ye
       y_e_transposed_Sigma_e_inverse_y_e <- AUX$y_e_transposed_Sigma_e_inverse_y_e
       half_log_det_Sigma_e <- AUX$half_log_det_Sigma_e
 
       loglik <- loglik - 0.5 * y_e_transposed_Sigma_e_inverse_y_e - half_log_det_Sigma_e
       
+      # The above adds - 0.5 * y_e^\top \Sigma_e^{-1}y_e and - 0.5 * log|Sigma_e|
       
+      # Note that Qp_mu is of size |V|\times 1, that is why for each edge, we directly update Qp_mu
+      # using E, which contains the indices of the vertices for which the edge contributes to
       E <- graph$E[e, ]
-      if (E[1] == E[2]) {
+      if (E[1] == E[2]) { # for loops
         # Pre-compute matrix product
-        Qpmu[E[1]] <- Qpmu[E[1]] + sum(as.vector(Se_te_transposed_Sigma_e_inverse_ye))
+        Qp_mu[E[1]] <- Qp_mu[E[1]] + sum(as.vector(Se_te_transposed_Sigma_e_inverse_ye))
+        # This: Qp_mu[E[1]] <- Qp_mu[E[1]] is the update part, we only 
         i_[count + 1] <- E[1]
         j_[count + 1] <- E[1]
         x_[count + 1] <- sum(Se_te_transposed_Sigma_e_inverse_Se_te)
         count <- count + 1
-      } else {
-        # Pre-compute matrix product
-        y_prod <- as.vector(Se_te_transposed_Sigma_e_inverse_ye)
-        Qpmu[E] <- Qpmu[E] + y_prod
-
-        # More efficient indexing of arrays
+      } else { # for non loops
+        Qp_mu[E] <- Qp_mu[E] + as.vector(Se_te_transposed_Sigma_e_inverse_ye) 
+        
+        # This: Qp_mu[E] <- Qp_mu[E] is just the update part
+        
         idx <- count + 1:4
         i_[idx] <- c(E[1], E[1], E[2], E[2])
         j_[idx] <- c(E[1], E[2], E[1], E[2])
@@ -1689,29 +1659,26 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
     }
 
-    if(is.null(det_R_count)){
+    if(is.null(half_log_det_Qp)){ # This is to compute ONE time only, it assumes all replicates share the same locations
       i_ <- c(Q.list$i, i_[1:count])
       j_ <- c(Q.list$j, j_[1:count])
       x_ <- c(Q.list$x, x_[1:count])
 
+      # Qp = Qv + sum D_e^\top S_e(t_e)^\top \Sigma_e^{-1}S_e(t_e)D_e
+      Qp <- Matrix::sparseMatrix(i = i_, j = j_, x = x_, dims = Q.list$dims) 
 
-      Qp <- Matrix::sparseMatrix(i = i_,
-                                 j = j_,
-                                 x = x_,
-                                 dims = Q.list$dims)
+      chol_Qp <- Matrix::Cholesky(Qp, LDL = FALSE, perm = TRUE) # This does Qp = P^\top L L^\top P
 
-      R_count <- Matrix::Cholesky(Qp, LDL = FALSE, perm = TRUE)
-
-      det_R_count <- Matrix::determinant(R_count, sqrt=TRUE)$modulus[1]
+      half_log_det_Qp <- Matrix::determinant(chol_Qp, sqrt=TRUE)$modulus[1]
     }
 
-    loglik <- loglik - det_R_count
+    loglik <- loglik - half_log_det_Qp # adds 0.5 * log|Qp| n_repl times
 
-    v <- c(as.matrix(Matrix::solve(R_count, Matrix::solve(R_count, Qpmu,
-                                                          system = "P"),
-                                   system = "L")))
+    v <- c(as.matrix(Matrix::solve(chol_Qp, Matrix::solve(chol_Qp, Qp_mu, system = "P"), system = "L"))) # This L^{-1}P Qp mu
 
-    loglik <- loglik + 0.5  * t(v) %*% v - 0.5 * numberOfObservations * log(2*pi)
+    loglik <- loglik + 
+      0.5  * t(v) %*% v - # This is 0.5 * mu^\top Qp P^\top L^{-\top} L^{-1}P Qp mu = 0.5 * mu^\top Qp Qp^{-1} Qp mu = 0.5 * mu^\top Qp mu
+      0.5 * numberOfObservations * log(2*pi)
   }
 
   return(loglik[1])
