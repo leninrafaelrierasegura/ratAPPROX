@@ -788,7 +788,7 @@ gives.indices <- function(graph, factor, constant){
   # where vertex v_i with index graph$PtV[i] appears, it may have NA's
   # as not all vertices are the start of some edge
   index.obs1 <- (index.obs1 - 1) * factor + 1
-  index.obs4 <- NULL
+  #index.obs4 <- NULL
   na_obs1 <- is.na(index.obs1)
   if(any(na_obs1)){
     idx_na <- which(na_obs1)
@@ -800,7 +800,18 @@ gives.indices <- function(graph, factor, constant){
   return(index.obs1)
 }
 
-
+indicesForOrderedVertices <- function(graph, alpha){
+  if(is.null(graph$PtV)){
+    stop("graph$PtV is NULL, please run graph$observation_to_vertex() first")
+  }
+  # If alpha is not integer, then stop
+  if(alpha %% 1 != 0){
+    stop("alpha is not an integer, only works for integer alpha")
+  }
+  initialIndices <- gives.indices(graph, factor = 4, constant = 3)
+  adjustedIndices <- (initialIndices - 1) * alpha/2 + 1
+  return(adjustedIndices)
+}
 
 conditioning <- function(graph, alpha = 1){
   i_  =  rep(0, 2 * graph$nE)

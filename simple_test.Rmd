@@ -321,7 +321,9 @@ graph$add_observations(
 # add observations as vertices
 graph$observation_to_vertex()
 
-index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 2)
+#index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 2)
+
+index.obs_i <- indicesForOrderedVertices(graph, alpha)
 
   
 A <- t(TT)[index.obs_i, ]
@@ -609,7 +611,9 @@ Q_U <-  Tc %*% Q_unconstraint %*% t(Tc)
 
 factor <- 4
 constant <- 3
-index.obs_i <- gives.indices(graph = graph, factor = factor, constant = constant)
+#index.obs_i <- gives.indices(graph = graph, factor = factor, constant = constant)
+index.obs_i <- indicesForOrderedVertices(graph, alpha)
+
 A <- t(Tc)[index.obs_i, ] 
 
 Sigma <- A %*% solve(Q_U, t(A))

@@ -65,8 +65,7 @@ graph$add_observations(
 # add observations as vertices
 graph$observation_to_vertex()
 
-index.obs_i <- gives.indices(graph = graph, factor = 4, constant = 3)
-index.obs_i <- (index.obs_i - 1)/2 + 1
+index.obs_i <- indicesForOrderedVertices(graph, alpha)
 
 A <- t(Tc)[index.obs_i, ]
 
