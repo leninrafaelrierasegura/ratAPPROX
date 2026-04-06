@@ -13,17 +13,17 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.02
+h <- 0.2
 kappa <- 10
 sigma <- 0.8
-alpha <- 0.51
+alpha <- 0.9
 m <- 10
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
 
 
-FLIPPED <- TRUE
+FLIPPED <- FALSE
 
 
 # build a graph with a mesh
@@ -61,7 +61,8 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_0_to_1(
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
-  m = m)
+  m = m, 
+  build_cov = TRUE)
 
 # my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
 # Approx_Sigma <- Approx_Sigma[my_order, my_order]
