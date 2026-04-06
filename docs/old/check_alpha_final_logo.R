@@ -101,19 +101,19 @@ op <- matern.operators(alpha = alpha,
 FEM_Sigma <- covariance_mesh(op)
 
 
-graph_initial$plot_function(X = Approx_Sigma_reordered[,100],  
-                            type = "plotly", 
-                            line_color = "red", 
-                            interpolate_plot = FALSE, 
-                            name = "rat", 
-                            showlegend = TRUE) %>%
-  graph_initial$plot_function(X = FEM_Sigma[,100],  
-                              p = .,
-                              type = "plotly", 
-                              line_color = "green", 
-                              interpolate_plot = FALSE, 
-                              name = "FEM", 
-                              showlegend = TRUE)
+# graph_initial$plot_function(X = Approx_Sigma_reordered[,100],  
+#                             type = "plotly", 
+#                             line_color = "red", 
+#                             interpolate_plot = FALSE, 
+#                             name = "rat", 
+#                             showlegend = TRUE) %>%
+#   graph_initial$plot_function(X = FEM_Sigma[,100],  
+#                               p = .,
+#                               type = "plotly", 
+#                               line_color = "green", 
+#                               interpolate_plot = FALSE, 
+#                               name = "FEM", 
+#                               showlegend = TRUE)
 
 
 L_2_error <- sqrt(as.double(t(graph_initial$mesh$weights)%*%(Approx_Sigma_reordered - FEM_Sigma)^2%*%graph_initial$mesh$weights))

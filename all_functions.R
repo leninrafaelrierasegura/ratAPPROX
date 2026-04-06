@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,12 +155,17 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 # Typically, factor = 4, constant = 3
 gives.indices <- function(graph, factor, constant){
   # Here, after doing graph$observation_to_vertex() 
   # graph$PtV is just from 1 to graph$nV in some order
-  index.obs1 <- sapply(graph$PtV, function(i) which(i == graph$E[,1])[1]) 
+  if(is.null(graph$PtV)){
+    stop("graph$PtV is NULL, please run graph$observation_to_vertex() first")
+  }
+  verticesInSomeOrderWeAreRestricted <- graph$PtV
+  index.obs1 <- sapply(verticesInSomeOrderWeAreRestricted, 
+                       function(i) which(i == graph$E[,1])[1]) 
   # The above just identifies the first index (that is why [1]) in graph$E[,1]
   # where vertex v_i with index graph$PtV[i] appears, it may have NA's
   # as not all vertices are the start of some edge
@@ -169,12 +174,15 @@ gives.indices <- function(graph, factor, constant){
   na_obs1 <- is.na(index.obs1)
   if(any(na_obs1)){
     idx_na <- which(na_obs1)
-    PtV_NA <- graph$PtV[idx_na]
-    index.obs4 <- sapply(PtV_NA, function(i) which(i == graph$E[,2])[1])
+    PtV_NA <- verticesInSomeOrderWeAreRestricted[idx_na]
+    index.obs4 <- sapply(PtV_NA, 
+                         function(i) which(i == graph$E[,2])[1])
     index.obs1[na_obs1] <- (index.obs4 - 1 ) * factor + constant                                                                      
   }
   return(index.obs1)
 }
+
+
 
 conditioning <- function(graph, alpha = 1){
   i_  =  rep(0, 2 * graph$nE)
@@ -218,7 +226,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 computesListOfMatricesQTildeUnconstraint <- function(p,
                                                      kappa, 
                                                      alpha, 
@@ -269,7 +277,7 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -371,7 +379,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -457,7 +465,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -486,7 +494,7 @@ rat_covariance <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -525,7 +533,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -556,7 +564,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -613,7 +621,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -636,7 +644,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -658,7 +666,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -721,7 +729,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
@@ -749,11 +757,12 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
   firstVertexOccurrence <- !duplicated(edgeMatrixFlattened)
+  verticesOrder <- edgeMatrixFlattened[firstVertexOccurrence]
   positionsOfOriginalVertices <- seq(1, alpha*2*graph$nE - 1, by = alpha)
   colIndicesOfNonZeroEntry <- positionsOfOriginalVertices[firstVertexOccurrence]
   A <- Matrix::sparseMatrix(
@@ -762,12 +771,14 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
     x = 1,
     dims = c(graph$nV, alpha*2*graph$nE)
   )
-  return(A)
+  return(list(A = A, 
+              verticesOrder = verticesOrder, 
+              colIndicesOfNonZeroEntry = colIndicesOfNonZeroEntry))
 }
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 getsSmallCovarianceMatrices <- function(D_matrix,
                                         kappa,
                                         tau,
@@ -814,7 +825,7 @@ getsSmallCovarianceMatrices <- function(D_matrix,
 }
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -968,7 +979,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## -----------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 
