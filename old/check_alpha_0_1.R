@@ -54,15 +54,21 @@ graph$add_observations(
 graph$observation_to_vertex()
 
 
-
-
-Approx_Sigma <- gets_cov_mat_rat_approx_alpha_0_to_1(
+Approx_Sigma <- getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne(
   graph = graph, 
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
   m = m, 
   build_cov = TRUE)
+
+# Approx_Sigma <- gets_cov_mat_rat_approx_alpha_0_to_1(
+#   graph = graph, 
+#   kappa = kappa, 
+#   tau = tau, 
+#   alpha = alpha, 
+#   m = m, 
+#   build_cov = TRUE)
 
 # my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
 # Approx_Sigma <- Approx_Sigma[my_order, my_order]
@@ -125,4 +131,7 @@ graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_co
 
 L_2_error = sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
 print(L_2_error)
+
+
+
 

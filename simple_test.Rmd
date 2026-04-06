@@ -280,7 +280,7 @@ graph <- metric_graph$new(edges = edges)
 graph$set_manual_edge_lengths(edge_lengths = c(1,2/pi,1))
 
 kappa <- 4
-sigma <- 1
+sigma <- 1.8
 alpha <- 1
 m <- 4
 nu <- alpha - 0.5
@@ -300,7 +300,7 @@ CoB <- MetricGraph:::c_basis2(K)
 CoB$T <- t(CoB$T)
 TT <- CoB$T[-c(1:length(CoB$S)), ]
 
-Q_tilde_star <- TT %*% Q_tilde %*% t(TT)
+Q_tilde_star <- TT %*% Q_tilde %*% t(TT) / sigma^2
 
 
 

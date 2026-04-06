@@ -1,4 +1,4 @@
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 # Typically, factor = 4, constant = 3
 gives.indices <- function(graph, factor, constant){
   # Here, after doing graph$observation_to_vertex() 
@@ -237,7 +237,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 computesListOfMatricesQTildeUnconstraint <- function(p,
                                                      kappa, 
                                                      alpha, 
@@ -288,7 +288,7 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
   
@@ -335,7 +335,10 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   # get edge lengths
   edgeLengths <- graph$edge_lengths
 
-  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p, kappa,  alpha,  edgeLengths)
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(p = p,
+                                                       kappa = kappa,
+                                                       alpha = alpha,
+                                                       edgeLengths = edgeLengths)
   # --------------------------------------------------
   # CASE i = 0
   # --------------------------------------------------
@@ -390,7 +393,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
   
   if(alpha == 1){
@@ -476,7 +479,306 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
+# This is the correct version, it is corrected the constants
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- function(
+    graph,
+    kappa,
+    tau, 
+    alpha,
+    m, 
+    build_cov){
+  
+  nu <- alpha - 1/2
+  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  
+  edgeLengths <- graph$edge_lengths
+  if(alpha == 3){
+    Qtilde <- computesListOfMatricesQTildeUnconstraint(
+    p = 0,
+    kappa = kappa,
+    alpha = alpha,
+    edgeLengths = edgeLengths)[[1]]
+    
+    K <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+    CoB <- MetricGraph:::c_basis2(K)
+    CoB$T <- t(CoB$T)
+    Tc <- CoB$T[-c(1:length(CoB$S)), ]
+    Q <- 1/sigma^2 * Tc %*% Qtilde %*% t(Tc) 
+    indices <- indicesForOrderedVertices(graph, alpha = alpha)
+    A <- t(Tc)[indices, ]
+    if(build_cov) return(A %*% solve(Q, t(A)))
+    return(list(A = A, Q = Q))
+  }
+  
+  # get rational approximation coefficients
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  # compute parameters
+  fa <- floor(alpha)
+  ca <- ceiling(alpha)
+  
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  c_1 <- gamma(fa)/gamma(fa - 0.5)
+  
+  # --------------------------------------------------
+  # CASE i = 0
+  # --------------------------------------------------
+  
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0,
+    kappa = kappa,
+    alpha = fa,
+    edgeLengths = edgeLengths)[[1]]
+
+  graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
+  CoB <- graph$CoB
+  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+
+  inv_factor_0 <- 1/(k*c_alpha*sigma^2/c_1)
+
+  indices <- indicesForOrderedVertices(graph, alpha = fa)
+  A_0 <- t(Tc)[indices, ]
+  Qtilde_0_star_UU <- Tc %*% Qtilde_0 %*% t(Tc) * inv_factor_0
+
+  # --------------------------------------------------
+  # CASE i = 1,...,m
+  # --------------------------------------------------
+  
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = p, 
+    kappa = kappa,  
+    alpha = alpha,  
+    edgeLengths = edgeLengths)
+  
+  # build conditioning matrix
+  K <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+  CoB <- MetricGraph:::c_basis2(K)
+  CoB$T <- t(CoB$T)
+  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  
+  inv_factor_i <- 1/(r*sigma^2)
+
+  Qtilde_i_star_UU <- purrr::map2(
+    Qtilde_i, 
+    inv_factor_i, 
+    function(Q, x) Tc %*% Q %*% t(Tc) * x)
+
+  indices <- indicesForOrderedVertices(graph, alpha = ca)
+
+  
+  A_i <- t(Tc)[indices, ] 
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
+  
+  Q <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  if(build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## -------------------------------------------------------------------------------------------------
+# This is the correct version, it is corrected the constants
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function(
+    graph,
+    kappa,
+    tau, 
+    alpha,
+    m, 
+    build_cov){
+  
+  if(alpha == 2){
+    Qtilde <- MetricGraph:::Qalpha2(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = 3000,
+      build = TRUE)
+    graph$buildC(alpha = alpha, 
+                 edge_constraint = TRUE) # should always be TRUE
+    CoB <- graph$CoB
+    Tc <- CoB$T[-seq_along(CoB$S), ]
+    Q <-  Tc %*% Qtilde %*% t(Tc)
+    indices <- indicesForOrderedVertices(graph, alpha)
+    A <- t(Tc)[indices, ] 
+    if(build_cov) return(A %*% solve(Q, t(A)))
+    return(list(A = A, Q = Q))
+  }
+
+  # get rational approximation coefficients
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  # compute parameters
+  fa <- floor(alpha)
+  ca <- ceiling(alpha)
+  
+  nu <- alpha - 1/2
+  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  c_1 <- gamma(fa)/gamma(fa - 0.5)
+  
+  edgeLengths <- graph$edge_lengths
+  # --------------------------------------------------
+  # CASE i = 0
+  # --------------------------------------------------
+  
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0,
+    kappa = kappa,
+    alpha = fa,
+    edgeLengths = edgeLengths)[[1]]
+
+  K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+  CoB <- MetricGraph:::c_basis2(K)
+  CoB$T <- t(CoB$T)
+  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+
+  inv_factor_0 <- 1/(k*c_alpha*sigma^2/c_1)
+
+  indices <- indicesForOrderedVertices(graph, alpha = fa)
+  A_0 <- t(Tc)[indices, ]
+  Qtilde_0_star_UU <- Tc %*% Qtilde_0 %*% t(Tc) * inv_factor_0
+
+  # --------------------------------------------------
+  # CASE i = 1,...,m
+  # --------------------------------------------------
+  
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = p, 
+    kappa = kappa,  
+    alpha = alpha,  
+    edgeLengths = edgeLengths)
+  
+  # build conditioning matrix
+  graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
+  CoB <- graph$CoB
+  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  
+  inv_factor_i <- 1/(r*sigma^2)
+
+  Qtilde_i_star_UU <- purrr::map2(
+    Qtilde_i, 
+    inv_factor_i, 
+    function(Q, x) Tc %*% Q %*% t(Tc) * x)
+
+  indices <- indicesForOrderedVertices(graph, alpha = ca)
+
+  
+  A_i <- t(Tc)[indices, ] 
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
+  
+  Q <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  if(build_cov){
+  # Return Sigma
+  Sigma <- A %*% solve(Q, t(A)) 
+  return(Sigma)
+  }
+  return(list(A = A, Q = Q))
+}
+
+
+## -------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- function(
+    graph, 
+    kappa, 
+    tau, 
+    alpha, 
+    m, 
+    build_cov){
+  
+  if(alpha == 1){
+    Q <- MetricGraph:::Qalpha1(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = 3000,
+      build = TRUE)
+    A <- graph$.__enclos_env__$private$A()
+    
+    if(build_cov){
+    Sigma <- A %*% solve(Q, t(A))
+    return(Sigma)
+    }
+    return(list(A = A, Q = Q))
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, 
+    type_rational_approx = "chebfun", 
+    type_interp = "spline", 
+    alpha = alpha)
+  
+  r <- coeff$r
+  p <- coeff$p
+  k <- coeff$k
+  
+  nu <- alpha - 1/2
+  sigma <- sqrt(gamma(nu) / (tau^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+  
+  fa <- floor(alpha)
+  ca <- ceiling(alpha)
+  
+  c_alpha <- gamma(alpha)/gamma(alpha - 0.5)
+  
+  # --------------------------------------------------
+  # CASE i = 0
+  # --------------------------------------------------
+  
+  inv_factor_0 <- 1/(k*c_alpha*sqrt(4*pi)*sigma^2/kappa)
+  I <- Matrix::Diagonal(graph$nV)     
+  Qtilde_0_star_UU <- I * inv_factor_0
+  A_0 <- graph$.__enclos_env__$private$A()
+  
+  # --------------------------------------------------
+  # CASE i = 1,...,m
+  # --------------------------------------------------
+  
+  edgeLengths <- graph$edge_lengths
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = p, 
+    kappa = kappa,  
+    alpha = alpha,  
+    edgeLengths = edgeLengths)
+  
+  K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+  CoB <- MetricGraph:::c_basis2(K)
+  CoB$T <- t(CoB$T)
+  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  
+  inv_factor_i <- 1/(r*sigma^2)
+
+  Qtilde_i_star_UU <- purrr::map2(
+  Qtilde_i, 
+  inv_factor_i, 
+  function(Q, x) Tc %*% Q %*% t(Tc) * x)
+
+  indices <- indicesForOrderedVertices(graph, alpha = ca)
+  A_i <- t(Tc)[indices, ] 
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
+  
+  Q_UU <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
+  if(build_cov){
+  Sigma <- A %*% solve(Q_UU, t(A))
+  return(Sigma)
+  }
+  return(list(A = A, Q = Q_UU))
+}
+
+
+## -------------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -505,7 +807,7 @@ rat_covariance <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -544,7 +846,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -575,7 +877,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -632,7 +934,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -655,7 +957,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -677,7 +979,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -740,12 +1042,12 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
   
-  if(is.null(graph$C)) graph$buildC(alpha = alpha)
+  if(is.null(graph$C)) graph$buildC(alpha = alpha, edge_constraint = TRUE)
   K2 <- graph$C
   # indicesOfProcessValues <- seq(1, n - 1, by = alpha)
   # aux <- K2[, indicesOfProcessValues]
@@ -768,7 +1070,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -789,7 +1091,7 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 getsSmallCovarianceMatrices <- function(D_matrix,
                                         kappa,
                                         tau,
@@ -836,7 +1138,7 @@ getsSmallCovarianceMatrices <- function(D_matrix,
 }
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -990,7 +1292,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## --------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 

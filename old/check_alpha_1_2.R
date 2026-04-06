@@ -23,7 +23,7 @@ tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)
 n.overkill <- 1000
 
 
-FLIPPED <- TRUE
+FLIPPED <- FALSE
 
 
 # build a graph with a mesh
@@ -54,14 +54,22 @@ graph$add_observations(
 graph$observation_to_vertex()
 
 
-
-
-Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
-  graph = graph, 
-  kappa = kappa, 
+Approx_Sigma <- getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo(
+  graph = graph,
+  kappa = kappa,
   tau = tau, 
-  alpha = alpha, 
-  m = m)
+  alpha = alpha,
+  m = m, 
+  build_cov = TRUE)
+
+
+# Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
+#   graph = graph,
+#   kappa = kappa,
+#   tau = tau,
+#   alpha = alpha,
+#   m = m,
+#   build_cov = TRUE)
 
 # my_order <- if (FLIPPED) c(4, 1, 3, 2, 5, 6, 7, 8) else 1:graph$nV
 # Approx_Sigma <- Approx_Sigma[my_order, my_order]
