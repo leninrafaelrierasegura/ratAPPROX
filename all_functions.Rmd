@@ -1517,6 +1517,15 @@ rat_covariance <- function(graph,
                                                 m = m, 
                                                 build_cov = build_cov))
   }
+  else if(alpha > 2 && alpha <= 3){
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree(
+      graph = graph,
+      kappa = kappa,
+      tau = tau,
+      alpha = alpha,
+      m = m, 
+      build_cov = build_cov))
+  }
 }
 ```
 
