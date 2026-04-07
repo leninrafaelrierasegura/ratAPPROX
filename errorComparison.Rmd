@@ -62,7 +62,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = FALSE,       
+  eval = TRUE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -132,11 +132,11 @@ alphaVector <- c(seq(0.51,0.59,by=0.01),
            seq(2.1,2.9,by=0.05), 
            seq(2.91,3,by=0.01)) 
 mVector <- c(1,2,3,4,5)
-rhoVector <- c(0.1, 0.5, 1, 2)
+rhoVector <- c(0.1, 0.5, 1, 2)/10
 
 sigma <- 1
-h <- 1
-nOverkill <- 1
+h <- 0.01
+nOverkill <- 1000
 type_rational_approx <- "chebfun"
 type_interp <- "spline"
 
@@ -307,7 +307,138 @@ save(dat, file = here::here("data_files/error_comparison_results.RData"))
 
 
 ```{r}
+load(here::here("data_files/error_comparison_results.RData"))
 
+# reshape long first
+dat_long <- dat %>%
+  pivot_longer(
+    cols = c(L2ErrorRational, LinfErrorRational,
+             L2ErrorFEM, LinfErrorFEM),
+    names_to = c("metric", "method"),
+    names_pattern = "(L2Error|LinfError)(Rational|FEM)",
+    values_to = "error"
+  )
+
+# dataset for Rational
+datRat <- dat_long %>%
+  filter(method == "Rational") %>%
+  mutate(
+    errorRat = error,
+    rat = paste0(metric, "Rational")
+  ) %>%
+  select(alpha, m, rho, errorRat, rat)
+
+# dataset for FEM
+datFEM <- dat_long %>%
+  filter(method == "FEM") %>%
+  mutate(
+    errorFEM = error,
+    FEM = paste0(metric, "FEM")
+  ) %>%
+  select(alpha, m, rho, errorFEM, FEM)
+
+
+
+datRat$rho = factor(datRat$rho, levels = c("0.1", "0.5", "1", "2"))
+datRat$rat = factor(datRat$rat, levels = c("L2ErrorRational", "LinfErrorRational"))
+levels(datRat$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(datRat$rat) = c("L2ErrorRational" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorRational" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+
+
+datFEM$rho = factor(datFEM$rho, levels = c("0.1", "0.5", "1", "2"))
+datFEM$FEM = factor(datFEM$FEM, levels = c("L2ErrorFEM", "LinfErrorFEM"))
+levels(datFEM$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(datFEM$FEM) = c("L2ErrorFEM" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorFEM" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+
+
+
+
+errorRatplot <- ggplot(datRat, aes(alpha, errorRat, colour = as.factor(m))) + 
+  facet_grid(rat ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
+
+
+
+errorFEMplot <- ggplot(datFEM, aes(alpha, errorFEM, colour = as.factor(m))) + 
+  facet_grid(FEM ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
+```
+
+
+```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorRatplot
+```
+
+
+```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorFEMplot
+```
+
+```{r}
+load(here::here("data_files/error_comparison_results.RData"))
+
+dat_new <- dat %>%
+  pivot_longer(
+    cols = c(L2ErrorRational, LinfErrorRational,
+             L2ErrorFEM, LinfErrorFEM),
+    names_to = c("metric", "method"),
+    names_pattern = "(L2Error|LinfError)(Rational|FEM)",
+    values_to = "error"
+  )
+
+dat_new$rho = factor(dat_new$rho, levels = c("0.1", "0.5", "1", "2"))
+dat_new$metric = factor(dat_new$metric, levels = c("L2Error", "LinfError"))
+dat_new$method = factor(dat_new$method, levels = c("Rational", "FEM"))
+levels(dat_new$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(dat_new$metric) = c("L2Error" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfError" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+levels(dat_new$method) = c("Rational" = "RAT", "FEM" = "FEM")
+
+errorRatplot <- ggplot(dat_new, aes(alpha, error, colour = as.factor(m), linetype = method)) + 
+  facet_grid(metric ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_linetype_manual(values = c("solid", "dotdash")) + 
+  #scale_color_manual(values = c("black", "red3", "blue3", "darkgreen", "orange")) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$", linetype = "Method")
+```
+
+
+```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorRatplot
 ```
 
 

@@ -63,6 +63,8 @@ Approx_Sigma <- rat_covariance(
   tau = tau, 
   alpha = alpha, 
   m = m,
+  type_rational_approx = "chebfun",
+  type_interp = "spline",
   build_cov = TRUE)
 
 digits <- 10

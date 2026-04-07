@@ -14,10 +14,10 @@ source(here::here("matern_functions.R"))
 
 # parameters
 h <- 0.02
-kappa <- 1
+kappa <- 0.5
 sigma <- 1
 alpha <- 2.5
-m <- 10
+m <- 1
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
@@ -61,6 +61,8 @@ Approx_Sigma <- getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAn
   tau = tau, 
   alpha = alpha,
   m = m, 
+  type_rational_approx = "chebfun",
+  type_interp = "spline",
   build_cov = TRUE)
 
 digits <- 10
@@ -90,11 +92,11 @@ op = matern.operators(alpha = alpha,
 appr_cov_mat = covariance_mesh(op)
 
 
-q <- graphFEM$plot_function(X = True_Sigma[,1], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-
-graphFEM$plot_function(X = Approx_Sigma[,1], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graphFEM$plot_function(X = appr_cov_mat[,1], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
-
+# q <- graphFEM$plot_function(X = True_Sigma[,1], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+# 
+# graphFEM$plot_function(X = Approx_Sigma[,1], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+#   graphFEM$plot_function(X = appr_cov_mat[,1], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+# 
 
 q <- graphFEM$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 

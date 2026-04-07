@@ -1614,10 +1614,10 @@ rat_loglikelihood <- function(graph,
   data <- graph$get_data()
   Y <- data$y
   
-  if(alpha <= 0.5 || alpha > 2){
-    stop("alpha = ", alpha, ", alpha should be in (0.5,2]")
+  if(alpha <= 0.5 || alpha > 3){
+    stop("alpha = ", alpha, ", alpha should be in (0.5,3]")
   }
-  else if(alpha > 0.5 && alpha <= 2){
+  else if(alpha > 0.5 && alpha <= 3){
     return(lazy_likelihood_alpha_rat(graph = graph, 
                                      kappa = kappa, 
                                      tau = tau, 
