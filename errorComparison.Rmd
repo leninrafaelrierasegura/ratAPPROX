@@ -174,7 +174,8 @@ graph$observation_to_vertex()
 ```
 
 
-```{r}
+```
+{r}
 unique_params <- unique(dat[, c("alpha", "rho")])
 trueSigma_list <- list()
 timeTrue_list <- list()
@@ -215,7 +216,8 @@ save(trueSigma_list, timeTrue_list, file = "~/Desktop/trueSigma_list.RData")
 ```
 
 
-```{r}
+```
+{r}
 load("~/Desktop/trueSigma_list.RData")
 for (i in 1:nrow(dat)) {
   dat_i <- dat[i, ]
@@ -339,15 +341,15 @@ datFEM <- dat_long %>%
 
 
 
-datRat$rho = factor(datRat$rho, levels = c("0.1", "0.5", "1", "2"))
+datRat$rho = factor(datRat$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
 datRat$rat = factor(datRat$rat, levels = c("L2ErrorRational", "LinfErrorRational"))
 levels(datRat$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
 levels(datRat$rat) = c("L2ErrorRational" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorRational" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
 
 
-datFEM$rho = factor(datFEM$rho, levels = c("0.1", "0.5", "1", "2"))
+datFEM$rho = factor(datFEM$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
 datFEM$FEM = factor(datFEM$FEM, levels = c("L2ErrorFEM", "LinfErrorFEM"))
-levels(datFEM$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(datFEM$rho) = c("0.01" = "$\\rho = 0.1$", "0.05" = "$\\rho = 0.5$", "0.1" = "$\\rho = 1$", "0.2" = "$\\rho = 2$")
 levels(datFEM$FEM) = c("L2ErrorFEM" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorFEM" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
 
 
@@ -410,10 +412,10 @@ dat_new <- dat %>%
     values_to = "error"
   )
 
-dat_new$rho = factor(dat_new$rho, levels = c("0.1", "0.5", "1", "2"))
+dat_new$rho = factor(dat_new$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
 dat_new$metric = factor(dat_new$metric, levels = c("L2Error", "LinfError"))
 dat_new$method = factor(dat_new$method, levels = c("Rational", "FEM"))
-levels(dat_new$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(dat_new$rho) = c("0.01" = "$\\rho = 0.1$", "0.05" = "$\\rho = 0.5$", "0.1" = "$\\rho = 1$", "0.2" = "$\\rho = 2$")
 levels(dat_new$metric) = c("L2Error" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfError" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
 levels(dat_new$method) = c("Rational" = "RAT", "FEM" = "FEM")
 
