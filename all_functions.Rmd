@@ -995,7 +995,15 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 
 ```{r}
 # This is the correct version, it is corrected the constants
-gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, build_cov){
+gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
+    graph, 
+    kappa, 
+    tau, 
+    alpha, 
+    m, 
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov){
   
   if(alpha == 2){
     Q_unconstraint <- MetricGraph:::Qalpha2(theta = c(tau, kappa),
@@ -1020,8 +1028,8 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
   # get rational approximation coefficients
   coeff <- rSPDE:::interp_rational_coefficients(
     order = m, 
-    type_rational_approx = "chebfun", 
-    type_interp = "spline", 
+    type_rational_approx = type_rational_approx, 
+    type_interp = type_interp, 
     alpha = alpha)
   
   r <- coeff$r
@@ -1100,7 +1108,15 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(graph, kappa, tau, alpha, m, bu
 
 
 ```{r}
-gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, build_cov){
+gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
+    graph, 
+    kappa, 
+    tau, 
+    alpha, 
+    m, 
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov){
   
   if(alpha == 1){
     Q_U <- MetricGraph:::Qalpha1(
@@ -1121,8 +1137,8 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(graph, kappa, tau, alpha, m, bu
 
   coeff <- rSPDE:::interp_rational_coefficients(
     order = m, 
-    type_rational_approx = "chebfun", 
-    type_interp = "spline", 
+    type_rational_approx = type_rational_approx, 
+    type_interp = type_interp, 
     alpha = alpha)
   
   r <- coeff$r
@@ -1196,6 +1212,8 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
     tau, 
     alpha,
     m, 
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
     build_cov){
   
   nu <- alpha - 1/2
@@ -1223,8 +1241,8 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
   # get rational approximation coefficients
   coeff <- rSPDE:::interp_rational_coefficients(
     order = m, 
-    type_rational_approx = "chebfun", 
-    type_interp = "spline", 
+    type_rational_approx = type_rational_approx, 
+    type_interp = type_interp, 
     alpha = alpha)
   
   r <- coeff$r
@@ -1282,9 +1300,8 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
     function(Q, x) Tc %*% Q %*% t(Tc) * x)
 
   indices <- indicesForOrderedVertices(graph, alpha = ca)
-
+  A_i <- t(Tc)[indices, ]
   
-  A_i <- t(Tc)[indices, ] 
   A <- cbind(A_0, do.call(cbind, rep(list(A_i), m)))
   
   Q <- bdiag(Qtilde_0_star_UU, bdiag(Qtilde_i_star_UU))
@@ -1497,25 +1514,33 @@ rat_covariance <- function(graph,
                            tau, 
                            alpha,
                            m, 
+                           type_rational_approx = "chebfun",
+                           type_interp = "spline",
                            build_cov = TRUE){
   if(alpha <= 0.5){
     stop("alpha = ", alpha, ", alpha should be larger than 0.5")
   }
   else if(alpha > 0.5 && alpha <= 1){
-    return(gets_cov_mat_rat_approx_alpha_0_to_1(graph = graph,
-                                                kappa = kappa,
-                                                tau = tau,
-                                                alpha = alpha,
-                                                m = m,
-                                                build_cov = build_cov))
+    return(gets_cov_mat_rat_approx_alpha_0_to_1(
+      graph = graph,
+      kappa = kappa,
+      tau = tau,
+      alpha = alpha,
+      m = m,
+      type_rational_approx = "chebfun",
+      type_interp = "spline",
+      build_cov = build_cov))
   }
   else if(alpha > 1 && alpha <= 2){
-    return(gets_cov_mat_rat_approx_alpha_1_to_2(graph = graph,
-                                                kappa = kappa,
-                                                tau = tau,
-                                                alpha = alpha,
-                                                m = m, 
-                                                build_cov = build_cov))
+    return(gets_cov_mat_rat_approx_alpha_1_to_2(
+      graph = graph,
+      kappa = kappa,
+      tau = tau,
+      alpha = alpha,
+      m = m, 
+      type_rational_approx = "chebfun",
+      type_interp = "spline",
+      build_cov = build_cov))
   }
   else if(alpha > 2 && alpha <= 3){
     return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree(
@@ -1524,6 +1549,8 @@ rat_covariance <- function(graph,
       tau = tau,
       alpha = alpha,
       m = m, 
+      type_rational_approx = "chebfun",
+      type_interp = "spline",
       build_cov = build_cov))
   }
 }
@@ -1531,7 +1558,7 @@ rat_covariance <- function(graph,
 
 
 ```{r}
-
+# comment
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
                                             tau,

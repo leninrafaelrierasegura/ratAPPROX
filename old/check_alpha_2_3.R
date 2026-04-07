@@ -13,10 +13,10 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.09
-kappa <- 5
-sigma <- 0.8
-alpha <- 2.1
+h <- 0.02
+kappa <- 0.5
+sigma <- 1
+alpha <- 2.5
 m <- 1
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
@@ -24,17 +24,17 @@ n.overkill <- 1000
 
 
 # build a graph with a mesh
-graph_initial <- gets.graph.tadpole(flip_edge = FALSE)
-graph <- graph_initial$clone()
+graphFEM <- gets.graph.tadpole(flip_edge = FALSE)
+graph <- graphFEM$clone()
 
 
 
 
-graph_initial$build_mesh(h = h)
+graphFEM$build_mesh(h = h)
 
-mesh_XY <- graph_initial$mesh$V %>% as.data.frame()  
+mesh_XY <- graphFEM$mesh$V %>% as.data.frame()  
 
-mesh_locations <- graph_initial$get_mesh_locations() %>% 
+mesh_locations <- graphFEM$get_mesh_locations() %>% 
   as.data.frame() %>% 
   mutate(dummy = 1) %>%
   rename(edge_number = V1, distance_on_edge = V2)
@@ -61,6 +61,8 @@ Approx_Sigma <- getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAn
   tau = tau, 
   alpha = alpha,
   m = m, 
+  type_rational_approx = "chebfun",
+  type_interp = "spline",
   build_cov = TRUE)
 
 digits <- 10
@@ -71,10 +73,10 @@ idx <- match(
 )
 
 
-Approx_Sigma <- Approx_Sigma[idx, idx]
+#Approx_Sigma <- Approx_Sigma[idx, idx]
 
 
-True_Sigma <- gets_true_cov_mat(graph = graph_initial, 
+True_Sigma <- gets_true_cov_mat(graph = graphFEM, 
                                 kappa = kappa, 
                                 tau = tau, 
                                 alpha = alpha, 
@@ -85,24 +87,24 @@ op = matern.operators(alpha = alpha,
                       kappa = kappa, 
                       tau = tau,
                       m = m, 
-                      graph = graph_initial)
+                      graph = graphFEM)
 
 appr_cov_mat = covariance_mesh(op)
 
 
-q <- graph_initial$plot_function(X = True_Sigma[,2], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+# q <- graphFEM$plot_function(X = True_Sigma[,1], type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+# 
+# graphFEM$plot_function(X = Approx_Sigma[,1], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+#   graphFEM$plot_function(X = appr_cov_mat[,1], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+# 
 
-graph_initial$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graph_initial$plot_function(X = appr_cov_mat[,2], p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+q <- graphFEM$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
 
-
-q <- graph_initial$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-
-graph_initial$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-  graph_initial$plot_function(X = diag(appr_cov_mat), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
+graphFEM$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graphFEM$plot_function(X = diag(appr_cov_mat), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE)
 
 
 
-L_2_error = sqrt(as.double(t(graph_initial$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_initial$mesh$weights))
+L_2_error = sqrt(as.double(t(graphFEM$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graphFEM$mesh$weights))
 print(L_2_error)
 
