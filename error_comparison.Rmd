@@ -62,7 +62,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = FALSE,       
+  eval = TRUE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -135,8 +135,8 @@ mVector <- c(1,2,3,4,5)
 rhoVector <- c(0.1, 0.5, 1, 2)
 
 sigma <- 1
-h <- 1
-nOverkill <- 1
+h <- 0.01
+nOverkill <- 1000
 type_rational_approx <- "chebfun"
 type_interp <- "spline"
 
@@ -146,13 +146,17 @@ dat <- expand_grid(
   m = mVector,
   rho = rhoVector
 ) |> 
-  mutate(L2ErrorRational = 0, 
-         LinfErrorRational = 0, 
-         timeElapsedRational = 0, 
-         L2ErrorFEM = 0,
-         LinfErrorFEM = 0,
-         timeElapsedFEM = 0,
-         timeElapsedTrue = 0)
+  mutate(
+    L2ErrorRational = NA_real_, 
+    LinfErrorRational = NA_real_, 
+    timeElapsedRational = NA_real_, 
+    L2ErrorFEM = NA_real_,
+    LinfErrorFEM = NA_real_,
+    timeElapsedFEM = NA_real_,
+    timeElapsedTrue = NA_real_,
+    error_msg = NA_character_,
+    status = "not_computed"   
+  )
 
 
 graphFEM <- gets.graph.tadpole(flip_edge = FALSE)
@@ -174,7 +178,8 @@ graph$observation_to_vertex()
 ```
 
 
-```{r}
+```
+{r}
 unique_params <- unique(dat[, c("alpha", "rho")])
 trueSigma_list <- list()
 timeTrue_list <- list()
@@ -209,13 +214,19 @@ for (j in 1:nrow(unique_params)) {
     trueSigma_list[[key]] <- NA
     timeTrue_list[[key]] <- NA
   })
+  slackr_msg(text = paste0("Finished computing true covariance for alpha = ", alpha_j, 
+                          " and rho = ", rho_j, 
+                          " , iteration ", j, 
+                          " out of ", nrow(unique_params)), 
+             channel = "#research")
 }
 
 save(trueSigma_list, timeTrue_list, file = "~/Desktop/trueSigma_list.RData")
 ```
 
 
-```{r}
+```
+{r}
 load("~/Desktop/trueSigma_list.RData")
 for (i in 1:nrow(dat)) {
   dat_i <- dat[i, ]
@@ -227,7 +238,7 @@ for (i in 1:nrow(dat)) {
   kappa <- sqrt(8*nu)/rho
   tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  
   
-  tryCatch({
+  res <- tryCatch({
             key <- sprintf("%.6f_%.6f", alpha, rho)
 
             trueSigma <- trueSigma_list[[key]]
@@ -258,16 +269,21 @@ for (i in 1:nrow(dat)) {
             })["elapsed"]
             
             # computing the errors
-            dat[i, ]$LinfErrorRational <- max(abs(trueSigma - ratSigma))
-            dat[i, ]$L2ErrorRational <- sqrt(as.double(t(graphFEM$mesh$weights)%*%(trueSigma - ratSigma)^2%*%graphFEM$mesh$weights))
+            LinfErrorRational <- max(abs(trueSigma - ratSigma))
+            L2ErrorRational   <- sqrt(as.double(t(graphFEM$mesh$weights)%*%(trueSigma - ratSigma)^2%*%graphFEM$mesh$weights))
+            LinfErrorFEM      <- max(abs(trueSigma - FEMSigma))
+            L2ErrorFEM        <- sqrt(as.double(t(graphFEM$mesh$weights)%*%(trueSigma - FEMSigma)^2%*%graphFEM$mesh$weights))
             
-            dat[i, ]$LinfErrorFEM <- max(abs(trueSigma - FEMSigma))
-            dat[i, ]$L2ErrorFEM <- sqrt(as.double(t(graphFEM$mesh$weights)%*%(trueSigma - FEMSigma)^2%*%graphFEM$mesh$weights))
-            
-            dat[i, ]$timeElapsedRational <- timeElapsedRational
-            dat[i, ]$timeElapsedFEM <- timeElapsedFEM
-            dat[i, ]$timeElapsedTrue <- timeElapsedTrue
-            
+            list(
+                LinfErrorRational =  LinfErrorRational,
+                L2ErrorRational   =  L2ErrorRational,
+                LinfErrorFEM      =  LinfErrorFEM,
+                L2ErrorFEM        =  L2ErrorFEM,
+                timeElapsedRational = timeElapsedRational,
+                timeElapsedFEM      = timeElapsedFEM,
+                timeElapsedTrue     = timeElapsedTrue,
+                status = "ok"
+                )
             }, error = function(err){
               warning(paste0("Error occurred at iteration rho = ", rho, 
                             ", kappa = ", kappa,
@@ -282,16 +298,19 @@ for (i in 1:nrow(dat)) {
                           ", nu = ", nu, 
                           ", Error:", conditionMessage(err)),
                          channel = "#research")
-              dat[i, ]$LinfErrorRational <- NA
-              dat[i, ]$L2ErrorRational <- NA
-            
-              dat[i, ]$LinfErrorFEM <- NA
-              dat[i, ]$L2ErrorFEM <- NA
-              
-              dat[i, ]$timeElapsedRational <- NA
-              dat[i, ]$timeElapsedFEM <- NA
-              dat[i, ]$timeElapsedTrue <- NA
+              list(
+                LinfErrorRational = NA,
+                L2ErrorRational   = NA,
+                LinfErrorFEM      = NA,
+                L2ErrorFEM        = NA,
+                timeElapsedRational = NA,
+                timeElapsedFEM      = NA,
+                timeElapsedTrue     = NA,
+                error_msg = conditionMessage(err),
+                status = "error"
+                )
             })
+  dat[i, names(res)] <- res
   slackr_msg(text = paste0("Current parameters are rho = ", rho, 
                           ", kappa = ", kappa,
                           ", m = ", m, 
@@ -301,12 +320,154 @@ for (i in 1:nrow(dat)) {
                           " out of ", nrow(dat)), 
              channel = "#research")
 }
+save(dat, file = here::here("data_files/error_comparison_results.RData"))
 ```
 
 
 
-```{r}
+```
+{r}
+load(here::here("data_files/error_comparison_results.RData"))
 
+# reshape long first
+dat_long <- dat %>%
+  pivot_longer(
+    cols = c(L2ErrorRational, LinfErrorRational,
+             L2ErrorFEM, LinfErrorFEM),
+    names_to = c("metric", "method"),
+    names_pattern = "(L2Error|LinfError)(Rational|FEM)",
+    values_to = "error"
+  )
+
+# dataset for Rational
+datRat <- dat_long %>%
+  filter(method == "Rational") %>%
+  mutate(
+    errorRat = error,
+    rat = paste0(metric, "Rational")
+  ) %>%
+  select(alpha, m, rho, errorRat, rat)
+
+# dataset for FEM
+datFEM <- dat_long %>%
+  filter(method == "FEM") %>%
+  mutate(
+    errorFEM = error,
+    FEM = paste0(metric, "FEM")
+  ) %>%
+  select(alpha, m, rho, errorFEM, FEM)
+
+
+
+datRat$rho = factor(datRat$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
+datRat$rat = factor(datRat$rat, levels = c("L2ErrorRational", "LinfErrorRational"))
+levels(datRat$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
+levels(datRat$rat) = c("L2ErrorRational" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorRational" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+
+
+datFEM$rho = factor(datFEM$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
+datFEM$FEM = factor(datFEM$FEM, levels = c("L2ErrorFEM", "LinfErrorFEM"))
+levels(datFEM$rho) = c("0.01" = "$\\rho = 0.1$", "0.05" = "$\\rho = 0.5$", "0.1" = "$\\rho = 1$", "0.2" = "$\\rho = 2$")
+levels(datFEM$FEM) = c("L2ErrorFEM" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorFEM" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+
+
+
+
+errorRatplot <- ggplot(datRat, aes(alpha, errorRat, colour = as.factor(m))) + 
+  facet_grid(rat ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
+
+
+
+errorFEMplot <- ggplot(datFEM, aes(alpha, errorFEM, colour = as.factor(m))) + 
+  facet_grid(FEM ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
+```
+
+
+```
+{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorRatplot
+```
+
+
+```
+{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorFEMplot
+```
+
+
+```{r}
+load(here::here("data_files/error_comparison_results.RData"))
+
+dat_new <- dat %>%
+  pivot_longer(
+    cols = c(L2ErrorRational, LinfErrorRational,
+             L2ErrorFEM, LinfErrorFEM),
+    names_to = c("metric", "method"),
+    names_pattern = "(L2Error|LinfError)(Rational|FEM)",
+    values_to = "error"
+  )
+
+
+dat_new$rho = factor(dat_new$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
+dat_new$metric = factor(dat_new$metric, levels = c("L2Error", "LinfError"))
+dat_new$method = factor(dat_new$method, levels = c("Rational", "FEM"))
+levels(dat_new$rho) = c("0.01" = "$\\rho = 0.1$", "0.05" = "$\\rho = 0.5$", "0.1" = "$\\rho = 1$", "0.2" = "$\\rho = 2$")
+levels(dat_new$metric) = c("L2Error" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfError" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
+levels(dat_new$method) = c("Rational" = "RAT", "FEM" = "FEM")
+
+errorRatplot <- ggplot(dat_new, aes(alpha, error, colour = as.factor(m), linetype = method)) + 
+  facet_grid(metric ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_linetype_manual(values = c("solid", "dotdash")) + 
+  #scale_color_manual(values = c("black", "red3", "blue3", "darkgreen", "orange")) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),        # Panel titles
+        axis.title = element_text(size = 14),        # Axis titles
+        axis.text = element_text(size = 12),         # Axis text
+        legend.title = element_text(size = 14),      # Legend title
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$", linetype = "Method")
+
+ggslackr(errorRatplot, 
+         initial_comment = "Result",
+         channels = "#research") 
+
+```
+
+
+```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+errorRatplot
 ```
 
 
