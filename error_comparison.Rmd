@@ -424,7 +424,7 @@ errorFEMplot
 ```{r}
 load(here::here("data_files/error_comparison_results.RData"))
 
-dat_new <- dat %>%
+df <- dat |>
   pivot_longer(
     cols = c(L2ErrorRational, LinfErrorRational,
              L2ErrorFEM, LinfErrorFEM),
@@ -432,18 +432,37 @@ dat_new <- dat %>%
     names_pattern = "(L2Error|LinfError)(Rational|FEM)",
     values_to = "error"
   ) |>
-  select(-error_msg, -status) 
+  select(-error_msg, -status) |>
+  mutate(
+    m = {
+      m_vals <- sort(unique(m))
+      factor(
+        m,
+        levels = m_vals,
+        labels = m_vals)
+      },
+    rho = {
+      rho_vals <- sort(unique(rho))
+      factor(
+        rho,
+        levels = rho_vals,
+        labels = sprintf("$\\rho = %g$", rho_vals)
+      )
+    },
+    metric = factor(
+      metric,
+      levels = c("L2Error", "LinfError"),
+      labels = c("$L_2(\\Gamma\\times\\Gamma)$", "$L_\\infty(\\Gamma\\times\\Gamma)$")
+    ),
+    method = factor(
+      method,
+      levels = c("Rational", "FEM"),
+      labels = c("RAT", "FEM")
+    )
+  )
 
 
-dat_new$rho = factor(dat_new$rho, levels = c("0.1", "0.5", "1", "2"))
-dat_new$metric = factor(dat_new$metric, levels = c("L2Error", "LinfError"))
-dat_new$method = factor(dat_new$method, levels = c("Rational", "FEM"))
-levels(dat_new$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
-levels(dat_new$metric) = c("L2Error" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfError" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
-levels(dat_new$method) = c("Rational" = "RAT", "FEM" = "FEM")
-
-
-errorRatplot <- ggplot(dat_new, aes(alpha, error, colour = as.factor(m), 
+errorRatFEMcomparison <- ggplot(df, aes(alpha, error, colour = m, 
                                      linetype = method, linewidth = method,
                                      alpha = method)) + 
   facet_grid(metric ~ rho) +
@@ -473,23 +492,97 @@ errorRatplot <- ggplot(dat_new, aes(alpha, error, colour = as.factor(m),
        y = "$\\mbox{Covariance Error}$", 
        color = "$m$", 
        linetype = "Method",
-       linewidth = "Method")
+       linewidth = "Method") + 
+  theme(
+  legend.position = "bottom",
+  legend.direction = "horizontal",
+  legend.key.width  = unit(2, "cm"),
+  legend.key.height = unit(0, "cm")
+) +
+guides(
+  alpha = "none",
+  linewidth = "none",
+  colour = guide_legend(
+    nrow = 1,
+    override.aes = list(linewidth = 1)
+  ),
+  linetype = guide_legend(
+    nrow = 1,
+    override.aes = list(linewidth = 1)
+  )
+)
 
-myggsave(errorRatplot, width = 12, height = 6)
+myggsave(errorRatFEMcomparison, width = 12, height = 6)
+
+slackr_upload(
+  filename = here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"),        # path to your image
+  initial_comment = "Result",
+  channels = "#research"
+)
+```
 
 
-ggslackr(errorRatplot, 
-         initial_comment = "Result",
-         channels = "#research") 
 
+
+
+```{r}
+df_FEM <- filter(df, method == "FEM", alpha <= 2 & alpha >= 0.6)
+
+errorFEMalone <- ggplot(df_FEM, aes(alpha, error, colour = m)) + 
+  facet_grid(metric ~ rho) +
+  geom_line(linewidth = 0.6) +
+  scale_y_log10(n.breaks = 5) +
+  scale_x_continuous(n.breaks = 4) +
+  scale_colour_manual(values = c(
+  "1"  = "blue",  
+  "2"  = "red",  
+  "3"  = "darkgreen",  
+  "4"  = "darkviolet",  
+  "5"  = "black"  
+)) +
+  theme_bw() +
+  theme(panel.spacing = unit(0.3, "cm"), 
+        text = element_text(family = "Palatino"),
+        plot.title = element_text(hjust = 0.5, size = 16),
+        strip.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12)) +
+  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", 
+       y = "$\\mbox{Covariance Error}$", 
+       color = "$m$") + 
+  theme(
+  legend.position = "bottom",
+  legend.direction = "horizontal",
+  legend.key.width  = unit(2, "cm"),
+  legend.key.height = unit(0, "cm")
+) +
+guides(
+  colour = guide_legend(
+    nrow = 1,
+    override.aes = list(linewidth = 1)
+  )
+)
+
+myggsave(errorFEMalone, width = 12, height = 6)
+
+slackr_upload(
+  filename = here::here("data_files/tikzpic/errorFEMalone"),        # path to your image
+  initial_comment = "Result",
+  channels = "#research"
+)
 ```
 
 
 ```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
-knitr::include_graphics(here::here("data_files/tikzpic/errorRatplot.pdf"))
+knitr::include_graphics(here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"))
 ```
 
 
+```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+knitr::include_graphics(here::here("data_files/tikzpic/errorFEMalone.pdf"))
+```
 
 
 

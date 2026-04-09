@@ -11,6 +11,8 @@ navbar:
       href: all_functions.html
     - text: "Matern functions"
       href: matern_functions.html
+    - text: "Error comparison"
+      href: error_comparison.html
   right:
     - icon: fa-file-pdf
       href: https://arxiv.org/abs/0000.00000

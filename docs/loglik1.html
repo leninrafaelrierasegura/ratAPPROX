@@ -448,6 +448,9 @@ div.tocify {
 <li>
   <a href="matern_functions.html">Matern functions</a>
 </li>
+<li>
+  <a href="error_comparison.html">Error comparison</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -482,7 +485,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Loglikelihood 1</h1>
-<h4 class="date">Last modified: 31-03-2026.</h4>
+<h4 class="date">Last modified: 09-04-2026.</h4>
 
 </div>
 
@@ -630,7 +633,7 @@ op &lt;- matern.operators(nu = nu, range = range, sigma = sigma,
 ## Number of function calls by &#39;optim&#39; = 19
 ## Optimization method used in &#39;optim&#39; = L-BFGS-B
 ## 
-## Time used to:     fit the model =  1.52079 secs</code></pre>
+## Time used to:     fit the model =  1.47378 secs</code></pre>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>fit<span class="sc">$</span>loglik</span></code></pre></div>
 <pre><code>## [1] -859.0131</code></pre>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>sigma_e <span class="ot">&lt;-</span> fit<span class="sc">$</span>coeff<span class="sc">$</span>measurement_error</span>
