@@ -131,11 +131,11 @@ alphaVector <- c(seq(0.51,0.59,by=0.01),
            seq(1.91,2.09,by=0.01),
            seq(2.1,2.9,by=0.05), 
            seq(2.91,3,by=0.01)) 
-mVector <- c(1,2,3,4,5)
+mVector <- 1:10
 rhoVector <- c(0.1, 0.5, 1, 2)
 
 sigma <- 1
-h <- 0.005
+h <- 1
 nOverkill <- 1000
 type_rational_approx <- "chebfun"
 type_interp <- "spline"
@@ -178,8 +178,7 @@ graph$observation_to_vertex()
 ```
 
 
-```
-{r}
+```{r}
 unique_params <- unique(dat[, c("alpha", "rho")])
 trueSigma_list <- list()
 timeTrue_list <- list()
@@ -225,8 +224,10 @@ save(trueSigma_list, timeTrue_list, file = "~/Desktop/trueSigma_list.RData")
 ```
 
 
-```
-{r}
+
+
+
+```{r}
 load("~/Desktop/trueSigma_list.RData")
 for (i in 1:nrow(dat)) {
   dat_i <- dat[i, ]
@@ -325,102 +326,6 @@ save(dat, file = here::here("data_files/error_comparison_results.RData"))
 
 
 
-```
-{r}
-load(here::here("data_files/error_comparison_results.RData"))
-
-# reshape long first
-dat_long <- dat %>%
-  pivot_longer(
-    cols = c(L2ErrorRational, LinfErrorRational,
-             L2ErrorFEM, LinfErrorFEM),
-    names_to = c("metric", "method"),
-    names_pattern = "(L2Error|LinfError)(Rational|FEM)",
-    values_to = "error"
-  )
-
-# dataset for Rational
-datRat <- dat_long %>%
-  filter(method == "Rational") %>%
-  mutate(
-    errorRat = error,
-    rat = paste0(metric, "Rational")
-  ) %>%
-  select(alpha, m, rho, errorRat, rat)
-
-# dataset for FEM
-datFEM <- dat_long %>%
-  filter(method == "FEM") %>%
-  mutate(
-    errorFEM = error,
-    FEM = paste0(metric, "FEM")
-  ) %>%
-  select(alpha, m, rho, errorFEM, FEM)
-
-
-
-datRat$rho = factor(datRat$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
-datRat$rat = factor(datRat$rat, levels = c("L2ErrorRational", "LinfErrorRational"))
-levels(datRat$rho) = c("0.1" = "$\\rho = 0.1$", "0.5" = "$\\rho = 0.5$", "1" = "$\\rho = 1$", "2" = "$\\rho = 2$")
-levels(datRat$rat) = c("L2ErrorRational" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorRational" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
-
-
-datFEM$rho = factor(datFEM$rho, levels = c("0.01", "0.05", "0.1", "0.2"))
-datFEM$FEM = factor(datFEM$FEM, levels = c("L2ErrorFEM", "LinfErrorFEM"))
-levels(datFEM$rho) = c("0.01" = "$\\rho = 0.1$", "0.05" = "$\\rho = 0.5$", "0.1" = "$\\rho = 1$", "0.2" = "$\\rho = 2$")
-levels(datFEM$FEM) = c("L2ErrorFEM" = "$L_2(\\Gamma\\times\\Gamma)$", "LinfErrorFEM" = "$L_\\infty(\\Gamma\\times\\Gamma)$")
-
-
-
-
-errorRatplot <- ggplot(datRat, aes(alpha, errorRat, colour = as.factor(m))) + 
-  facet_grid(rat ~ rho) +
-  geom_line(linewidth = 0.6) +
-  scale_y_log10(n.breaks = 5) +
-  scale_x_continuous(n.breaks = 6) +
-  theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), 
-        text = element_text(family = "Palatino"),
-        plot.title = element_text(hjust = 0.5, size = 16),
-        strip.text = element_text(size = 12),        # Panel titles
-        axis.title = element_text(size = 14),        # Axis titles
-        axis.text = element_text(size = 12),         # Axis text
-        legend.title = element_text(size = 14),      # Legend title
-        legend.text = element_text(size = 12)) +
-  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
-
-
-
-errorFEMplot <- ggplot(datFEM, aes(alpha, errorFEM, colour = as.factor(m))) + 
-  facet_grid(FEM ~ rho) +
-  geom_line(linewidth = 0.6) +
-  scale_y_log10(n.breaks = 5) +
-  scale_x_continuous(n.breaks = 6) +
-  theme_bw() +
-  theme(panel.spacing = unit(0.3, "cm"), 
-        text = element_text(family = "Palatino"),
-        plot.title = element_text(hjust = 0.5, size = 16),
-        strip.text = element_text(size = 12),        # Panel titles
-        axis.title = element_text(size = 14),        # Axis titles
-        axis.text = element_text(size = 12),         # Axis text
-        legend.title = element_text(size = 14),      # Legend title
-        legend.text = element_text(size = 12)) +
-  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", y = "$\\mbox{Covariance Error}$", color = "$m$")
-```
-
-
-```
-{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
-errorRatplot
-```
-
-
-```
-{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
-errorFEMplot
-```
-
-
 ```{r}
 load(here::here("data_files/error_comparison_results.RData"))
 
@@ -472,13 +377,13 @@ errorRatFEMcomparison <- ggplot(df, aes(alpha, error, colour = m,
   scale_linetype_manual(values = c("RAT" = "solid", "FEM" = "dashed")) + 
   scale_linewidth_manual(values = c("RAT" = 1.8, "FEM" = 0.6)) +
   scale_alpha_manual(values = c("RAT" = 0.25, "FEM" = 1.0), guide = "none") +
-  scale_colour_manual(values = c(
-  "1"  = "blue",  
-  "2"  = "red",  
-  "3"  = "darkgreen",  
-  "4"  = "darkviolet",  
-  "5"  = "black"  
-)) +
+#   scale_colour_manual(values = c(
+#   "1"  = "blue",
+#   "2"  = "red",
+#   "3"  = "darkgreen",
+#   "4"  = "darkviolet",
+#   "5"  = "black"
+# )) +
   theme_bw() +
   theme(panel.spacing = unit(0.3, "cm"), 
         text = element_text(family = "Palatino"),
@@ -533,13 +438,13 @@ errorFEMalone <- ggplot(df_FEM, aes(alpha, error, colour = m)) +
   geom_line(linewidth = 0.6) +
   scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 4) +
-  scale_colour_manual(values = c(
-  "1"  = "blue",  
-  "2"  = "red",  
-  "3"  = "darkgreen",  
-  "4"  = "darkviolet",  
-  "5"  = "black"  
-)) +
+#   scale_colour_manual(values = c(
+#   "1"  = "blue",  
+#   "2"  = "red",  
+#   "3"  = "darkgreen",  
+#   "4"  = "darkviolet",  
+#   "5"  = "black"  
+# )) +
   theme_bw() +
   theme(panel.spacing = unit(0.3, "cm"), 
         text = element_text(family = "Palatino"),

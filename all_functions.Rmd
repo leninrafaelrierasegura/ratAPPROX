@@ -941,6 +941,12 @@ $$
 
 
 ```{r}
+
+    # r00 <- r00 + 1e-8*max(r00)*diag(nrow(r00))
+    # r00_reg <- r00/min(diag(r00))
+    # r00_inverse <- solve(r00_reg, diag(ca)) * min(diag(r00))
+    # 
+    
 computesListOfMatricesQTildeUnconstraint <- function(p,
                                                      kappa, 
                                                      alpha, 
