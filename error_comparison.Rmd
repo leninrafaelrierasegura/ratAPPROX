@@ -131,20 +131,21 @@ alphaVector <- c(seq(0.51,0.59,by=0.01),
            seq(1.91,2.09,by=0.01),
            seq(2.1,2.9,by=0.05), 
            seq(2.91,3,by=0.01)) 
-mVector <- 1:10
-rhoVector <- c(0.1, 0.5, 1, 2)
+mVector <- 1:7
+rhoVector <- c(0.05, 0.1)
 
 sigma <- 1
-h <- 1
+h <- 0.001
 nOverkill <- 1000
-type_rational_approx <- "chebfun"
+type_rational_approxVector <- c("chebfun", "brasil", "chebfunLB")
 type_interp <- "spline"
 
 
 dat <- expand_grid(
   alpha = alphaVector,
   m = mVector,
-  rho = rhoVector
+  rho = rhoVector,
+  type_rational_approx = type_rational_approxVector
 ) |> 
   mutate(
     L2ErrorRational = NA_real_, 
@@ -234,6 +235,7 @@ for (i in 1:nrow(dat)) {
   alpha <- dat_i$alpha
   m <- dat_i$m
   rho <- dat_i$rho
+  type_rational_approx <- dat_i$type_rational_approx
   
   nu <- alpha - 1/2
   kappa <- sqrt(8*nu)/rho
@@ -297,6 +299,7 @@ for (i in 1:nrow(dat)) {
                           ", m = ", m, 
                           ", alpha = ", alpha,
                           ", nu = ", nu, 
+                          ", type = ", type_rational_approx,
                           ", Error:", conditionMessage(err)),
                          channel = "#research")
               list(
@@ -317,6 +320,7 @@ for (i in 1:nrow(dat)) {
                           ", m = ", m, 
                           ", alpha = ", alpha,
                           ", nu = ", nu,
+                          ", type = ", type_rational_approx,
                           " , iteration ", i, 
                           " out of ", nrow(dat)), 
              channel = "#research")

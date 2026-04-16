@@ -13,11 +13,11 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.02
-kappa <- 0.5
+h <- 0.001
+kappa <- 24
 sigma <- 1
 alpha <- 2.5
-m <- 1
+m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
