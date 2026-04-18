@@ -372,7 +372,7 @@ df_all <- dat |>
   ) |> select(-status, -starts_with("time")) 
 
 type_rational_approxVector <- c("chebfun", "brasil", "chebfunLB")
-TRA <- type_rational_approxVector[1]
+TRA <- type_rational_approxVector[3]
 
 df <- filter(df_all, type_rational_approx == TRA)
 
@@ -466,10 +466,10 @@ guides(
   )
 )
 
-myggsave(errorFEMalone, width = 6, height = 6)
+myggsave(errorFEMalone, width = 12, height = 6)
 
 slackr_upload(
-  filename = here::here("data_files/tikzpic/errorFEMalone"),        # path to your image
+  filename = here::here("data_files/tikzpic/errorFEMalone.pdf"),        # path to your image
   initial_comment = "Result",
   channels = "#research"
 )
