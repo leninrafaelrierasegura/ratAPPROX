@@ -2521,11 +2521,16 @@ myggsave <- function(plot, width = 9.22, height = 7.05) {
   if (!dir.exists(dir_to_save)) dir.create(dir_to_save, recursive = TRUE)
   
   # FORCE LaTeX FONT HERE, comment the following if smth breaks
+  library(tikzDevice)
   options(
-    tikzLatexPackages = c(
-      "\\usepackage[sc]{mathpazo}"
-    )
-  )
+  tikzDocumentDeclaration = "\\documentclass[tikz,border=0pt]{standalone}",
+  tikzLatexPackages = c(
+    "\\usepackage{tikz}",
+    "\\usetikzlibrary{calc}",
+    "\\usepackage[T1]{fontenc}",
+    "\\usepackage[sc]{mathpazo}"
+  ))
+  # Comment until here if it fails
   # Save TikZ plot
   tikzDevice::tikz(tex_name, standAlone = TRUE, width = width, height = height)
   print(plot)

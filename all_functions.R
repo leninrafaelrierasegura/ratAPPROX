@@ -1,4 +1,4 @@
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # Typically, factor = 4, constant = 3
 gives.indices <- function(graph, factor, constant){
   # Here, after doing graph$observation_to_vertex() 
@@ -237,7 +237,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 
     # r00 <- r00 + 1e-8*max(r00)*diag(nrow(r00))
     # r00_reg <- r00/min(diag(r00))
@@ -294,7 +294,7 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
     graph, 
@@ -407,7 +407,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
     graph, 
     kappa, 
@@ -501,7 +501,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- function(
     graph,
@@ -607,7 +607,7 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function(
     graph,
@@ -714,7 +714,7 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- function(
     graph, 
     kappa, 
@@ -801,7 +801,7 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- functio
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -849,7 +849,7 @@ rat_covariance <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 # comment
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -888,7 +888,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -919,7 +919,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -976,7 +976,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -999,7 +999,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -1021,7 +1021,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -1084,7 +1084,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
@@ -1112,7 +1112,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -1133,7 +1133,7 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 getsSmallCovarianceMatrices <- function(D_matrix,
                                         kappa,
                                         tau,
@@ -1180,7 +1180,7 @@ getsSmallCovarianceMatrices <- function(D_matrix,
 }
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -1334,7 +1334,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 
@@ -1566,7 +1566,7 @@ loglikelihoodForAlphaEqualTwoPrecompute <- function(theta,
 
 
 
-## -----------------------------------------------------------------------
+## -------------------------------------------------------------------------------
 myggsave <- function(plot, width = 9.22, height = 7.05) {
   
   dir_to_save <- here::here("data_files/tikzpic")
@@ -1576,6 +1576,12 @@ myggsave <- function(plot, width = 9.22, height = 7.05) {
   # Create directory if it doesn't exist
   if (!dir.exists(dir_to_save)) dir.create(dir_to_save, recursive = TRUE)
   
+  # FORCE LaTeX FONT HERE, comment the following if smth breaks
+  options(
+    tikzLatexPackages = c(
+      "\\usepackage[sc]{mathpazo}"
+    )
+  )
   # Save TikZ plot
   tikzDevice::tikz(tex_name, standAlone = TRUE, width = width, height = height)
   print(plot)
