@@ -14,7 +14,7 @@ source(here::here("matern_functions.R"))
 
 # parameters
 h <- 0.01
-kappa <- 5
+kappa <- 10
 sigma <- 0.8
 alpha <- 3
 m <- 4

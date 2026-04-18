@@ -179,7 +179,8 @@ graph$observation_to_vertex()
 ```
 
 
-```{r}
+```
+{r}
 unique_params <- unique(dat[, c("alpha", "rho")])
 trueSigma_list <- list()
 timeTrue_list <- list()
@@ -228,7 +229,8 @@ save(trueSigma_list, timeTrue_list, file = "~/Desktop/trueSigma_list.RData")
 
 
 
-```{r}
+```
+{r}
 load("~/Desktop/trueSigma_list.RData")
 for (i in 1:nrow(dat)) {
   dat_i <- dat[i, ]
