@@ -132,12 +132,12 @@ alphaVector <- c(seq(0.51,0.59,by=0.01),
            seq(2.1,2.9,by=0.05), 
            seq(2.91,3,by=0.01)) 
 mVector <- 1:7
-rhoVector <- c(0.001, 0.05, 0.1)
+rhoVector <- c(0.005)
 
 sigma <- 1
-h <- 0.01
+h <- 0.001
 nOverkill <- 1000
-type_rational_approxVector <- c("chebfun", "brasil", "chebfunLB")
+type_rational_approxVector <- c("brasil", "chebfunLB")
 type_interp <- "spline"
 
 
@@ -371,8 +371,8 @@ df_all <- dat |>
     )
   ) |> select(-status, -starts_with("time")) 
 
-type_rational_approxVector <- c("chebfun", "brasil", "chebfunLB")
-TRA <- type_rational_approxVector[3]
+type_rational_approxVector <- c("brasil", "chebfunLB")
+TRA <- type_rational_approxVector[2]
 
 df <- filter(df_all, type_rational_approx == TRA)
 
