@@ -62,7 +62,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -333,7 +333,7 @@ save(dat, file = here::here("data_files/error_comparison_results.RData"))
 
 
 ```{r}
-load(here::here("data_files/error_comparison_results.RData"))
+load(here::here("data_files/error_with_h0.01.RData"))
 
 df_all <- dat |>
   pivot_longer(
@@ -367,12 +367,12 @@ df_all <- dat |>
     method = factor(
       method,
       levels = c("Rational", "FEM"),
-      labels = c("RAT", "FEM")
+      labels = c("Rational", "FEM")
     )
-  ) |> select(-status, -starts_with("time")) 
+  ) |> select(-status, -starts_with("time")) |> filter(rho == "$\\rho = 0.1$") |> filter(m %in% c(1:5))
 
-type_rational_approxVector <- c("brasil", "chebfunLB")
-TRA <- type_rational_approxVector[2]
+type_rational_approxVector <- c("brasil", "chebfunLB", "chebfun")
+TRA <- type_rational_approxVector[1]
 
 df <- filter(df_all, type_rational_approx == TRA)
 
@@ -380,13 +380,13 @@ df <- filter(df_all, type_rational_approx == TRA)
 errorRatFEMcomparison <- ggplot(df, aes(alpha, error, colour = m, 
                                      linetype = method, linewidth = method,
                                      alpha = method)) + 
-  facet_grid(metric ~ rho) +
+  facet_grid(~ metric) +
   geom_line() +
   scale_y_log10(n.breaks = 5) +
   scale_x_continuous(n.breaks = 6) +
-  scale_linetype_manual(values = c("RAT" = "solid", "FEM" = "dotted")) + 
-  scale_linewidth_manual(values = c("RAT" = 1.8, "FEM" = 0.6)) +
-  scale_alpha_manual(values = c("RAT" = 0.25, "FEM" = 1.0), guide = "none") +
+  scale_linetype_manual(values = c("Rational" = "solid", "FEM" = "dashed")) + 
+  scale_linewidth_manual(values = c("Rational" = 1, "FEM" = 1)) +
+  scale_alpha_manual(values = c("Rational" = 0.5, "FEM" = 1.0), guide = "none") +
   theme_bw() +
   theme(panel.spacing = unit(0.3, "cm"), 
         text = element_text(family = "Palatino"),
@@ -397,36 +397,38 @@ errorRatFEMcomparison <- ggplot(df, aes(alpha, error, colour = m,
         legend.title = element_text(size = 14),
         legend.text = element_text(size = 12)) +
   labs(x = "$\\alpha\\;(\\mbox{Smoothness parameter})$", 
-       y = "$\\mbox{Covariance Error}$", 
+       y = "$\\mbox{Covariance Error}\\quad(\\log_{10}\\mbox{ scale})$", 
        color = "$m$", 
        linetype = "Method",
        linewidth = "Method") + 
   theme(
   legend.position = "bottom",
   legend.direction = "horizontal",
-  legend.key.width  = unit(2, "cm"),
+  legend.key.width  = unit(1, "cm"),
   legend.key.height = unit(0, "cm")
 ) +
 guides(
   alpha = "none",
   linewidth = "none",
   colour = guide_legend(
+    order = 2,
     nrow = 1,
     override.aes = list(linewidth = 1)
   ),
   linetype = guide_legend(
+    order = 1,
     nrow = 1,
     override.aes = list(linewidth = 1)
   )
 )
 
-myggsave(errorRatFEMcomparison, width = 12, height = 6)
+myggsave(errorRatFEMcomparison, width = 8, height = 4)
 
-slackr_upload(
-  filename = here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"),        # path to your image
-  initial_comment = paste0("Result with ", TRA),
-  channels = "#research"
-)
+# slackr_upload(
+#   filename = here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"),        # path to your image
+#   initial_comment = paste0("Result with ", TRA),
+#   channels = "#research"
+# )
 ```
 
 
@@ -437,10 +439,10 @@ slackr_upload(
 df_FEM <- filter(df, method == "FEM")#, alpha <= 2 & alpha >= 0.6)
 
 errorFEMalone <- ggplot(df_FEM, aes(alpha, error, colour = m)) + 
-  facet_grid(metric ~ rho) +
-  geom_line(linewidth = 0.6) +
+  facet_grid(~ metric) +
+  geom_line(linewidth = 1, linetype = "dashed") +
   scale_y_log10(n.breaks = 5) +
-  scale_x_continuous(n.breaks = 4) +
+  scale_x_continuous(n.breaks = 6) +
   theme_bw() +
   theme(panel.spacing = unit(0.3, "cm"), 
         text = element_text(family = "Palatino"),
@@ -450,13 +452,13 @@ errorFEMalone <- ggplot(df_FEM, aes(alpha, error, colour = m)) +
         axis.text = element_text(size = 12),
         legend.title = element_text(size = 14),
         legend.text = element_text(size = 12)) +
-  labs(x = "$\\alpha\\mbox{ }(\\mbox{Smoothness parameter})$", 
-       y = "$\\mbox{Covariance Error}$", 
+  labs(x = "$\\alpha\\;(\\mbox{Smoothness parameter})$", 
+       y = "$\\mbox{Covariance Error}\\quad(\\log_{10}\\mbox{ scale})$", 
        color = "$m$") + 
   theme(
   legend.position = "bottom",
   legend.direction = "horizontal",
-  legend.key.width  = unit(2, "cm"),
+  legend.key.width  = unit(1, "cm"),
   legend.key.height = unit(0, "cm")
 ) +
 guides(
@@ -466,22 +468,22 @@ guides(
   )
 )
 
-myggsave(errorFEMalone, width = 12, height = 6)
+myggsave(errorFEMalone, width = 8, height = 4)
 
-slackr_upload(
-  filename = here::here("data_files/tikzpic/errorFEMalone.pdf"),        # path to your image
-  initial_comment = "Result",
-  channels = "#research"
-)
+# slackr_upload(
+#   filename = here::here("data_files/tikzpic/errorFEMalone.pdf"),        # path to your image
+#   initial_comment = "Result",
+#   channels = "#research"
+# )
 ```
 
 
-```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+```{r, eval = TRUE, out.width="800px", out.height="400px", fig.cap = captioner("Covariance error for the tadpole graph.")}
 knitr::include_graphics(here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"))
 ```
 
 
-```{r, eval = TRUE, out.width="1200px", out.height="600px", fig.cap = captioner("Covariance error for the tadpole graph.")}
+```{r, eval = TRUE, out.width="800px", out.height="400px", fig.cap = captioner("Covariance error for the tadpole graph.")}
 knitr::include_graphics(here::here("data_files/tikzpic/errorFEMalone.pdf"))
 ```
 

@@ -485,7 +485,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Numerical error</h1>
-<h4 class="date">Last modified: 18-04-2026.</h4>
+<h4 class="date">Last modified: 19-04-2026.</h4>
 
 </div>
 
@@ -514,7 +514,7 @@ document.</p>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="co"># Include both R code and its results in output</span></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">include =</span> <span class="cn">TRUE</span>,     </span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="co"># Evaluate R code chunks</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">eval =</span> <span class="cn">FALSE</span>,       </span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="co"># Enable caching of R code chunks for faster rendering</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">FALSE</span>,      </span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="co"># Align figures in the center of the output</span></span>
@@ -559,1830 +559,357 @@ document.</p>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="fu">slackr_setup</span>(<span class="at">token =</span> token) <span class="co"># token comes from keys.R</span></span></code></pre></div>
 <pre><code>## [1] &quot;Successfully connected to Slack&quot;</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># get the functions from the Rmd files</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.R&quot;</span>))</span></code></pre></div>
-<pre><code>## [1] &quot;/home/rierasl/Desktop/ratAPPROX/all_functions.R&quot;</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.R&quot;</span>))</span></code></pre></div>
-<pre><code>## [1] &quot;/home/rierasl/Desktop/ratAPPROX/matern_functions.R&quot;</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># load the functions</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.R&quot;</span>))</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.R&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>alphaVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(<span class="fl">0.51</span>,<span class="fl">0.59</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">0.6</span>,<span class="fl">0.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">0.91</span>,<span class="fl">1.09</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">1.1</span>,<span class="fl">1.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">1.91</span>,<span class="fl">2.09</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">2.1</span>,<span class="fl">2.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">2.91</span>,<span class="dv">3</span>,<span class="at">by=</span><span class="fl">0.01</span>)) </span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>mVector <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>rhoVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.005</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fl">0.001</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>nOverkill <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>type_rational_approxVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;brasil&quot;</span>, <span class="st">&quot;chebfunLB&quot;</span>)</span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>type_interp <span class="ot">&lt;-</span> <span class="st">&quot;spline&quot;</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="at">alpha =</span> alphaVector,</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>  <span class="at">m =</span> mVector,</span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>  <span class="at">rho =</span> rhoVector,</span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="at">type_rational_approx =</span> type_rational_approxVector</span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>    <span class="at">L2ErrorRational =</span> <span class="cn">NA_real_</span>, </span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>    <span class="at">LinfErrorRational =</span> <span class="cn">NA_real_</span>, </span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>    <span class="at">timeElapsedRational =</span> <span class="cn">NA_real_</span>, </span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>    <span class="at">L2ErrorFEM =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>    <span class="at">LinfErrorFEM =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>    <span class="at">timeElapsedFEM =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>    <span class="at">timeElapsedTrue =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a>    <span class="at">error_msg =</span> <span class="cn">NA_character_</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a>    <span class="at">status =</span> <span class="st">&quot;not_computed&quot;</span>   </span>
-<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a>  )</span>
-<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a></span>
-<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a></span>
-<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a>graphFEM <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">flip_edge =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a>graph <span class="ot">&lt;-</span> graphFEM<span class="sc">$</span><span class="fu">clone</span>()</span>
-<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a></span>
-<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a>graphFEM<span class="sc">$</span><span class="fu">build_mesh</span>(<span class="at">h =</span> h)</span>
-<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a></span>
-<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a>mesh_locations <span class="ot">&lt;-</span> graphFEM<span class="sc">$</span><span class="fu">get_mesh_locations</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">edge_number =</span> V1, <span class="at">distance_on_edge =</span> V2)</span>
-<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
-<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
-<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a>  <span class="at">data =</span> mesh_locations,</span>
-<span id="cb10-50"><a href="#cb10-50" tabindex="-1"></a>  <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-51"><a href="#cb10-51" tabindex="-1"></a></span>
-<span id="cb10-52"><a href="#cb10-52" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>unique_params <span class="ot">&lt;-</span> <span class="fu">unique</span>(dat[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>)])</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>trueSigma_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>timeTrue_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(unique_params)) {</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  alpha_j <span class="ot">&lt;-</span> unique_params<span class="sc">$</span>alpha[j]</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  rho_j <span class="ot">&lt;-</span> unique_params<span class="sc">$</span>rho[j]</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  </span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  nu_j <span class="ot">&lt;-</span> alpha_j <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  kappa_j <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">8</span> <span class="sc">*</span> nu_j) <span class="sc">/</span> rho_j</span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  tau_j <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu_j) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa_j<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu_j) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu_j <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  </span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  key <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;%.6f_%.6f&quot;</span>, alpha_j, rho_j)</span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  </span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  timeTrue_list[[key]] <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
-<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    trueSigma_list[[key]] <span class="ot">&lt;-</span> <span class="fu">gets_true_cov_mat</span>(</span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>      <span class="at">graph =</span> graphFEM,</span>
-<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>      <span class="at">kappa =</span> kappa_j,</span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>      <span class="at">tau =</span> tau_j,</span>
-<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>      <span class="at">alpha =</span> alpha_j,</span>
-<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>      <span class="at">n.overkill =</span> nOverkill</span>
-<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>    )</span>
-<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>  })[<span class="st">&quot;elapsed&quot;</span>]</span>
-<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(err){</span>
-<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="fu">paste0</span>(<span class="st">&quot;Error occurred while computing true covariance for alpha = &quot;</span>, alpha_j, </span>
-<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>                   <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
-<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>                   <span class="st">&quot;: &quot;</span>, <span class="fu">conditionMessage</span>(err)))</span>
-<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>    <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Error occurred while computing true covariance for alpha = &quot;</span>, alpha_j, </span>
-<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a>                   <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
-<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>                   <span class="st">&quot;: &quot;</span>, <span class="fu">conditionMessage</span>(err)),</span>
-<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>               <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
-<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>    trueSigma_list[[key]] <span class="ot">&lt;-</span> <span class="cn">NA_real_</span></span>
-<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>    timeTrue_list[[key]] <span class="ot">&lt;-</span> <span class="cn">NA_real_</span></span>
-<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>  })</span>
-<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>  <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Finished computing true covariance for alpha = &quot;</span>, alpha_j, </span>
-<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>                          <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
-<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>                          <span class="st">&quot; , iteration &quot;</span>, j, </span>
-<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a>                          <span class="st">&quot; out of &quot;</span>, <span class="fu">nrow</span>(unique_params)), </span>
-<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a>             <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
-<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a>  <span class="fu">print</span>(j)</span>
-<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>## [1] 1
-## [1] 2
-## [1] 3
-## [1] 4
-## [1] 5
-## [1] 6
-## [1] 7
-## [1] 8
-## [1] 9
-## [1] 10
-## [1] 11
-## [1] 12
-## [1] 13
-## [1] 14
-## [1] 15
-## [1] 16
-## [1] 17
-## [1] 18
-## [1] 19
-## [1] 20
-## [1] 21
-## [1] 22
-## [1] 23
-## [1] 24
-## [1] 25
-## [1] 26
-## [1] 27
-## [1] 28
-## [1] 29
-## [1] 30
-## [1] 31
-## [1] 32
-## [1] 33
-## [1] 34
-## [1] 35
-## [1] 36
-## [1] 37
-## [1] 38
-## [1] 39
-## [1] 40
-## [1] 41
-## [1] 42
-## [1] 43
-## [1] 44
-## [1] 45
-## [1] 46
-## [1] 47
-## [1] 48
-## [1] 49
-## [1] 50
-## [1] 51
-## [1] 52
-## [1] 53
-## [1] 54
-## [1] 55
-## [1] 56
-## [1] 57
-## [1] 58
-## [1] 59
-## [1] 60
-## [1] 61
-## [1] 62
-## [1] 63
-## [1] 64
-## [1] 65
-## [1] 66
-## [1] 67
-## [1] 68
-## [1] 69
-## [1] 70
-## [1] 71
-## [1] 72
-## [1] 73
-## [1] 74
-## [1] 75
-## [1] 76
-## [1] 77
-## [1] 78
-## [1] 79
-## [1] 80
-## [1] 81
-## [1] 82
-## [1] 83
-## [1] 84
-## [1] 85
-## [1] 86
-## [1] 87
-## [1] 88
-## [1] 89
-## [1] 90
-## [1] 91
-## [1] 92
-## [1] 93
-## [1] 94
-## [1] 95
-## [1] 96
-## [1] 97
-## [1] 98</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">save</span>(trueSigma_list, timeTrue_list, <span class="at">file =</span> <span class="st">&quot;~/Desktop/trueSigma_list.RData&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;~/Desktop/trueSigma_list.RData&quot;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(dat)) {</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  dat_i <span class="ot">&lt;-</span> dat[i, ]</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>alpha</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  m <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>m</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>rho</span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  type_rational_approx <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>type_rational_approx</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>  </span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>  kappa <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">8</span><span class="sc">*</span>nu)<span class="sc">/</span>rho</span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>  tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))  </span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>  </span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
-<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>            key <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;%.6f_%.6f&quot;</span>, alpha, rho)</span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>            trueSigma <span class="ot">&lt;-</span> trueSigma_list[[key]]</span>
-<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>            timeElapsedTrue <span class="ot">&lt;-</span> timeTrue_list[[key]]</span>
-<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a>            </span>
-<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a>            timeElapsedFEM <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
-<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a>            FEMSigma <span class="ot">&lt;-</span> <span class="fu">covariance_mesh</span>(</span>
-<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a>              <span class="fu">matern.operators</span>(</span>
-<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a>                <span class="at">alpha =</span> alpha, </span>
-<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a>                <span class="at">kappa =</span> kappa, </span>
-<span id="cb14-24"><a href="#cb14-24" tabindex="-1"></a>                <span class="at">tau =</span> tau,</span>
-<span id="cb14-25"><a href="#cb14-25" tabindex="-1"></a>                <span class="at">m =</span> m, </span>
-<span id="cb14-26"><a href="#cb14-26" tabindex="-1"></a>                <span class="at">graph =</span> graphFEM,</span>
-<span id="cb14-27"><a href="#cb14-27" tabindex="-1"></a>                <span class="at">type =</span> <span class="st">&quot;covariance&quot;</span>,</span>
-<span id="cb14-28"><a href="#cb14-28" tabindex="-1"></a>                <span class="at">type_rational_approximation =</span> type_rational_approx))</span>
-<span id="cb14-29"><a href="#cb14-29" tabindex="-1"></a>            })[<span class="st">&quot;elapsed&quot;</span>]</span>
-<span id="cb14-30"><a href="#cb14-30" tabindex="-1"></a>            </span>
-<span id="cb14-31"><a href="#cb14-31" tabindex="-1"></a>            timeElapsedRational <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
-<span id="cb14-32"><a href="#cb14-32" tabindex="-1"></a>            ratSigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
-<span id="cb14-33"><a href="#cb14-33" tabindex="-1"></a>              <span class="at">graph =</span> graph, </span>
-<span id="cb14-34"><a href="#cb14-34" tabindex="-1"></a>              <span class="at">kappa =</span> kappa, </span>
-<span id="cb14-35"><a href="#cb14-35" tabindex="-1"></a>              <span class="at">tau =</span> tau, </span>
-<span id="cb14-36"><a href="#cb14-36" tabindex="-1"></a>              <span class="at">alpha =</span> alpha, </span>
-<span id="cb14-37"><a href="#cb14-37" tabindex="-1"></a>              <span class="at">m =</span> m,</span>
-<span id="cb14-38"><a href="#cb14-38" tabindex="-1"></a>              <span class="at">type_rational_approx =</span> type_rational_approx,</span>
-<span id="cb14-39"><a href="#cb14-39" tabindex="-1"></a>              <span class="at">type_interp =</span> type_interp,</span>
-<span id="cb14-40"><a href="#cb14-40" tabindex="-1"></a>              <span class="at">build_cov =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb14-41"><a href="#cb14-41" tabindex="-1"></a>            })[<span class="st">&quot;elapsed&quot;</span>]</span>
-<span id="cb14-42"><a href="#cb14-42" tabindex="-1"></a>            </span>
-<span id="cb14-43"><a href="#cb14-43" tabindex="-1"></a>            <span class="co"># computing the errors</span></span>
-<span id="cb14-44"><a href="#cb14-44" tabindex="-1"></a>            LinfErrorRational <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(trueSigma <span class="sc">-</span> ratSigma))</span>
-<span id="cb14-45"><a href="#cb14-45" tabindex="-1"></a>            L2ErrorRational   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights)<span class="sc">%*%</span>(trueSigma <span class="sc">-</span> ratSigma)<span class="sc">^</span><span class="dv">2</span><span class="sc">%*%</span>graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights))</span>
-<span id="cb14-46"><a href="#cb14-46" tabindex="-1"></a>            LinfErrorFEM      <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(trueSigma <span class="sc">-</span> FEMSigma))</span>
-<span id="cb14-47"><a href="#cb14-47" tabindex="-1"></a>            L2ErrorFEM        <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights)<span class="sc">%*%</span>(trueSigma <span class="sc">-</span> FEMSigma)<span class="sc">^</span><span class="dv">2</span><span class="sc">%*%</span>graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights))</span>
-<span id="cb14-48"><a href="#cb14-48" tabindex="-1"></a>            </span>
-<span id="cb14-49"><a href="#cb14-49" tabindex="-1"></a>            <span class="fu">list</span>(</span>
-<span id="cb14-50"><a href="#cb14-50" tabindex="-1"></a>                <span class="at">LinfErrorRational =</span>  LinfErrorRational,</span>
-<span id="cb14-51"><a href="#cb14-51" tabindex="-1"></a>                <span class="at">L2ErrorRational   =</span>  L2ErrorRational,</span>
-<span id="cb14-52"><a href="#cb14-52" tabindex="-1"></a>                <span class="at">LinfErrorFEM      =</span>  LinfErrorFEM,</span>
-<span id="cb14-53"><a href="#cb14-53" tabindex="-1"></a>                <span class="at">L2ErrorFEM        =</span>  L2ErrorFEM,</span>
-<span id="cb14-54"><a href="#cb14-54" tabindex="-1"></a>                <span class="at">timeElapsedRational =</span> timeElapsedRational,</span>
-<span id="cb14-55"><a href="#cb14-55" tabindex="-1"></a>                <span class="at">timeElapsedFEM      =</span> timeElapsedFEM,</span>
-<span id="cb14-56"><a href="#cb14-56" tabindex="-1"></a>                <span class="at">timeElapsedTrue     =</span> timeElapsedTrue,</span>
-<span id="cb14-57"><a href="#cb14-57" tabindex="-1"></a>                <span class="at">status =</span> <span class="st">&quot;ok&quot;</span></span>
-<span id="cb14-58"><a href="#cb14-58" tabindex="-1"></a>                )</span>
-<span id="cb14-59"><a href="#cb14-59" tabindex="-1"></a>            }, <span class="at">error =</span> <span class="cf">function</span>(err){</span>
-<span id="cb14-60"><a href="#cb14-60" tabindex="-1"></a>              <span class="fu">warning</span>(<span class="fu">paste0</span>(<span class="st">&quot;Error occurred at iteration rho = &quot;</span>, rho, </span>
-<span id="cb14-61"><a href="#cb14-61" tabindex="-1"></a>                            <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
-<span id="cb14-62"><a href="#cb14-62" tabindex="-1"></a>                            <span class="st">&quot;, m = &quot;</span>, m, </span>
-<span id="cb14-63"><a href="#cb14-63" tabindex="-1"></a>                            <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
-<span id="cb14-64"><a href="#cb14-64" tabindex="-1"></a>                            <span class="st">&quot;, nu = &quot;</span>, nu, </span>
-<span id="cb14-65"><a href="#cb14-65" tabindex="-1"></a>                            <span class="st">&quot;, Error:&quot;</span>, <span class="fu">conditionMessage</span>(err)))</span>
-<span id="cb14-66"><a href="#cb14-66" tabindex="-1"></a>              <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Error occurred at iteration rho = &quot;</span>, rho, </span>
-<span id="cb14-67"><a href="#cb14-67" tabindex="-1"></a>                          <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
-<span id="cb14-68"><a href="#cb14-68" tabindex="-1"></a>                          <span class="st">&quot;, m = &quot;</span>, m, </span>
-<span id="cb14-69"><a href="#cb14-69" tabindex="-1"></a>                          <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
-<span id="cb14-70"><a href="#cb14-70" tabindex="-1"></a>                          <span class="st">&quot;, nu = &quot;</span>, nu, </span>
-<span id="cb14-71"><a href="#cb14-71" tabindex="-1"></a>                          <span class="st">&quot;, type = &quot;</span>, type_rational_approx,</span>
-<span id="cb14-72"><a href="#cb14-72" tabindex="-1"></a>                          <span class="st">&quot;, Error:&quot;</span>, <span class="fu">conditionMessage</span>(err)),</span>
-<span id="cb14-73"><a href="#cb14-73" tabindex="-1"></a>                         <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
-<span id="cb14-74"><a href="#cb14-74" tabindex="-1"></a>              <span class="fu">list</span>(</span>
-<span id="cb14-75"><a href="#cb14-75" tabindex="-1"></a>                <span class="at">LinfErrorRational =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-76"><a href="#cb14-76" tabindex="-1"></a>                <span class="at">L2ErrorRational   =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-77"><a href="#cb14-77" tabindex="-1"></a>                <span class="at">LinfErrorFEM      =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-78"><a href="#cb14-78" tabindex="-1"></a>                <span class="at">L2ErrorFEM        =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-79"><a href="#cb14-79" tabindex="-1"></a>                <span class="at">timeElapsedRational =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-80"><a href="#cb14-80" tabindex="-1"></a>                <span class="at">timeElapsedFEM      =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-81"><a href="#cb14-81" tabindex="-1"></a>                <span class="at">timeElapsedTrue     =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb14-82"><a href="#cb14-82" tabindex="-1"></a>                <span class="at">error_msg =</span> <span class="fu">conditionMessage</span>(err),</span>
-<span id="cb14-83"><a href="#cb14-83" tabindex="-1"></a>                <span class="at">status =</span> <span class="st">&quot;error&quot;</span></span>
-<span id="cb14-84"><a href="#cb14-84" tabindex="-1"></a>                )</span>
-<span id="cb14-85"><a href="#cb14-85" tabindex="-1"></a>            })</span>
-<span id="cb14-86"><a href="#cb14-86" tabindex="-1"></a>  dat[i, <span class="fu">names</span>(res)] <span class="ot">&lt;-</span> res</span>
-<span id="cb14-87"><a href="#cb14-87" tabindex="-1"></a>  <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Current parameters are rho = &quot;</span>, rho, </span>
-<span id="cb14-88"><a href="#cb14-88" tabindex="-1"></a>                          <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
-<span id="cb14-89"><a href="#cb14-89" tabindex="-1"></a>                          <span class="st">&quot;, m = &quot;</span>, m, </span>
-<span id="cb14-90"><a href="#cb14-90" tabindex="-1"></a>                          <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
-<span id="cb14-91"><a href="#cb14-91" tabindex="-1"></a>                          <span class="st">&quot;, nu = &quot;</span>, nu,</span>
-<span id="cb14-92"><a href="#cb14-92" tabindex="-1"></a>                          <span class="st">&quot;, type = &quot;</span>, type_rational_approx,</span>
-<span id="cb14-93"><a href="#cb14-93" tabindex="-1"></a>                          <span class="st">&quot; , iteration &quot;</span>, i, </span>
-<span id="cb14-94"><a href="#cb14-94" tabindex="-1"></a>                          <span class="st">&quot; out of &quot;</span>, <span class="fu">nrow</span>(dat)), </span>
-<span id="cb14-95"><a href="#cb14-95" tabindex="-1"></a>             <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
-<span id="cb14-96"><a href="#cb14-96" tabindex="-1"></a>  <span class="fu">print</span>(i)</span>
-<span id="cb14-97"><a href="#cb14-97" tabindex="-1"></a>}</span></code></pre></div>
-<pre><code>## [1] 1
-## [1] 2
-## [1] 3
-## [1] 4
-## [1] 5
-## [1] 6
-## [1] 7
-## [1] 8
-## [1] 9
-## [1] 10
-## [1] 11
-## [1] 12
-## [1] 13
-## [1] 14
-## [1] 15
-## [1] 16
-## [1] 17
-## [1] 18
-## [1] 19
-## [1] 20
-## [1] 21
-## [1] 22
-## [1] 23
-## [1] 24
-## [1] 25
-## [1] 26
-## [1] 27
-## [1] 28
-## [1] 29
-## [1] 30
-## [1] 31
-## [1] 32
-## [1] 33
-## [1] 34
-## [1] 35
-## [1] 36
-## [1] 37
-## [1] 38
-## [1] 39
-## [1] 40
-## [1] 41
-## [1] 42
-## [1] 43
-## [1] 44
-## [1] 45
-## [1] 46
-## [1] 47
-## [1] 48
-## [1] 49
-## [1] 50
-## [1] 51
-## [1] 52
-## [1] 53
-## [1] 54
-## [1] 55
-## [1] 56
-## [1] 57
-## [1] 58
-## [1] 59
-## [1] 60
-## [1] 61
-## [1] 62
-## [1] 63
-## [1] 64
-## [1] 65
-## [1] 66
-## [1] 67
-## [1] 68
-## [1] 69
-## [1] 70
-## [1] 71
-## [1] 72
-## [1] 73
-## [1] 74
-## [1] 75
-## [1] 76
-## [1] 77
-## [1] 78
-## [1] 79
-## [1] 80
-## [1] 81
-## [1] 82
-## [1] 83
-## [1] 84
-## [1] 85
-## [1] 86
-## [1] 87
-## [1] 88
-## [1] 89
-## [1] 90
-## [1] 91
-## [1] 92
-## [1] 93
-## [1] 94
-## [1] 95
-## [1] 96
-## [1] 97
-## [1] 98
-## [1] 99
-## [1] 100
-## [1] 101
-## [1] 102
-## [1] 103
-## [1] 104
-## [1] 105
-## [1] 106
-## [1] 107
-## [1] 108
-## [1] 109
-## [1] 110
-## [1] 111
-## [1] 112
-## [1] 113
-## [1] 114
-## [1] 115
-## [1] 116
-## [1] 117
-## [1] 118
-## [1] 119
-## [1] 120
-## [1] 121
-## [1] 122
-## [1] 123
-## [1] 124
-## [1] 125
-## [1] 126
-## [1] 127
-## [1] 128
-## [1] 129
-## [1] 130
-## [1] 131
-## [1] 132
-## [1] 133
-## [1] 134
-## [1] 135
-## [1] 136
-## [1] 137
-## [1] 138
-## [1] 139
-## [1] 140
-## [1] 141
-## [1] 142
-## [1] 143
-## [1] 144
-## [1] 145
-## [1] 146
-## [1] 147
-## [1] 148
-## [1] 149
-## [1] 150
-## [1] 151
-## [1] 152
-## [1] 153
-## [1] 154
-## [1] 155
-## [1] 156
-## [1] 157
-## [1] 158
-## [1] 159
-## [1] 160
-## [1] 161
-## [1] 162
-## [1] 163
-## [1] 164
-## [1] 165
-## [1] 166
-## [1] 167
-## [1] 168
-## [1] 169
-## [1] 170
-## [1] 171
-## [1] 172
-## [1] 173
-## [1] 174
-## [1] 175
-## [1] 176
-## [1] 177
-## [1] 178
-## [1] 179
-## [1] 180
-## [1] 181
-## [1] 182
-## [1] 183
-## [1] 184
-## [1] 185
-## [1] 186
-## [1] 187
-## [1] 188
-## [1] 189
-## [1] 190
-## [1] 191
-## [1] 192
-## [1] 193
-## [1] 194
-## [1] 195
-## [1] 196
-## [1] 197
-## [1] 198
-## [1] 199
-## [1] 200
-## [1] 201
-## [1] 202
-## [1] 203
-## [1] 204
-## [1] 205
-## [1] 206
-## [1] 207
-## [1] 208
-## [1] 209
-## [1] 210
-## [1] 211
-## [1] 212
-## [1] 213
-## [1] 214
-## [1] 215
-## [1] 216
-## [1] 217
-## [1] 218
-## [1] 219
-## [1] 220
-## [1] 221
-## [1] 222
-## [1] 223
-## [1] 224
-## [1] 225
-## [1] 226
-## [1] 227
-## [1] 228
-## [1] 229
-## [1] 230
-## [1] 231
-## [1] 232
-## [1] 233
-## [1] 234
-## [1] 235
-## [1] 236
-## [1] 237
-## [1] 238
-## [1] 239
-## [1] 240
-## [1] 241
-## [1] 242
-## [1] 243
-## [1] 244
-## [1] 245
-## [1] 246
-## [1] 247
-## [1] 248
-## [1] 249
-## [1] 250
-## [1] 251
-## [1] 252
-## [1] 253
-## [1] 254
-## [1] 255
-## [1] 256
-## [1] 257
-## [1] 258
-## [1] 259
-## [1] 260
-## [1] 261
-## [1] 262
-## [1] 263
-## [1] 264
-## [1] 265
-## [1] 266
-## [1] 267
-## [1] 268
-## [1] 269
-## [1] 270
-## [1] 271
-## [1] 272
-## [1] 273
-## [1] 274
-## [1] 275
-## [1] 276
-## [1] 277
-## [1] 278
-## [1] 279
-## [1] 280
-## [1] 281
-## [1] 282
-## [1] 283
-## [1] 284
-## [1] 285
-## [1] 286
-## [1] 287
-## [1] 288
-## [1] 289
-## [1] 290
-## [1] 291
-## [1] 292
-## [1] 293
-## [1] 294
-## [1] 295
-## [1] 296
-## [1] 297
-## [1] 298
-## [1] 299
-## [1] 300
-## [1] 301
-## [1] 302
-## [1] 303
-## [1] 304
-## [1] 305
-## [1] 306
-## [1] 307
-## [1] 308
-## [1] 309
-## [1] 310
-## [1] 311
-## [1] 312
-## [1] 313
-## [1] 314
-## [1] 315
-## [1] 316
-## [1] 317
-## [1] 318
-## [1] 319
-## [1] 320
-## [1] 321
-## [1] 322
-## [1] 323
-## [1] 324
-## [1] 325
-## [1] 326
-## [1] 327
-## [1] 328
-## [1] 329
-## [1] 330
-## [1] 331
-## [1] 332
-## [1] 333
-## [1] 334
-## [1] 335
-## [1] 336
-## [1] 337
-## [1] 338
-## [1] 339
-## [1] 340
-## [1] 341
-## [1] 342
-## [1] 343
-## [1] 344
-## [1] 345
-## [1] 346
-## [1] 347
-## [1] 348
-## [1] 349
-## [1] 350
-## [1] 351
-## [1] 352
-## [1] 353
-## [1] 354
-## [1] 355
-## [1] 356
-## [1] 357
-## [1] 358
-## [1] 359
-## [1] 360
-## [1] 361
-## [1] 362
-## [1] 363
-## [1] 364
-## [1] 365
-## [1] 366
-## [1] 367
-## [1] 368
-## [1] 369
-## [1] 370
-## [1] 371
-## [1] 372
-## [1] 373
-## [1] 374
-## [1] 375
-## [1] 376
-## [1] 377
-## [1] 378
-## [1] 379
-## [1] 380
-## [1] 381
-## [1] 382
-## [1] 383
-## [1] 384
-## [1] 385
-## [1] 386
-## [1] 387
-## [1] 388
-## [1] 389
-## [1] 390
-## [1] 391
-## [1] 392
-## [1] 393
-## [1] 394
-## [1] 395
-## [1] 396
-## [1] 397
-## [1] 398
-## [1] 399
-## [1] 400
-## [1] 401
-## [1] 402
-## [1] 403
-## [1] 404
-## [1] 405
-## [1] 406
-## [1] 407
-## [1] 408
-## [1] 409
-## [1] 410
-## [1] 411
-## [1] 412
-## [1] 413
-## [1] 414
-## [1] 415
-## [1] 416
-## [1] 417
-## [1] 418
-## [1] 419
-## [1] 420
-## [1] 421
-## [1] 422
-## [1] 423
-## [1] 424
-## [1] 425
-## [1] 426
-## [1] 427
-## [1] 428
-## [1] 429
-## [1] 430
-## [1] 431
-## [1] 432
-## [1] 433
-## [1] 434
-## [1] 435
-## [1] 436
-## [1] 437
-## [1] 438
-## [1] 439
-## [1] 440
-## [1] 441
-## [1] 442
-## [1] 443
-## [1] 444
-## [1] 445
-## [1] 446
-## [1] 447
-## [1] 448
-## [1] 449
-## [1] 450
-## [1] 451
-## [1] 452
-## [1] 453
-## [1] 454
-## [1] 455
-## [1] 456
-## [1] 457
-## [1] 458
-## [1] 459
-## [1] 460
-## [1] 461
-## [1] 462
-## [1] 463
-## [1] 464
-## [1] 465
-## [1] 466
-## [1] 467
-## [1] 468
-## [1] 469
-## [1] 470
-## [1] 471
-## [1] 472
-## [1] 473
-## [1] 474
-## [1] 475
-## [1] 476
-## [1] 477
-## [1] 478
-## [1] 479
-## [1] 480
-## [1] 481
-## [1] 482
-## [1] 483
-## [1] 484
-## [1] 485
-## [1] 486
-## [1] 487
-## [1] 488
-## [1] 489
-## [1] 490
-## [1] 491
-## [1] 492
-## [1] 493
-## [1] 494
-## [1] 495
-## [1] 496
-## [1] 497
-## [1] 498
-## [1] 499
-## [1] 500
-## [1] 501
-## [1] 502
-## [1] 503
-## [1] 504
-## [1] 505
-## [1] 506
-## [1] 507
-## [1] 508
-## [1] 509
-## [1] 510
-## [1] 511
-## [1] 512
-## [1] 513
-## [1] 514
-## [1] 515
-## [1] 516
-## [1] 517
-## [1] 518
-## [1] 519
-## [1] 520
-## [1] 521
-## [1] 522
-## [1] 523
-## [1] 524
-## [1] 525
-## [1] 526
-## [1] 527
-## [1] 528
-## [1] 529
-## [1] 530
-## [1] 531
-## [1] 532
-## [1] 533
-## [1] 534
-## [1] 535
-## [1] 536
-## [1] 537
-## [1] 538
-## [1] 539
-## [1] 540
-## [1] 541
-## [1] 542
-## [1] 543
-## [1] 544
-## [1] 545
-## [1] 546
-## [1] 547
-## [1] 548
-## [1] 549
-## [1] 550
-## [1] 551
-## [1] 552
-## [1] 553
-## [1] 554
-## [1] 555
-## [1] 556
-## [1] 557
-## [1] 558
-## [1] 559
-## [1] 560
-## [1] 561
-## [1] 562
-## [1] 563
-## [1] 564
-## [1] 565
-## [1] 566
-## [1] 567
-## [1] 568
-## [1] 569
-## [1] 570
-## [1] 571
-## [1] 572
-## [1] 573
-## [1] 574
-## [1] 575
-## [1] 576
-## [1] 577
-## [1] 578
-## [1] 579
-## [1] 580
-## [1] 581
-## [1] 582
-## [1] 583
-## [1] 584
-## [1] 585
-## [1] 586
-## [1] 587
-## [1] 588
-## [1] 589
-## [1] 590
-## [1] 591
-## [1] 592
-## [1] 593
-## [1] 594
-## [1] 595
-## [1] 596
-## [1] 597
-## [1] 598
-## [1] 599
-## [1] 600
-## [1] 601
-## [1] 602
-## [1] 603
-## [1] 604
-## [1] 605
-## [1] 606
-## [1] 607
-## [1] 608
-## [1] 609
-## [1] 610
-## [1] 611
-## [1] 612
-## [1] 613
-## [1] 614
-## [1] 615
-## [1] 616
-## [1] 617
-## [1] 618
-## [1] 619
-## [1] 620
-## [1] 621
-## [1] 622
-## [1] 623
-## [1] 624
-## [1] 625
-## [1] 626
-## [1] 627
-## [1] 628
-## [1] 629
-## [1] 630
-## [1] 631
-## [1] 632
-## [1] 633
-## [1] 634
-## [1] 635
-## [1] 636
-## [1] 637
-## [1] 638
-## [1] 639
-## [1] 640
-## [1] 641
-## [1] 642
-## [1] 643
-## [1] 644
-## [1] 645
-## [1] 646
-## [1] 647
-## [1] 648
-## [1] 649
-## [1] 650
-## [1] 651
-## [1] 652
-## [1] 653
-## [1] 654
-## [1] 655
-## [1] 656
-## [1] 657
-## [1] 658
-## [1] 659
-## [1] 660
-## [1] 661
-## [1] 662
-## [1] 663
-## [1] 664
-## [1] 665
-## [1] 666
-## [1] 667
-## [1] 668
-## [1] 669
-## [1] 670
-## [1] 671
-## [1] 672
-## [1] 673
-## [1] 674
-## [1] 675
-## [1] 676
-## [1] 677
-## [1] 678
-## [1] 679
-## [1] 680
-## [1] 681
-## [1] 682
-## [1] 683
-## [1] 684
-## [1] 685
-## [1] 686
-## [1] 687
-## [1] 688
-## [1] 689
-## [1] 690
-## [1] 691
-## [1] 692
-## [1] 693
-## [1] 694
-## [1] 695
-## [1] 696
-## [1] 697
-## [1] 698
-## [1] 699
-## [1] 700
-## [1] 701
-## [1] 702
-## [1] 703
-## [1] 704
-## [1] 705
-## [1] 706
-## [1] 707
-## [1] 708
-## [1] 709
-## [1] 710
-## [1] 711
-## [1] 712
-## [1] 713
-## [1] 714
-## [1] 715
-## [1] 716
-## [1] 717
-## [1] 718
-## [1] 719
-## [1] 720
-## [1] 721
-## [1] 722
-## [1] 723
-## [1] 724
-## [1] 725
-## [1] 726
-## [1] 727
-## [1] 728
-## [1] 729
-## [1] 730
-## [1] 731
-## [1] 732
-## [1] 733
-## [1] 734
-## [1] 735
-## [1] 736
-## [1] 737
-## [1] 738
-## [1] 739
-## [1] 740
-## [1] 741
-## [1] 742
-## [1] 743
-## [1] 744
-## [1] 745
-## [1] 746
-## [1] 747
-## [1] 748
-## [1] 749
-## [1] 750
-## [1] 751
-## [1] 752
-## [1] 753
-## [1] 754
-## [1] 755
-## [1] 756
-## [1] 757
-## [1] 758
-## [1] 759
-## [1] 760
-## [1] 761
-## [1] 762
-## [1] 763
-## [1] 764
-## [1] 765
-## [1] 766
-## [1] 767
-## [1] 768
-## [1] 769
-## [1] 770
-## [1] 771
-## [1] 772
-## [1] 773
-## [1] 774
-## [1] 775
-## [1] 776
-## [1] 777
-## [1] 778
-## [1] 779
-## [1] 780
-## [1] 781
-## [1] 782
-## [1] 783
-## [1] 784
-## [1] 785
-## [1] 786
-## [1] 787
-## [1] 788
-## [1] 789
-## [1] 790
-## [1] 791
-## [1] 792
-## [1] 793
-## [1] 794
-## [1] 795
-## [1] 796
-## [1] 797
-## [1] 798
-## [1] 799
-## [1] 800
-## [1] 801
-## [1] 802
-## [1] 803
-## [1] 804
-## [1] 805
-## [1] 806
-## [1] 807
-## [1] 808
-## [1] 809
-## [1] 810
-## [1] 811
-## [1] 812
-## [1] 813
-## [1] 814
-## [1] 815
-## [1] 816
-## [1] 817
-## [1] 818
-## [1] 819
-## [1] 820
-## [1] 821
-## [1] 822
-## [1] 823
-## [1] 824
-## [1] 825
-## [1] 826
-## [1] 827
-## [1] 828
-## [1] 829
-## [1] 830
-## [1] 831
-## [1] 832
-## [1] 833
-## [1] 834
-## [1] 835
-## [1] 836
-## [1] 837
-## [1] 838
-## [1] 839
-## [1] 840
-## [1] 841
-## [1] 842
-## [1] 843
-## [1] 844
-## [1] 845
-## [1] 846
-## [1] 847
-## [1] 848
-## [1] 849
-## [1] 850
-## [1] 851
-## [1] 852
-## [1] 853
-## [1] 854
-## [1] 855
-## [1] 856
-## [1] 857
-## [1] 858
-## [1] 859
-## [1] 860
-## [1] 861
-## [1] 862
-## [1] 863
-## [1] 864
-## [1] 865
-## [1] 866
-## [1] 867
-## [1] 868
-## [1] 869
-## [1] 870</code></pre>
-<pre><code>## [1] 871</code></pre>
-<pre><code>## [1] 872</code></pre>
-<pre><code>## [1] 873</code></pre>
-<pre><code>## [1] 874</code></pre>
-<pre><code>## [1] 875</code></pre>
-<pre><code>## [1] 876</code></pre>
-<pre><code>## [1] 877</code></pre>
-<pre><code>## [1] 878</code></pre>
-<pre><code>## [1] 879</code></pre>
-<pre><code>## [1] 880</code></pre>
-<pre><code>## [1] 881</code></pre>
-<pre><code>## [1] 882
-## [1] 883
-## [1] 884</code></pre>
-<pre><code>## [1] 885</code></pre>
-<pre><code>## [1] 886</code></pre>
-<pre><code>## [1] 887</code></pre>
-<pre><code>## [1] 888</code></pre>
-<pre><code>## [1] 889</code></pre>
-<pre><code>## [1] 890</code></pre>
-<pre><code>## [1] 891</code></pre>
-<pre><code>## [1] 892</code></pre>
-<pre><code>## [1] 893</code></pre>
-<pre><code>## [1] 894</code></pre>
-<pre><code>## [1] 895</code></pre>
-<pre><code>## [1] 896
-## [1] 897
-## [1] 898</code></pre>
-<pre><code>## [1] 899</code></pre>
-<pre><code>## [1] 900</code></pre>
-<pre><code>## [1] 901</code></pre>
-<pre><code>## [1] 902</code></pre>
-<pre><code>## [1] 903</code></pre>
-<pre><code>## [1] 904</code></pre>
-<pre><code>## [1] 905</code></pre>
-<pre><code>## [1] 906</code></pre>
-<pre><code>## [1] 907</code></pre>
-<pre><code>## [1] 908</code></pre>
-<pre><code>## [1] 909</code></pre>
-<pre><code>## [1] 910
-## [1] 911
-## [1] 912</code></pre>
-<pre><code>## [1] 913</code></pre>
-<pre><code>## [1] 914</code></pre>
-<pre><code>## [1] 915</code></pre>
-<pre><code>## [1] 916</code></pre>
-<pre><code>## [1] 917</code></pre>
-<pre><code>## [1] 918</code></pre>
-<pre><code>## [1] 919</code></pre>
-<pre><code>## [1] 920</code></pre>
-<pre><code>## [1] 921</code></pre>
-<pre><code>## [1] 922</code></pre>
-<pre><code>## [1] 923</code></pre>
-<pre><code>## [1] 924
-## [1] 925
-## [1] 926</code></pre>
-<pre><code>## [1] 927</code></pre>
-<pre><code>## [1] 928</code></pre>
-<pre><code>## [1] 929</code></pre>
-<pre><code>## [1] 930</code></pre>
-<pre><code>## [1] 931</code></pre>
-<pre><code>## [1] 932</code></pre>
-<pre><code>## [1] 933</code></pre>
-<pre><code>## [1] 934</code></pre>
-<pre><code>## [1] 935</code></pre>
-<pre><code>## [1] 936</code></pre>
-<pre><code>## [1] 937</code></pre>
-<pre><code>## [1] 938
-## [1] 939
-## [1] 940
-## [1] 941
-## [1] 942</code></pre>
-<pre><code>## [1] 943</code></pre>
-<pre><code>## [1] 944</code></pre>
-<pre><code>## [1] 945</code></pre>
-<pre><code>## [1] 946</code></pre>
-<pre><code>## [1] 947</code></pre>
-<pre><code>## [1] 948</code></pre>
-<pre><code>## [1] 949</code></pre>
-<pre><code>## [1] 950</code></pre>
-<pre><code>## [1] 951</code></pre>
-<pre><code>## [1] 952
-## [1] 953
-## [1] 954
-## [1] 955
-## [1] 956</code></pre>
-<pre><code>## [1] 957</code></pre>
-<pre><code>## [1] 958</code></pre>
-<pre><code>## [1] 959</code></pre>
-<pre><code>## [1] 960</code></pre>
-<pre><code>## [1] 961</code></pre>
-<pre><code>## [1] 962</code></pre>
-<pre><code>## [1] 963</code></pre>
-<pre><code>## [1] 964</code></pre>
-<pre><code>## [1] 965</code></pre>
-<pre><code>## [1] 966
-## [1] 967
-## [1] 968
-## [1] 969
-## [1] 970</code></pre>
-<pre><code>## [1] 971</code></pre>
-<pre><code>## [1] 972</code></pre>
-<pre><code>## [1] 973</code></pre>
-<pre><code>## [1] 974</code></pre>
-<pre><code>## [1] 975</code></pre>
-<pre><code>## [1] 976</code></pre>
-<pre><code>## [1] 977</code></pre>
-<pre><code>## [1] 978</code></pre>
-<pre><code>## [1] 979</code></pre>
-<pre><code>## [1] 980
-## [1] 981
-## [1] 982
-## [1] 983
-## [1] 984</code></pre>
-<pre><code>## [1] 985</code></pre>
-<pre><code>## [1] 986</code></pre>
-<pre><code>## [1] 987</code></pre>
-<pre><code>## [1] 988</code></pre>
-<pre><code>## [1] 989</code></pre>
-<pre><code>## [1] 990</code></pre>
-<pre><code>## [1] 991</code></pre>
-<pre><code>## [1] 992</code></pre>
-<pre><code>## [1] 993</code></pre>
-<pre><code>## [1] 994
-## [1] 995
-## [1] 996
-## [1] 997
-## [1] 998</code></pre>
-<pre><code>## [1] 999</code></pre>
-<pre><code>## [1] 1000</code></pre>
-<pre><code>## [1] 1001</code></pre>
-<pre><code>## [1] 1002</code></pre>
-<pre><code>## [1] 1003</code></pre>
-<pre><code>## [1] 1004</code></pre>
-<pre><code>## [1] 1005</code></pre>
-<pre><code>## [1] 1006</code></pre>
-<pre><code>## [1] 1007</code></pre>
-<pre><code>## [1] 1008
-## [1] 1009
-## [1] 1010
-## [1] 1011
-## [1] 1012</code></pre>
-<pre><code>## [1] 1013</code></pre>
-<pre><code>## [1] 1014</code></pre>
-<pre><code>## [1] 1015</code></pre>
-<pre><code>## [1] 1016</code></pre>
-<pre><code>## [1] 1017</code></pre>
-<pre><code>## [1] 1018</code></pre>
-<pre><code>## [1] 1019</code></pre>
-<pre><code>## [1] 1020</code></pre>
-<pre><code>## [1] 1021</code></pre>
-<pre><code>## [1] 1022
-## [1] 1023
-## [1] 1024
-## [1] 1025
-## [1] 1026</code></pre>
-<pre><code>## [1] 1027</code></pre>
-<pre><code>## [1] 1028</code></pre>
-<pre><code>## [1] 1029</code></pre>
-<pre><code>## [1] 1030</code></pre>
-<pre><code>## [1] 1031</code></pre>
-<pre><code>## [1] 1032</code></pre>
-<pre><code>## [1] 1033</code></pre>
-<pre><code>## [1] 1034</code></pre>
-<pre><code>## [1] 1035</code></pre>
-<pre><code>## [1] 1036
-## [1] 1037
-## [1] 1038
-## [1] 1039
-## [1] 1040</code></pre>
-<pre><code>## [1] 1041</code></pre>
-<pre><code>## [1] 1042</code></pre>
-<pre><code>## [1] 1043</code></pre>
-<pre><code>## [1] 1044</code></pre>
-<pre><code>## [1] 1045</code></pre>
-<pre><code>## [1] 1046</code></pre>
-<pre><code>## [1] 1047</code></pre>
-<pre><code>## [1] 1048</code></pre>
-<pre><code>## [1] 1049</code></pre>
-<pre><code>## [1] 1050
-## [1] 1051
-## [1] 1052
-## [1] 1053
-## [1] 1054
-## [1] 1055
-## [1] 1056</code></pre>
-<pre><code>## [1] 1057</code></pre>
-<pre><code>## [1] 1058</code></pre>
-<pre><code>## [1] 1059</code></pre>
-<pre><code>## [1] 1060</code></pre>
-<pre><code>## [1] 1061</code></pre>
-<pre><code>## [1] 1062</code></pre>
-<pre><code>## [1] 1063</code></pre>
-<pre><code>## [1] 1064
-## [1] 1065
-## [1] 1066
-## [1] 1067
-## [1] 1068
-## [1] 1069
-## [1] 1070</code></pre>
-<pre><code>## [1] 1071</code></pre>
-<pre><code>## [1] 1072</code></pre>
-<pre><code>## [1] 1073</code></pre>
-<pre><code>## [1] 1074</code></pre>
-<pre><code>## [1] 1075</code></pre>
-<pre><code>## [1] 1076</code></pre>
-<pre><code>## [1] 1077</code></pre>
-<pre><code>## [1] 1078
-## [1] 1079
-## [1] 1080
-## [1] 1081
-## [1] 1082
-## [1] 1083
-## [1] 1084
-## [1] 1085
-## [1] 1086</code></pre>
-<pre><code>## [1] 1087</code></pre>
-<pre><code>## [1] 1088</code></pre>
-<pre><code>## [1] 1089</code></pre>
-<pre><code>## [1] 1090</code></pre>
-<pre><code>## [1] 1091</code></pre>
-<pre><code>## [1] 1092
-## [1] 1093
-## [1] 1094
-## [1] 1095
-## [1] 1096
-## [1] 1097
-## [1] 1098
-## [1] 1099
-## [1] 1100
-## [1] 1101
-## [1] 1102
-## [1] 1103
-## [1] 1104</code></pre>
-<pre><code>## [1] 1105</code></pre>
-<pre><code>## [1] 1106
-## [1] 1107
-## [1] 1108
-## [1] 1109
-## [1] 1110
-## [1] 1111
-## [1] 1112
-## [1] 1113
-## [1] 1114
-## [1] 1115
-## [1] 1116
-## [1] 1117
-## [1] 1118
-## [1] 1119
-## [1] 1120
-## [1] 1121
-## [1] 1122
-## [1] 1123
-## [1] 1124
-## [1] 1125
-## [1] 1126
-## [1] 1127
-## [1] 1128
-## [1] 1129
-## [1] 1130
-## [1] 1131
-## [1] 1132
-## [1] 1133
-## [1] 1134
-## [1] 1135
-## [1] 1136
-## [1] 1137
-## [1] 1138
-## [1] 1139
-## [1] 1140
-## [1] 1141
-## [1] 1142
-## [1] 1143
-## [1] 1144
-## [1] 1145
-## [1] 1146
-## [1] 1147
-## [1] 1148
-## [1] 1149
-## [1] 1150
-## [1] 1151
-## [1] 1152
-## [1] 1153
-## [1] 1154
-## [1] 1155
-## [1] 1156
-## [1] 1157
-## [1] 1158
-## [1] 1159
-## [1] 1160
-## [1] 1161
-## [1] 1162
-## [1] 1163
-## [1] 1164
-## [1] 1165
-## [1] 1166
-## [1] 1167
-## [1] 1168
-## [1] 1169
-## [1] 1170
-## [1] 1171
-## [1] 1172
-## [1] 1173
-## [1] 1174
-## [1] 1175
-## [1] 1176
-## [1] 1177
-## [1] 1178
-## [1] 1179
-## [1] 1180
-## [1] 1181
-## [1] 1182
-## [1] 1183
-## [1] 1184
-## [1] 1185
-## [1] 1186</code></pre>
-<pre><code>## [1] 1187</code></pre>
-<pre><code>## [1] 1188</code></pre>
-<pre><code>## [1] 1189</code></pre>
-<pre><code>## [1] 1190
-## [1] 1191
-## [1] 1192
-## [1] 1193
-## [1] 1194
-## [1] 1195
-## [1] 1196
-## [1] 1197
-## [1] 1198</code></pre>
-<pre><code>## [1] 1199</code></pre>
-<pre><code>## [1] 1200</code></pre>
-<pre><code>## [1] 1201</code></pre>
-<pre><code>## [1] 1202</code></pre>
-<pre><code>## [1] 1203</code></pre>
-<pre><code>## [1] 1204
-## [1] 1205
-## [1] 1206
-## [1] 1207
-## [1] 1208
-## [1] 1209
-## [1] 1210</code></pre>
-<pre><code>## [1] 1211</code></pre>
-<pre><code>## [1] 1212</code></pre>
-<pre><code>## [1] 1213</code></pre>
-<pre><code>## [1] 1214</code></pre>
-<pre><code>## [1] 1215</code></pre>
-<pre><code>## [1] 1216</code></pre>
-<pre><code>## [1] 1217</code></pre>
-<pre><code>## [1] 1218
-## [1] 1219
-## [1] 1220
-## [1] 1221
-## [1] 1222</code></pre>
-<pre><code>## [1] 1223</code></pre>
-<pre><code>## [1] 1224</code></pre>
-<pre><code>## [1] 1225</code></pre>
-<pre><code>## [1] 1226</code></pre>
-<pre><code>## [1] 1227</code></pre>
-<pre><code>## [1] 1228</code></pre>
-<pre><code>## [1] 1229</code></pre>
-<pre><code>## [1] 1230</code></pre>
-<pre><code>## [1] 1231</code></pre>
-<pre><code>## [1] 1232
-## [1] 1233
-## [1] 1234
-## [1] 1235
-## [1] 1236</code></pre>
-<pre><code>## [1] 1237</code></pre>
-<pre><code>## [1] 1238</code></pre>
-<pre><code>## [1] 1239</code></pre>
-<pre><code>## [1] 1240</code></pre>
-<pre><code>## [1] 1241</code></pre>
-<pre><code>## [1] 1242</code></pre>
-<pre><code>## [1] 1243</code></pre>
-<pre><code>## [1] 1244</code></pre>
-<pre><code>## [1] 1245</code></pre>
-<pre><code>## [1] 1246
-## [1] 1247
-## [1] 1248
-## [1] 1249
-## [1] 1250</code></pre>
-<pre><code>## [1] 1251</code></pre>
-<pre><code>## [1] 1252</code></pre>
-<pre><code>## [1] 1253</code></pre>
-<pre><code>## [1] 1254</code></pre>
-<pre><code>## [1] 1255</code></pre>
-<pre><code>## [1] 1256</code></pre>
-<pre><code>## [1] 1257</code></pre>
-<pre><code>## [1] 1258</code></pre>
-<pre><code>## [1] 1259</code></pre>
-<pre><code>## [1] 1260
-## [1] 1261
-## [1] 1262
-## [1] 1263
-## [1] 1264</code></pre>
-<pre><code>## [1] 1265</code></pre>
-<pre><code>## [1] 1266</code></pre>
-<pre><code>## [1] 1267</code></pre>
-<pre><code>## [1] 1268</code></pre>
-<pre><code>## [1] 1269</code></pre>
-<pre><code>## [1] 1270</code></pre>
-<pre><code>## [1] 1271</code></pre>
-<pre><code>## [1] 1272</code></pre>
-<pre><code>## [1] 1273</code></pre>
-<pre><code>## [1] 1274
-## [1] 1275
-## [1] 1276</code></pre>
-<pre><code>## [1] 1277</code></pre>
-<pre><code>## [1] 1278</code></pre>
-<pre><code>## [1] 1279</code></pre>
-<pre><code>## [1] 1280</code></pre>
-<pre><code>## [1] 1281</code></pre>
-<pre><code>## [1] 1282</code></pre>
-<pre><code>## [1] 1283</code></pre>
-<pre><code>## [1] 1284</code></pre>
-<pre><code>## [1] 1285</code></pre>
-<pre><code>## [1] 1286</code></pre>
-<pre><code>## [1] 1287</code></pre>
-<pre><code>## [1] 1288
-## [1] 1289
-## [1] 1290</code></pre>
-<pre><code>## [1] 1291</code></pre>
-<pre><code>## [1] 1292</code></pre>
-<pre><code>## [1] 1293</code></pre>
-<pre><code>## [1] 1294</code></pre>
-<pre><code>## [1] 1295</code></pre>
-<pre><code>## [1] 1296</code></pre>
-<pre><code>## [1] 1297</code></pre>
-<pre><code>## [1] 1298</code></pre>
-<pre><code>## [1] 1299</code></pre>
-<pre><code>## [1] 1300</code></pre>
-<pre><code>## [1] 1301</code></pre>
-<pre><code>## [1] 1302
-## [1] 1303
-## [1] 1304</code></pre>
-<pre><code>## [1] 1305</code></pre>
-<pre><code>## [1] 1306</code></pre>
-<pre><code>## [1] 1307</code></pre>
-<pre><code>## [1] 1308</code></pre>
-<pre><code>## [1] 1309</code></pre>
-<pre><code>## [1] 1310</code></pre>
-<pre><code>## [1] 1311</code></pre>
-<pre><code>## [1] 1312</code></pre>
-<pre><code>## [1] 1313</code></pre>
-<pre><code>## [1] 1314</code></pre>
-<pre><code>## [1] 1315</code></pre>
-<pre><code>## [1] 1316
-## [1] 1317
-## [1] 1318</code></pre>
-<pre><code>## [1] 1319</code></pre>
-<pre><code>## [1] 1320</code></pre>
-<pre><code>## [1] 1321</code></pre>
-<pre><code>## [1] 1322</code></pre>
-<pre><code>## [1] 1323</code></pre>
-<pre><code>## [1] 1324</code></pre>
-<pre><code>## [1] 1325</code></pre>
-<pre><code>## [1] 1326</code></pre>
-<pre><code>## [1] 1327</code></pre>
-<pre><code>## [1] 1328</code></pre>
-<pre><code>## [1] 1329</code></pre>
-<pre><code>## [1] 1330
-## [1] 1331
-## [1] 1332</code></pre>
-<pre><code>## [1] 1333</code></pre>
-<pre><code>## [1] 1334</code></pre>
-<pre><code>## [1] 1335</code></pre>
-<pre><code>## [1] 1336</code></pre>
-<pre><code>## [1] 1337</code></pre>
-<pre><code>## [1] 1338</code></pre>
-<pre><code>## [1] 1339</code></pre>
-<pre><code>## [1] 1340</code></pre>
-<pre><code>## [1] 1341</code></pre>
-<pre><code>## [1] 1342</code></pre>
-<pre><code>## [1] 1343</code></pre>
-<pre><code>## [1] 1344</code></pre>
-<pre><code>## [1] 1345</code></pre>
-<pre><code>## [1] 1346</code></pre>
-<pre><code>## [1] 1347</code></pre>
-<pre><code>## [1] 1348</code></pre>
-<pre><code>## [1] 1349</code></pre>
-<pre><code>## [1] 1350</code></pre>
-<pre><code>## [1] 1351</code></pre>
-<pre><code>## [1] 1352</code></pre>
-<pre><code>## [1] 1353</code></pre>
-<pre><code>## [1] 1354</code></pre>
-<pre><code>## [1] 1355</code></pre>
-<pre><code>## [1] 1356</code></pre>
-<pre><code>## [1] 1357</code></pre>
-<pre><code>## [1] 1358
-## [1] 1359
-## [1] 1360
-## [1] 1361
-## [1] 1362
-## [1] 1363
-## [1] 1364
-## [1] 1365
-## [1] 1366
-## [1] 1367
-## [1] 1368
-## [1] 1369
-## [1] 1370
-## [1] 1371
-## [1] 1372</code></pre>
-<div class="sourceCode" id="cb312"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="#cb312-1" tabindex="-1"></a><span class="fu">save</span>(dat, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/error_comparison_results.RData&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb313"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="#cb313-1" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/error_comparison_results.RData&quot;</span>))</span>
-<span id="cb313-2"><a href="#cb313-2" tabindex="-1"></a></span>
-<span id="cb313-3"><a href="#cb313-3" tabindex="-1"></a>df_all <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span></span>
-<span id="cb313-4"><a href="#cb313-4" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb313-5"><a href="#cb313-5" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(L2ErrorRational, LinfErrorRational,</span>
-<span id="cb313-6"><a href="#cb313-6" tabindex="-1"></a>             L2ErrorFEM, LinfErrorFEM),</span>
-<span id="cb313-7"><a href="#cb313-7" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">&quot;metric&quot;</span>, <span class="st">&quot;method&quot;</span>),</span>
-<span id="cb313-8"><a href="#cb313-8" tabindex="-1"></a>    <span class="at">names_pattern =</span> <span class="st">&quot;(L2Error|LinfError)(Rational|FEM)&quot;</span>,</span>
-<span id="cb313-9"><a href="#cb313-9" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;error&quot;</span></span>
-<span id="cb313-10"><a href="#cb313-10" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb313-11"><a href="#cb313-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb313-12"><a href="#cb313-12" tabindex="-1"></a>    <span class="at">m =</span> {</span>
-<span id="cb313-13"><a href="#cb313-13" tabindex="-1"></a>      m_vals <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(m))</span>
-<span id="cb313-14"><a href="#cb313-14" tabindex="-1"></a>      <span class="fu">factor</span>(</span>
-<span id="cb313-15"><a href="#cb313-15" tabindex="-1"></a>        m,</span>
-<span id="cb313-16"><a href="#cb313-16" tabindex="-1"></a>        <span class="at">levels =</span> m_vals,</span>
-<span id="cb313-17"><a href="#cb313-17" tabindex="-1"></a>        <span class="at">labels =</span> m_vals)</span>
-<span id="cb313-18"><a href="#cb313-18" tabindex="-1"></a>      },</span>
-<span id="cb313-19"><a href="#cb313-19" tabindex="-1"></a>    <span class="at">rho =</span> {</span>
-<span id="cb313-20"><a href="#cb313-20" tabindex="-1"></a>      rho_vals <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(rho))</span>
-<span id="cb313-21"><a href="#cb313-21" tabindex="-1"></a>      <span class="fu">factor</span>(</span>
-<span id="cb313-22"><a href="#cb313-22" tabindex="-1"></a>        rho,</span>
-<span id="cb313-23"><a href="#cb313-23" tabindex="-1"></a>        <span class="at">levels =</span> rho_vals,</span>
-<span id="cb313-24"><a href="#cb313-24" tabindex="-1"></a>        <span class="at">labels =</span> <span class="fu">sprintf</span>(<span class="st">&quot;$</span><span class="sc">\\</span><span class="st">rho = %g$&quot;</span>, rho_vals)</span>
-<span id="cb313-25"><a href="#cb313-25" tabindex="-1"></a>      )</span>
-<span id="cb313-26"><a href="#cb313-26" tabindex="-1"></a>    },</span>
-<span id="cb313-27"><a href="#cb313-27" tabindex="-1"></a>    <span class="at">metric =</span> <span class="fu">factor</span>(</span>
-<span id="cb313-28"><a href="#cb313-28" tabindex="-1"></a>      metric,</span>
-<span id="cb313-29"><a href="#cb313-29" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;L2Error&quot;</span>, <span class="st">&quot;LinfError&quot;</span>),</span>
-<span id="cb313-30"><a href="#cb313-30" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;$L_2(</span><span class="sc">\\</span><span class="st">Gamma</span><span class="sc">\\</span><span class="st">times</span><span class="sc">\\</span><span class="st">Gamma)$&quot;</span>, <span class="st">&quot;$L_</span><span class="sc">\\</span><span class="st">infty(</span><span class="sc">\\</span><span class="st">Gamma</span><span class="sc">\\</span><span class="st">times</span><span class="sc">\\</span><span class="st">Gamma)$&quot;</span>)</span>
-<span id="cb313-31"><a href="#cb313-31" tabindex="-1"></a>    ),</span>
-<span id="cb313-32"><a href="#cb313-32" tabindex="-1"></a>    <span class="at">method =</span> <span class="fu">factor</span>(</span>
-<span id="cb313-33"><a href="#cb313-33" tabindex="-1"></a>      method,</span>
-<span id="cb313-34"><a href="#cb313-34" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span>, <span class="st">&quot;FEM&quot;</span>),</span>
-<span id="cb313-35"><a href="#cb313-35" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;RAT&quot;</span>, <span class="st">&quot;FEM&quot;</span>)</span>
-<span id="cb313-36"><a href="#cb313-36" tabindex="-1"></a>    )</span>
-<span id="cb313-37"><a href="#cb313-37" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>status, <span class="sc">-</span><span class="fu">starts_with</span>(<span class="st">&quot;time&quot;</span>)) </span>
-<span id="cb313-38"><a href="#cb313-38" tabindex="-1"></a></span>
-<span id="cb313-39"><a href="#cb313-39" tabindex="-1"></a>type_rational_approxVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;brasil&quot;</span>, <span class="st">&quot;chebfunLB&quot;</span>)</span>
-<span id="cb313-40"><a href="#cb313-40" tabindex="-1"></a>TRA <span class="ot">&lt;-</span> type_rational_approxVector[<span class="dv">2</span>]</span>
-<span id="cb313-41"><a href="#cb313-41" tabindex="-1"></a></span>
-<span id="cb313-42"><a href="#cb313-42" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">filter</span>(df_all, type_rational_approx <span class="sc">==</span> TRA)</span>
-<span id="cb313-43"><a href="#cb313-43" tabindex="-1"></a></span>
-<span id="cb313-44"><a href="#cb313-44" tabindex="-1"></a></span>
-<span id="cb313-45"><a href="#cb313-45" tabindex="-1"></a>errorRatFEMcomparison <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(alpha, error, <span class="at">colour =</span> m, </span>
-<span id="cb313-46"><a href="#cb313-46" tabindex="-1"></a>                                     <span class="at">linetype =</span> method, <span class="at">linewidth =</span> method,</span>
-<span id="cb313-47"><a href="#cb313-47" tabindex="-1"></a>                                     <span class="at">alpha =</span> method)) <span class="sc">+</span> </span>
-<span id="cb313-48"><a href="#cb313-48" tabindex="-1"></a>  <span class="fu">facet_grid</span>(metric <span class="sc">~</span> rho) <span class="sc">+</span></span>
-<span id="cb313-49"><a href="#cb313-49" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb313-50"><a href="#cb313-50" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">n.breaks =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb313-51"><a href="#cb313-51" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">n.breaks =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
-<span id="cb313-52"><a href="#cb313-52" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;RAT&quot;</span> <span class="ot">=</span> <span class="st">&quot;solid&quot;</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="st">&quot;dotted&quot;</span>)) <span class="sc">+</span> </span>
-<span id="cb313-53"><a href="#cb313-53" tabindex="-1"></a>  <span class="fu">scale_linewidth_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;RAT&quot;</span> <span class="ot">=</span> <span class="fl">1.8</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="fl">0.6</span>)) <span class="sc">+</span></span>
-<span id="cb313-54"><a href="#cb313-54" tabindex="-1"></a>  <span class="fu">scale_alpha_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;RAT&quot;</span> <span class="ot">=</span> <span class="fl">0.25</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="fl">1.0</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
-<span id="cb313-55"><a href="#cb313-55" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb313-56"><a href="#cb313-56" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>), </span>
-<span id="cb313-57"><a href="#cb313-57" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
-<span id="cb313-58"><a href="#cb313-58" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>),</span>
-<span id="cb313-59"><a href="#cb313-59" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb313-60"><a href="#cb313-60" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
-<span id="cb313-61"><a href="#cb313-61" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb313-62"><a href="#cb313-62" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
-<span id="cb313-63"><a href="#cb313-63" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
-<span id="cb313-64"><a href="#cb313-64" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">alpha</span><span class="sc">\\</span><span class="st">;(</span><span class="sc">\\</span><span class="st">mbox{Smoothness parameter})$&quot;</span>, </span>
-<span id="cb313-65"><a href="#cb313-65" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">mbox{Covariance Error}$&quot;</span>, </span>
-<span id="cb313-66"><a href="#cb313-66" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">&quot;$m$&quot;</span>, </span>
-<span id="cb313-67"><a href="#cb313-67" tabindex="-1"></a>       <span class="at">linetype =</span> <span class="st">&quot;Method&quot;</span>,</span>
-<span id="cb313-68"><a href="#cb313-68" tabindex="-1"></a>       <span class="at">linewidth =</span> <span class="st">&quot;Method&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb313-69"><a href="#cb313-69" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb313-70"><a href="#cb313-70" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb313-71"><a href="#cb313-71" tabindex="-1"></a>  <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
-<span id="cb313-72"><a href="#cb313-72" tabindex="-1"></a>  <span class="at">legend.key.width  =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;cm&quot;</span>),</span>
-<span id="cb313-73"><a href="#cb313-73" tabindex="-1"></a>  <span class="at">legend.key.height =</span> <span class="fu">unit</span>(<span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>)</span>
-<span id="cb313-74"><a href="#cb313-74" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb313-75"><a href="#cb313-75" tabindex="-1"></a><span class="fu">guides</span>(</span>
-<span id="cb313-76"><a href="#cb313-76" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="st">&quot;none&quot;</span>,</span>
-<span id="cb313-77"><a href="#cb313-77" tabindex="-1"></a>  <span class="at">linewidth =</span> <span class="st">&quot;none&quot;</span>,</span>
-<span id="cb313-78"><a href="#cb313-78" tabindex="-1"></a>  <span class="at">colour =</span> <span class="fu">guide_legend</span>(</span>
-<span id="cb313-79"><a href="#cb313-79" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
-<span id="cb313-80"><a href="#cb313-80" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
-<span id="cb313-81"><a href="#cb313-81" tabindex="-1"></a>  ),</span>
-<span id="cb313-82"><a href="#cb313-82" tabindex="-1"></a>  <span class="at">linetype =</span> <span class="fu">guide_legend</span>(</span>
-<span id="cb313-83"><a href="#cb313-83" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
-<span id="cb313-84"><a href="#cb313-84" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
-<span id="cb313-85"><a href="#cb313-85" tabindex="-1"></a>  )</span>
-<span id="cb313-86"><a href="#cb313-86" tabindex="-1"></a>)</span>
-<span id="cb313-87"><a href="#cb313-87" tabindex="-1"></a></span>
-<span id="cb313-88"><a href="#cb313-88" tabindex="-1"></a><span class="fu">myggsave</span>(errorRatFEMcomparison, <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">6</span>)</span>
-<span id="cb313-89"><a href="#cb313-89" tabindex="-1"></a></span>
-<span id="cb313-90"><a href="#cb313-90" tabindex="-1"></a><span class="fu">slackr_upload</span>(</span>
-<span id="cb313-91"><a href="#cb313-91" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorRatFEMcomparison.pdf&quot;</span>),        <span class="co"># path to your image</span></span>
-<span id="cb313-92"><a href="#cb313-92" tabindex="-1"></a>  <span class="at">initial_comment =</span> <span class="fu">paste0</span>(<span class="st">&quot;Result with &quot;</span>, TRA),</span>
-<span id="cb313-93"><a href="#cb313-93" tabindex="-1"></a>  <span class="at">channels =</span> <span class="st">&quot;#research&quot;</span></span>
-<span id="cb313-94"><a href="#cb313-94" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb314"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="cb314-1"><a href="#cb314-1" tabindex="-1"></a>df_FEM <span class="ot">&lt;-</span> <span class="fu">filter</span>(df, method <span class="sc">==</span> <span class="st">&quot;FEM&quot;</span>)<span class="co">#, alpha &lt;= 2 &amp; alpha &gt;= 0.6)</span></span>
-<span id="cb314-2"><a href="#cb314-2" tabindex="-1"></a></span>
-<span id="cb314-3"><a href="#cb314-3" tabindex="-1"></a>errorFEMalone <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_FEM, <span class="fu">aes</span>(alpha, error, <span class="at">colour =</span> m)) <span class="sc">+</span> </span>
-<span id="cb314-4"><a href="#cb314-4" tabindex="-1"></a>  <span class="fu">facet_grid</span>(metric <span class="sc">~</span> rho) <span class="sc">+</span></span>
-<span id="cb314-5"><a href="#cb314-5" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb314-6"><a href="#cb314-6" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">n.breaks =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
-<span id="cb314-7"><a href="#cb314-7" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">n.breaks =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
-<span id="cb314-8"><a href="#cb314-8" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb314-9"><a href="#cb314-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>), </span>
-<span id="cb314-10"><a href="#cb314-10" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
-<span id="cb314-11"><a href="#cb314-11" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>),</span>
-<span id="cb314-12"><a href="#cb314-12" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb314-13"><a href="#cb314-13" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
-<span id="cb314-14"><a href="#cb314-14" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb314-15"><a href="#cb314-15" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
-<span id="cb314-16"><a href="#cb314-16" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
-<span id="cb314-17"><a href="#cb314-17" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">alpha</span><span class="sc">\\</span><span class="st">mbox{ }(</span><span class="sc">\\</span><span class="st">mbox{Smoothness parameter})$&quot;</span>, </span>
-<span id="cb314-18"><a href="#cb314-18" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">mbox{Covariance Error}$&quot;</span>, </span>
-<span id="cb314-19"><a href="#cb314-19" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">&quot;$m$&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb314-20"><a href="#cb314-20" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb314-21"><a href="#cb314-21" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb314-22"><a href="#cb314-22" tabindex="-1"></a>  <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
-<span id="cb314-23"><a href="#cb314-23" tabindex="-1"></a>  <span class="at">legend.key.width  =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;cm&quot;</span>),</span>
-<span id="cb314-24"><a href="#cb314-24" tabindex="-1"></a>  <span class="at">legend.key.height =</span> <span class="fu">unit</span>(<span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>)</span>
-<span id="cb314-25"><a href="#cb314-25" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb314-26"><a href="#cb314-26" tabindex="-1"></a><span class="fu">guides</span>(</span>
-<span id="cb314-27"><a href="#cb314-27" tabindex="-1"></a>  <span class="at">colour =</span> <span class="fu">guide_legend</span>(</span>
-<span id="cb314-28"><a href="#cb314-28" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
-<span id="cb314-29"><a href="#cb314-29" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
-<span id="cb314-30"><a href="#cb314-30" tabindex="-1"></a>  )</span>
-<span id="cb314-31"><a href="#cb314-31" tabindex="-1"></a>)</span>
-<span id="cb314-32"><a href="#cb314-32" tabindex="-1"></a></span>
-<span id="cb314-33"><a href="#cb314-33" tabindex="-1"></a><span class="fu">myggsave</span>(errorFEMalone, <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">6</span>)</span>
-<span id="cb314-34"><a href="#cb314-34" tabindex="-1"></a></span>
-<span id="cb314-35"><a href="#cb314-35" tabindex="-1"></a><span class="fu">slackr_upload</span>(</span>
-<span id="cb314-36"><a href="#cb314-36" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorFEMalone.pdf&quot;</span>),        <span class="co"># path to your image</span></span>
-<span id="cb314-37"><a href="#cb314-37" tabindex="-1"></a>  <span class="at">initial_comment =</span> <span class="st">&quot;Result&quot;</span>,</span>
-<span id="cb314-38"><a href="#cb314-38" tabindex="-1"></a>  <span class="at">channels =</span> <span class="st">&quot;#research&quot;</span></span>
-<span id="cb314-39"><a href="#cb314-39" tabindex="-1"></a>)</span></code></pre></div>
-<div class="sourceCode" id="cb315"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="#cb315-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorRatFEMcomparison.pdf&quot;</span>))</span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.R&quot;</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">purl</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.Rmd&quot;</span>), <span class="at">output =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.R&quot;</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co"># load the functions</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;all_functions.R&quot;</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">source</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;matern_functions.R&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>alphaVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">seq</span>(<span class="fl">0.51</span>,<span class="fl">0.59</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">0.6</span>,<span class="fl">0.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">0.91</span>,<span class="fl">1.09</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">1.1</span>,<span class="fl">1.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">1.91</span>,<span class="fl">2.09</span>,<span class="at">by=</span><span class="fl">0.01</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">2.1</span>,<span class="fl">2.9</span>,<span class="at">by=</span><span class="fl">0.05</span>), </span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>           <span class="fu">seq</span>(<span class="fl">2.91</span>,<span class="dv">3</span>,<span class="at">by=</span><span class="fl">0.01</span>)) </span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>mVector <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>rhoVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.005</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fl">0.001</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>nOverkill <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>type_rational_approxVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;brasil&quot;</span>, <span class="st">&quot;chebfunLB&quot;</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>type_interp <span class="ot">&lt;-</span> <span class="st">&quot;spline&quot;</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  <span class="at">alpha =</span> alphaVector,</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  <span class="at">m =</span> mVector,</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="at">rho =</span> rhoVector,</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="at">type_rational_approx =</span> type_rational_approxVector</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>    <span class="at">L2ErrorRational =</span> <span class="cn">NA_real_</span>, </span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    <span class="at">LinfErrorRational =</span> <span class="cn">NA_real_</span>, </span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    <span class="at">timeElapsedRational =</span> <span class="cn">NA_real_</span>, </span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    <span class="at">L2ErrorFEM =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>    <span class="at">LinfErrorFEM =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    <span class="at">timeElapsedFEM =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>    <span class="at">timeElapsedTrue =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>    <span class="at">error_msg =</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>    <span class="at">status =</span> <span class="st">&quot;not_computed&quot;</span>   </span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>  )</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>graphFEM <span class="ot">&lt;-</span> <span class="fu">gets.graph.tadpole</span>(<span class="at">flip_edge =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a>graph <span class="ot">&lt;-</span> graphFEM<span class="sc">$</span><span class="fu">clone</span>()</span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>graphFEM<span class="sc">$</span><span class="fu">build_mesh</span>(<span class="at">h =</span> h)</span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a>mesh_locations <span class="ot">&lt;-</span> graphFEM<span class="sc">$</span><span class="fu">get_mesh_locations</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">edge_number =</span> V1, <span class="at">distance_on_edge =</span> V2)</span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co"># add mesh locations as observations</span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">add_observations</span>(</span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a>  <span class="at">data =</span> mesh_locations,</span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>  <span class="at">normalized =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">observation_to_vertex</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>unique_params <span class="ot">&lt;-</span> <span class="fu">unique</span>(dat[, <span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;rho&quot;</span>)])</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>trueSigma_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>timeTrue_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(unique_params)) {</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  alpha_j <span class="ot">&lt;-</span> unique_params<span class="sc">$</span>alpha[j]</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  rho_j <span class="ot">&lt;-</span> unique_params<span class="sc">$</span>rho[j]</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  nu_j <span class="ot">&lt;-</span> alpha_j <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  kappa_j <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">8</span> <span class="sc">*</span> nu_j) <span class="sc">/</span> rho_j</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  tau_j <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu_j) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa_j<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu_j) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu_j <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  key <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;%.6f_%.6f&quot;</span>, alpha_j, rho_j)</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  </span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  timeTrue_list[[key]] <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>    trueSigma_list[[key]] <span class="ot">&lt;-</span> <span class="fu">gets_true_cov_mat</span>(</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>      <span class="at">graph =</span> graphFEM,</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>      <span class="at">kappa =</span> kappa_j,</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>      <span class="at">tau =</span> tau_j,</span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>      <span class="at">alpha =</span> alpha_j,</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>      <span class="at">n.overkill =</span> nOverkill</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    )</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  })[<span class="st">&quot;elapsed&quot;</span>]</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(err){</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="fu">paste0</span>(<span class="st">&quot;Error occurred while computing true covariance for alpha = &quot;</span>, alpha_j, </span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>                   <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>                   <span class="st">&quot;: &quot;</span>, <span class="fu">conditionMessage</span>(err)))</span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>    <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Error occurred while computing true covariance for alpha = &quot;</span>, alpha_j, </span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>                   <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>                   <span class="st">&quot;: &quot;</span>, <span class="fu">conditionMessage</span>(err)),</span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>               <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>    trueSigma_list[[key]] <span class="ot">&lt;-</span> <span class="cn">NA_real_</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>    timeTrue_list[[key]] <span class="ot">&lt;-</span> <span class="cn">NA_real_</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>  })</span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>  <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Finished computing true covariance for alpha = &quot;</span>, alpha_j, </span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>                          <span class="st">&quot; and rho = &quot;</span>, rho_j, </span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>                          <span class="st">&quot; , iteration &quot;</span>, j, </span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>                          <span class="st">&quot; out of &quot;</span>, <span class="fu">nrow</span>(unique_params)), </span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>             <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
+<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>  <span class="fu">print</span>(j)</span>
+<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a>}</span>
+<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a></span>
+<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a><span class="fu">save</span>(trueSigma_list, timeTrue_list, <span class="at">file =</span> <span class="st">&quot;~/Desktop/trueSigma_list.RData&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;~/Desktop/trueSigma_list.RData&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(dat)) {</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  dat_i <span class="ot">&lt;-</span> dat[i, ]</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>alpha</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  m <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>m</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  rho <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>rho</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  type_rational_approx <span class="ot">&lt;-</span> dat_i<span class="sc">$</span>type_rational_approx</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  </span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  nu <span class="ot">&lt;-</span> alpha <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  kappa <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="dv">8</span><span class="sc">*</span>nu)<span class="sc">/</span>rho</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  tau <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">gamma</span>(nu) <span class="sc">/</span> (sigma<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> kappa<span class="sc">^</span>(<span class="dv">2</span><span class="sc">*</span>nu) <span class="sc">*</span> (<span class="dv">4</span><span class="sc">*</span>pi)<span class="sc">^</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">gamma</span>(nu <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)))  </span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  </span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>            key <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;%.6f_%.6f&quot;</span>, alpha, rho)</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>            trueSigma <span class="ot">&lt;-</span> trueSigma_list[[key]]</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>            timeElapsedTrue <span class="ot">&lt;-</span> timeTrue_list[[key]]</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>            </span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>            timeElapsedFEM <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>            FEMSigma <span class="ot">&lt;-</span> <span class="fu">covariance_mesh</span>(</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>              <span class="fu">matern.operators</span>(</span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>                <span class="at">alpha =</span> alpha, </span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>                <span class="at">kappa =</span> kappa, </span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>                <span class="at">tau =</span> tau,</span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>                <span class="at">m =</span> m, </span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>                <span class="at">graph =</span> graphFEM,</span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>                <span class="at">type =</span> <span class="st">&quot;covariance&quot;</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>                <span class="at">type_rational_approximation =</span> type_rational_approx))</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>            })[<span class="st">&quot;elapsed&quot;</span>]</span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>            </span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>            timeElapsedRational <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>            ratSigma <span class="ot">&lt;-</span> <span class="fu">rat_covariance</span>(</span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>              <span class="at">graph =</span> graph, </span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>              <span class="at">kappa =</span> kappa, </span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>              <span class="at">tau =</span> tau, </span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>              <span class="at">alpha =</span> alpha, </span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a>              <span class="at">m =</span> m,</span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a>              <span class="at">type_rational_approx =</span> type_rational_approx,</span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a>              <span class="at">type_interp =</span> type_interp,</span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a>              <span class="at">build_cov =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a>            })[<span class="st">&quot;elapsed&quot;</span>]</span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a>            </span>
+<span id="cb8-43"><a href="#cb8-43" tabindex="-1"></a>            <span class="co"># computing the errors</span></span>
+<span id="cb8-44"><a href="#cb8-44" tabindex="-1"></a>            LinfErrorRational <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(trueSigma <span class="sc">-</span> ratSigma))</span>
+<span id="cb8-45"><a href="#cb8-45" tabindex="-1"></a>            L2ErrorRational   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights)<span class="sc">%*%</span>(trueSigma <span class="sc">-</span> ratSigma)<span class="sc">^</span><span class="dv">2</span><span class="sc">%*%</span>graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights))</span>
+<span id="cb8-46"><a href="#cb8-46" tabindex="-1"></a>            LinfErrorFEM      <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(trueSigma <span class="sc">-</span> FEMSigma))</span>
+<span id="cb8-47"><a href="#cb8-47" tabindex="-1"></a>            L2ErrorFEM        <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.double</span>(<span class="fu">t</span>(graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights)<span class="sc">%*%</span>(trueSigma <span class="sc">-</span> FEMSigma)<span class="sc">^</span><span class="dv">2</span><span class="sc">%*%</span>graphFEM<span class="sc">$</span>mesh<span class="sc">$</span>weights))</span>
+<span id="cb8-48"><a href="#cb8-48" tabindex="-1"></a>            </span>
+<span id="cb8-49"><a href="#cb8-49" tabindex="-1"></a>            <span class="fu">list</span>(</span>
+<span id="cb8-50"><a href="#cb8-50" tabindex="-1"></a>                <span class="at">LinfErrorRational =</span>  LinfErrorRational,</span>
+<span id="cb8-51"><a href="#cb8-51" tabindex="-1"></a>                <span class="at">L2ErrorRational   =</span>  L2ErrorRational,</span>
+<span id="cb8-52"><a href="#cb8-52" tabindex="-1"></a>                <span class="at">LinfErrorFEM      =</span>  LinfErrorFEM,</span>
+<span id="cb8-53"><a href="#cb8-53" tabindex="-1"></a>                <span class="at">L2ErrorFEM        =</span>  L2ErrorFEM,</span>
+<span id="cb8-54"><a href="#cb8-54" tabindex="-1"></a>                <span class="at">timeElapsedRational =</span> timeElapsedRational,</span>
+<span id="cb8-55"><a href="#cb8-55" tabindex="-1"></a>                <span class="at">timeElapsedFEM      =</span> timeElapsedFEM,</span>
+<span id="cb8-56"><a href="#cb8-56" tabindex="-1"></a>                <span class="at">timeElapsedTrue     =</span> timeElapsedTrue,</span>
+<span id="cb8-57"><a href="#cb8-57" tabindex="-1"></a>                <span class="at">status =</span> <span class="st">&quot;ok&quot;</span></span>
+<span id="cb8-58"><a href="#cb8-58" tabindex="-1"></a>                )</span>
+<span id="cb8-59"><a href="#cb8-59" tabindex="-1"></a>            }, <span class="at">error =</span> <span class="cf">function</span>(err){</span>
+<span id="cb8-60"><a href="#cb8-60" tabindex="-1"></a>              <span class="fu">warning</span>(<span class="fu">paste0</span>(<span class="st">&quot;Error occurred at iteration rho = &quot;</span>, rho, </span>
+<span id="cb8-61"><a href="#cb8-61" tabindex="-1"></a>                            <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
+<span id="cb8-62"><a href="#cb8-62" tabindex="-1"></a>                            <span class="st">&quot;, m = &quot;</span>, m, </span>
+<span id="cb8-63"><a href="#cb8-63" tabindex="-1"></a>                            <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
+<span id="cb8-64"><a href="#cb8-64" tabindex="-1"></a>                            <span class="st">&quot;, nu = &quot;</span>, nu, </span>
+<span id="cb8-65"><a href="#cb8-65" tabindex="-1"></a>                            <span class="st">&quot;, Error:&quot;</span>, <span class="fu">conditionMessage</span>(err)))</span>
+<span id="cb8-66"><a href="#cb8-66" tabindex="-1"></a>              <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Error occurred at iteration rho = &quot;</span>, rho, </span>
+<span id="cb8-67"><a href="#cb8-67" tabindex="-1"></a>                          <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
+<span id="cb8-68"><a href="#cb8-68" tabindex="-1"></a>                          <span class="st">&quot;, m = &quot;</span>, m, </span>
+<span id="cb8-69"><a href="#cb8-69" tabindex="-1"></a>                          <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
+<span id="cb8-70"><a href="#cb8-70" tabindex="-1"></a>                          <span class="st">&quot;, nu = &quot;</span>, nu, </span>
+<span id="cb8-71"><a href="#cb8-71" tabindex="-1"></a>                          <span class="st">&quot;, type = &quot;</span>, type_rational_approx,</span>
+<span id="cb8-72"><a href="#cb8-72" tabindex="-1"></a>                          <span class="st">&quot;, Error:&quot;</span>, <span class="fu">conditionMessage</span>(err)),</span>
+<span id="cb8-73"><a href="#cb8-73" tabindex="-1"></a>                         <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
+<span id="cb8-74"><a href="#cb8-74" tabindex="-1"></a>              <span class="fu">list</span>(</span>
+<span id="cb8-75"><a href="#cb8-75" tabindex="-1"></a>                <span class="at">LinfErrorRational =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-76"><a href="#cb8-76" tabindex="-1"></a>                <span class="at">L2ErrorRational   =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-77"><a href="#cb8-77" tabindex="-1"></a>                <span class="at">LinfErrorFEM      =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-78"><a href="#cb8-78" tabindex="-1"></a>                <span class="at">L2ErrorFEM        =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-79"><a href="#cb8-79" tabindex="-1"></a>                <span class="at">timeElapsedRational =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-80"><a href="#cb8-80" tabindex="-1"></a>                <span class="at">timeElapsedFEM      =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-81"><a href="#cb8-81" tabindex="-1"></a>                <span class="at">timeElapsedTrue     =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-82"><a href="#cb8-82" tabindex="-1"></a>                <span class="at">error_msg =</span> <span class="fu">conditionMessage</span>(err),</span>
+<span id="cb8-83"><a href="#cb8-83" tabindex="-1"></a>                <span class="at">status =</span> <span class="st">&quot;error&quot;</span></span>
+<span id="cb8-84"><a href="#cb8-84" tabindex="-1"></a>                )</span>
+<span id="cb8-85"><a href="#cb8-85" tabindex="-1"></a>            })</span>
+<span id="cb8-86"><a href="#cb8-86" tabindex="-1"></a>  dat[i, <span class="fu">names</span>(res)] <span class="ot">&lt;-</span> res</span>
+<span id="cb8-87"><a href="#cb8-87" tabindex="-1"></a>  <span class="fu">slackr_msg</span>(<span class="at">text =</span> <span class="fu">paste0</span>(<span class="st">&quot;Current parameters are rho = &quot;</span>, rho, </span>
+<span id="cb8-88"><a href="#cb8-88" tabindex="-1"></a>                          <span class="st">&quot;, kappa = &quot;</span>, kappa,</span>
+<span id="cb8-89"><a href="#cb8-89" tabindex="-1"></a>                          <span class="st">&quot;, m = &quot;</span>, m, </span>
+<span id="cb8-90"><a href="#cb8-90" tabindex="-1"></a>                          <span class="st">&quot;, alpha = &quot;</span>, alpha,</span>
+<span id="cb8-91"><a href="#cb8-91" tabindex="-1"></a>                          <span class="st">&quot;, nu = &quot;</span>, nu,</span>
+<span id="cb8-92"><a href="#cb8-92" tabindex="-1"></a>                          <span class="st">&quot;, type = &quot;</span>, type_rational_approx,</span>
+<span id="cb8-93"><a href="#cb8-93" tabindex="-1"></a>                          <span class="st">&quot; , iteration &quot;</span>, i, </span>
+<span id="cb8-94"><a href="#cb8-94" tabindex="-1"></a>                          <span class="st">&quot; out of &quot;</span>, <span class="fu">nrow</span>(dat)), </span>
+<span id="cb8-95"><a href="#cb8-95" tabindex="-1"></a>             <span class="at">channel =</span> <span class="st">&quot;#research&quot;</span>)</span>
+<span id="cb8-96"><a href="#cb8-96" tabindex="-1"></a>  <span class="fu">print</span>(i)</span>
+<span id="cb8-97"><a href="#cb8-97" tabindex="-1"></a>}</span>
+<span id="cb8-98"><a href="#cb8-98" tabindex="-1"></a><span class="fu">save</span>(dat, <span class="at">file =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/error_comparison_results.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/error_with_h0.01.RData&quot;</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>df_all <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(L2ErrorRational, LinfErrorRational,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>             L2ErrorFEM, LinfErrorFEM),</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">&quot;metric&quot;</span>, <span class="st">&quot;method&quot;</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>    <span class="at">names_pattern =</span> <span class="st">&quot;(L2Error|LinfError)(Rational|FEM)&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">&quot;error&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>    <span class="at">m =</span> {</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>      m_vals <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(m))</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>      <span class="fu">factor</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>        m,</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>        <span class="at">levels =</span> m_vals,</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>        <span class="at">labels =</span> m_vals)</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>      },</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>    <span class="at">rho =</span> {</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>      rho_vals <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(rho))</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>      <span class="fu">factor</span>(</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>        rho,</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>        <span class="at">levels =</span> rho_vals,</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a>        <span class="at">labels =</span> <span class="fu">sprintf</span>(<span class="st">&quot;$</span><span class="sc">\\</span><span class="st">rho = %g$&quot;</span>, rho_vals)</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a>      )</span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>    },</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    <span class="at">metric =</span> <span class="fu">factor</span>(</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>      metric,</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;L2Error&quot;</span>, <span class="st">&quot;LinfError&quot;</span>),</span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;$L_2(</span><span class="sc">\\</span><span class="st">Gamma</span><span class="sc">\\</span><span class="st">times</span><span class="sc">\\</span><span class="st">Gamma)$&quot;</span>, <span class="st">&quot;$L_</span><span class="sc">\\</span><span class="st">infty(</span><span class="sc">\\</span><span class="st">Gamma</span><span class="sc">\\</span><span class="st">times</span><span class="sc">\\</span><span class="st">Gamma)$&quot;</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>    ),</span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>    <span class="at">method =</span> <span class="fu">factor</span>(</span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>      method,</span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span>, <span class="st">&quot;FEM&quot;</span>),</span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span>, <span class="st">&quot;FEM&quot;</span>)</span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>    )</span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>status, <span class="sc">-</span><span class="fu">starts_with</span>(<span class="st">&quot;time&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">filter</span>(rho <span class="sc">==</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">rho = 0.1$&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(m <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>))</span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a>type_rational_approxVector <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;brasil&quot;</span>, <span class="st">&quot;chebfunLB&quot;</span>, <span class="st">&quot;chebfun&quot;</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a>TRA <span class="ot">&lt;-</span> type_rational_approxVector[<span class="dv">1</span>]</span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">filter</span>(df_all, type_rational_approx <span class="sc">==</span> TRA)</span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a>errorRatFEMcomparison <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(alpha, error, <span class="at">colour =</span> m, </span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a>                                     <span class="at">linetype =</span> method, <span class="at">linewidth =</span> method,</span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a>                                     <span class="at">alpha =</span> method)) <span class="sc">+</span> </span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> metric) <span class="sc">+</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">n.breaks =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">n.breaks =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span> <span class="ot">=</span> <span class="st">&quot;solid&quot;</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="st">&quot;dashed&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a>  <span class="fu">scale_linewidth_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span> <span class="ot">=</span> <span class="dv">1</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a>  <span class="fu">scale_alpha_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Rational&quot;</span> <span class="ot">=</span> <span class="fl">0.5</span>, <span class="st">&quot;FEM&quot;</span> <span class="ot">=</span> <span class="fl">1.0</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>), </span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>),</span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">alpha</span><span class="sc">\\</span><span class="st">;(</span><span class="sc">\\</span><span class="st">mbox{Smoothness parameter})$&quot;</span>, </span>
+<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">mbox{Covariance Error}</span><span class="sc">\\</span><span class="st">quad(</span><span class="sc">\\</span><span class="st">log_{10}</span><span class="sc">\\</span><span class="st">mbox{ scale})$&quot;</span>, </span>
+<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">&quot;$m$&quot;</span>, </span>
+<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a>       <span class="at">linetype =</span> <span class="st">&quot;Method&quot;</span>,</span>
+<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a>       <span class="at">linewidth =</span> <span class="st">&quot;Method&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb9-70"><a href="#cb9-70" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb9-71"><a href="#cb9-71" tabindex="-1"></a>  <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
+<span id="cb9-72"><a href="#cb9-72" tabindex="-1"></a>  <span class="at">legend.key.width  =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;cm&quot;</span>),</span>
+<span id="cb9-73"><a href="#cb9-73" tabindex="-1"></a>  <span class="at">legend.key.height =</span> <span class="fu">unit</span>(<span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>)</span>
+<span id="cb9-74"><a href="#cb9-74" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb9-75"><a href="#cb9-75" tabindex="-1"></a><span class="fu">guides</span>(</span>
+<span id="cb9-76"><a href="#cb9-76" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="st">&quot;none&quot;</span>,</span>
+<span id="cb9-77"><a href="#cb9-77" tabindex="-1"></a>  <span class="at">linewidth =</span> <span class="st">&quot;none&quot;</span>,</span>
+<span id="cb9-78"><a href="#cb9-78" tabindex="-1"></a>  <span class="at">colour =</span> <span class="fu">guide_legend</span>(</span>
+<span id="cb9-79"><a href="#cb9-79" tabindex="-1"></a>    <span class="at">order =</span> <span class="dv">2</span>,</span>
+<span id="cb9-80"><a href="#cb9-80" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
+<span id="cb9-81"><a href="#cb9-81" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
+<span id="cb9-82"><a href="#cb9-82" tabindex="-1"></a>  ),</span>
+<span id="cb9-83"><a href="#cb9-83" tabindex="-1"></a>  <span class="at">linetype =</span> <span class="fu">guide_legend</span>(</span>
+<span id="cb9-84"><a href="#cb9-84" tabindex="-1"></a>    <span class="at">order =</span> <span class="dv">1</span>,</span>
+<span id="cb9-85"><a href="#cb9-85" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
+<span id="cb9-86"><a href="#cb9-86" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
+<span id="cb9-87"><a href="#cb9-87" tabindex="-1"></a>  )</span>
+<span id="cb9-88"><a href="#cb9-88" tabindex="-1"></a>)</span>
+<span id="cb9-89"><a href="#cb9-89" tabindex="-1"></a></span>
+<span id="cb9-90"><a href="#cb9-90" tabindex="-1"></a><span class="fu">myggsave</span>(errorRatFEMcomparison, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">4</span>)</span>
+<span id="cb9-91"><a href="#cb9-91" tabindex="-1"></a></span>
+<span id="cb9-92"><a href="#cb9-92" tabindex="-1"></a><span class="co"># slackr_upload(</span></span>
+<span id="cb9-93"><a href="#cb9-93" tabindex="-1"></a><span class="co">#   filename = here::here(&quot;data_files/tikzpic/errorRatFEMcomparison.pdf&quot;),        # path to your image</span></span>
+<span id="cb9-94"><a href="#cb9-94" tabindex="-1"></a><span class="co">#   initial_comment = paste0(&quot;Result with &quot;, TRA),</span></span>
+<span id="cb9-95"><a href="#cb9-95" tabindex="-1"></a><span class="co">#   channels = &quot;#research&quot;</span></span>
+<span id="cb9-96"><a href="#cb9-96" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>df_FEM <span class="ot">&lt;-</span> <span class="fu">filter</span>(df, method <span class="sc">==</span> <span class="st">&quot;FEM&quot;</span>)<span class="co">#, alpha &lt;= 2 &amp; alpha &gt;= 0.6)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>errorFEMalone <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_FEM, <span class="fu">aes</span>(alpha, error, <span class="at">colour =</span> m)) <span class="sc">+</span> </span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> metric) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">n.breaks =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">n.breaks =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">0.3</span>, <span class="st">&quot;cm&quot;</span>), </span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">&quot;Palatino&quot;</span>),</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>),</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>        <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">alpha</span><span class="sc">\\</span><span class="st">;(</span><span class="sc">\\</span><span class="st">mbox{Smoothness parameter})$&quot;</span>, </span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;$</span><span class="sc">\\</span><span class="st">mbox{Covariance Error}</span><span class="sc">\\</span><span class="st">quad(</span><span class="sc">\\</span><span class="st">log_{10}</span><span class="sc">\\</span><span class="st">mbox{ scale})$&quot;</span>, </span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">&quot;$m$&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>  <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>  <span class="at">legend.key.width  =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;cm&quot;</span>),</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>  <span class="at">legend.key.height =</span> <span class="fu">unit</span>(<span class="dv">0</span>, <span class="st">&quot;cm&quot;</span>)</span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="fu">guides</span>(</span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>  <span class="at">colour =</span> <span class="fu">guide_legend</span>(</span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="dv">1</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>    <span class="at">override.aes =</span> <span class="fu">list</span>(<span class="at">linewidth =</span> <span class="dv">1</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>  )</span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>)</span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="fu">myggsave</span>(errorFEMalone, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">4</span>)</span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co"># slackr_upload(</span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#   filename = here::here(&quot;data_files/tikzpic/errorFEMalone.pdf&quot;),        # path to your image</span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#   initial_comment = &quot;Result&quot;,</span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#   channels = &quot;#research&quot;</span></span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorRatFEMcomparison.pdf&quot;</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<embed src="data_files/tikzpic/errorRatFEMcomparison.pdf" title="Figure 1: Covariance error for the tadpole graph." width="1200px" height="600px" type="application/pdf" />
+<embed src="data_files/tikzpic/errorRatFEMcomparison.pdf" title="Figure 1: Covariance error for the tadpole graph." width="800px" height="400px" type="application/pdf" />
 <p class="caption">
 Figure 1: Covariance error for the tadpole graph.
 </p>
 </div>
-<div class="sourceCode" id="cb316"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="#cb316-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorFEMalone.pdf&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">&quot;data_files/tikzpic/errorFEMalone.pdf&quot;</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<embed src="data_files/tikzpic/errorFEMalone.pdf" title="Figure 2: Covariance error for the tadpole graph." width="1200px" height="600px" type="application/pdf" />
+<embed src="data_files/tikzpic/errorFEMalone.pdf" title="Figure 2: Covariance error for the tadpole graph." width="800px" height="400px" type="application/pdf" />
 <p class="caption">
 Figure 2: Covariance error for the tadpole graph.
 </p>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTnVtZXJpY2FsIGVycm9yIgpkYXRlOiAiTGFzdCBtb2RpZmllZDogYHIgZm9ybWF0KFN5cy50aW1lKCksICclZC0lbS0lWS4nKWAiCm91dHB1dDoKICBodG1sX2RvY3VtZW50OgogICAgbWF0aGpheDogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vbWF0aGpheEAzL2VzNS90ZXgtbW1sLWNodG1sLmpzIgogICAgaGlnaGxpZ2h0OiBweWdtZW50cwogICAgdGhlbWU6IGZsYXRseQogICAgY29kZV9mb2xkaW5nOiBoaWRlICMgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSIgdG8gaGlkZSBjb2RlIGFuZCBhZGQgYSBidXR0b24gdG8gc2hvdyBpdAogICAgZGZfcHJpbnQ6IHBhZ2VkCiAgICB0b2M6IHRydWUKICAgIHRvY19mbG9hdDoKICAgICAgY29sbGFwc2VkOiB0cnVlCiAgICAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogdHJ1ZQogICAgZmlnX2NhcHRpb246IHRydWUKICAgIGNvZGVfZG93bmxvYWQ6IHRydWUKICAgIGNzczogdmlzdWFsLmNzcwphbHdheXNfYWxsb3dfaHRtbDogdHJ1ZQpiaWJsaW9ncmFwaHk6IAogIC0gcmVmZXJlbmNlcy5iaWIKICAtIGdyYXRlZnVsLXJlZnMuYmliCmhlYWRlci1pbmNsdWRlczoKICAtIFxuZXdjb21tYW5ke1xhcn17XG1hdGhiYntSfX0KICAtIFxuZXdjb21tYW5ke1xsbGF2fVsxXXtcbGVmdFx7IzFccmlnaHRcfX0KICAtIFxuZXdjb21tYW5ke1xwYXJlfVsxXXtcbGVmdCgjMVxyaWdodCl9CiAgLSBcbmV3Y29tbWFuZHtcTmNhbH17XG1hdGhjYWx7Tn19CiAgLSBcbmV3Y29tbWFuZHtcVmNhbH17XG1hdGhjYWx7Vn19CiAgLSBcbmV3Y29tbWFuZHtcRWNhbH17XG1hdGhjYWx7RX19CiAgLSBcbmV3Y29tbWFuZHtcV2NhbH17XG1hdGhjYWx7V319CiAgLSBcbmV3Y29tbWFuZHtcYWxtb3N0ZXZlcnl3aGVyZX17XG1hdGhybXthLmUufVw7fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtDb250ZW50c10oYWJvdXQuaHRtbCkgcGFnZS4KCjxkaXYgc3R5bGU9ImNvbG9yOiAjMmMzZTUwOyB0ZXh0LWFsaWduOiByaWdodDsiPgoqKioqKioqKiAgCjxzdHJvbmc+UHJlc3MgU2hvdyB0byByZXZlYWwgdGhlIGNvZGUgY2h1bmtzLjwvc3Ryb25nPiAgCgoqKioqKioqKgo8L2Rpdj4KCgpHbyBiYWNrIHRvIHRoZSBbQWJvdXQgcGFnZV0oYWJvdXQuaHRtbCkuCgpMZXQgdXMgc2V0IHNvbWUgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcyBpbiB0aGlzIGRvY3VtZW50LgoKCmBgYHtyfQojIENyZWF0ZSBhIGNsaXBib2FyZCBidXR0b24gb24gdGhlIHJlbmRlcmVkIEhUTUwgcGFnZQpzb3VyY2UoaGVyZTo6aGVyZSgiY2xpcGJvYXJkLlIiKSk7IGNsaXBib2FyZAojIFNldCBzZWVkIGZvciByZXByb2R1Y2liaWxpdHkKc2V0LnNlZWQoNTkzKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IFRSVUUsICAgICAgIAogICMgRW5hYmxlIGNhY2hpbmcgb2YgUiBjb2RlIGNodW5rcyBmb3IgZmFzdGVyIHJlbmRlcmluZwogIGNhY2hlID0gRkFMU0UsICAgICAgCiAgIyBBbGlnbiBmaWd1cmVzIGluIHRoZSBjZW50ZXIgb2YgdGhlIG91dHB1dAogIGZpZy5hbGlnbiA9ICJjZW50ZXIiLAogICMgRW5hYmxlIHJldGluYSBkaXNwbGF5IGZvciBoaWdoLXJlc29sdXRpb24gZmlndXJlcwogIHJldGluYSA9IDIsCiAgIyBTaG93IGVycm9ycyBpbiB0aGUgb3V0cHV0IGluc3RlYWQgb2Ygc3RvcHBpbmcgcmVuZGVyaW5nCiAgZXJyb3IgPSBUUlVFLAogICMgRG8gbm90IGNvbGxhcHNlIGNvZGUgYW5kIG91dHB1dCBpbnRvIGEgc2luZ2xlIGJsb2NrCiAgY29sbGFwc2UgPSBGQUxTRQopCiMgU3RhcnQgdGhlIGZpZ3VyZSBjb3VudGVyCmZpZ19jb3VudCA8LSAwCiMgRGVmaW5lIHRoZSBjYXB0aW9uZXIgZnVuY3Rpb24KY2FwdGlvbmVyIDwtIGZ1bmN0aW9uKGNhcHRpb24pIHsKICBmaWdfY291bnQgPDwtIGZpZ19jb3VudCArIDEKICBwYXN0ZTAoIkZpZ3VyZSAiLCBmaWdfY291bnQsICI6ICIsIGNhcHRpb24pCn0KIyBEZWZpbmUgdGhlIGZ1bmN0aW9uIHRvIHRydW5jYXRlIGEgbnVtYmVyIHRvIHR3byBkZWNpbWFsIHBsYWNlcwp0cnVuY2F0ZV90b190d28gPC0gZnVuY3Rpb24oeCkgewogIHRydW5jYXRlZCA8LSBmbG9vcih4ICogMTAwKSAvIDEwMAogIHNwcmludGYoIiUuMmYiLCB0cnVuY2F0ZWQpCn0KYGBgCgojIEltcG9ydCBsaWJyYXJpZXMKCmBgYHtyLCBldmFsID0gVFJVRX0KbGlicmFyeShNZXRyaWNHcmFwaCkKbGlicmFyeShNYXRyaXgpCmxpYnJhcnkoclNQREUpCgpsaWJyYXJ5KGRwbHlyKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShwbG90bHkpCmxpYnJhcnkoZ2dwbG90MikKbGlicmFyeShsYXRleDJleHApCmxpYnJhcnkoZ2d0ZXh0KQoKbGlicmFyeShncmF0ZWZ1bCkgIyBDaXRlIGFsbCBsb2FkZWQgcGFja2FnZXMKbGlicmFyeShoZXJlKSAjIGhlcmU6OmhlcmUoKSBzdGFydHMgZnJvbSB0aGUgaG9tZSBkaXJlY3RvcnkKCmxpYnJhcnkoc2xhY2tyKQpzb3VyY2UoImtleXMuUiIpCnNsYWNrcl9zZXR1cCh0b2tlbiA9IHRva2VuKSAjIHRva2VuIGNvbWVzIGZyb20ga2V5cy5SCmBgYAoKCgpgYGB7cn0KIyBnZXQgdGhlIGZ1bmN0aW9ucyBmcm9tIHRoZSBSbWQgZmlsZXMKa25pdHI6OnB1cmwoaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SbWQiKSwgb3V0cHV0ID0gaGVyZTo6aGVyZSgiYWxsX2Z1bmN0aW9ucy5SIikpCmtuaXRyOjpwdXJsKGhlcmU6OmhlcmUoIm1hdGVybl9mdW5jdGlvbnMuUm1kIiksIG91dHB1dCA9IGhlcmU6OmhlcmUoIm1hdGVybl9mdW5jdGlvbnMuUiIpKQoKIyBsb2FkIHRoZSBmdW5jdGlvbnMKc291cmNlKGhlcmU6OmhlcmUoImFsbF9mdW5jdGlvbnMuUiIpKQpzb3VyY2UoaGVyZTo6aGVyZSgibWF0ZXJuX2Z1bmN0aW9ucy5SIikpCgpgYGAKCmBgYHtyfQphbHBoYVZlY3RvciA8LSBjKHNlcSgwLjUxLDAuNTksYnk9MC4wMSksCiAgICAgICAgICAgc2VxKDAuNiwwLjksYnk9MC4wNSksIAogICAgICAgICAgIHNlcSgwLjkxLDEuMDksYnk9MC4wMSksCiAgICAgICAgICAgc2VxKDEuMSwxLjksYnk9MC4wNSksIAogICAgICAgICAgIHNlcSgxLjkxLDIuMDksYnk9MC4wMSksCiAgICAgICAgICAgc2VxKDIuMSwyLjksYnk9MC4wNSksIAogICAgICAgICAgIHNlcSgyLjkxLDMsYnk9MC4wMSkpIAptVmVjdG9yIDwtIDE6NwpyaG9WZWN0b3IgPC0gYygwLjAwNSkKCnNpZ21hIDwtIDEKaCA8LSAwLjAwMQpuT3ZlcmtpbGwgPC0gMTAwMAp0eXBlX3JhdGlvbmFsX2FwcHJveFZlY3RvciA8LSBjKCJicmFzaWwiLCAiY2hlYmZ1bkxCIikKdHlwZV9pbnRlcnAgPC0gInNwbGluZSIKCgpkYXQgPC0gZXhwYW5kX2dyaWQoCiAgYWxwaGEgPSBhbHBoYVZlY3RvciwKICBtID0gbVZlY3RvciwKICByaG8gPSByaG9WZWN0b3IsCiAgdHlwZV9yYXRpb25hbF9hcHByb3ggPSB0eXBlX3JhdGlvbmFsX2FwcHJveFZlY3RvcgopIHw+IAogIG11dGF0ZSgKICAgIEwyRXJyb3JSYXRpb25hbCA9IE5BX3JlYWxfLCAKICAgIExpbmZFcnJvclJhdGlvbmFsID0gTkFfcmVhbF8sIAogICAgdGltZUVsYXBzZWRSYXRpb25hbCA9IE5BX3JlYWxfLCAKICAgIEwyRXJyb3JGRU0gPSBOQV9yZWFsXywKICAgIExpbmZFcnJvckZFTSA9IE5BX3JlYWxfLAogICAgdGltZUVsYXBzZWRGRU0gPSBOQV9yZWFsXywKICAgIHRpbWVFbGFwc2VkVHJ1ZSA9IE5BX3JlYWxfLAogICAgZXJyb3JfbXNnID0gTkFfY2hhcmFjdGVyXywKICAgIHN0YXR1cyA9ICJub3RfY29tcHV0ZWQiICAgCiAgKQoKCmdyYXBoRkVNIDwtIGdldHMuZ3JhcGgudGFkcG9sZShmbGlwX2VkZ2UgPSBGQUxTRSkKZ3JhcGggPC0gZ3JhcGhGRU0kY2xvbmUoKQoKZ3JhcGhGRU0kYnVpbGRfbWVzaChoID0gaCkKCm1lc2hfbG9jYXRpb25zIDwtIGdyYXBoRkVNJGdldF9tZXNoX2xvY2F0aW9ucygpICU+JSAKICBhcy5kYXRhLmZyYW1lKCkgJT4lIAogIG11dGF0ZShkdW1teSA9IDEpICU+JQogIHJlbmFtZShlZGdlX251bWJlciA9IFYxLCBkaXN0YW5jZV9vbl9lZGdlID0gVjIpCgojIGFkZCBtZXNoIGxvY2F0aW9ucyBhcyBvYnNlcnZhdGlvbnMKZ3JhcGgkYWRkX29ic2VydmF0aW9ucygKICBkYXRhID0gbWVzaF9sb2NhdGlvbnMsCiAgbm9ybWFsaXplZCA9IFRSVUUpCgpncmFwaCRvYnNlcnZhdGlvbl90b192ZXJ0ZXgoKQpgYGAKCgpgYGB7cn0KdW5pcXVlX3BhcmFtcyA8LSB1bmlxdWUoZGF0WywgYygiYWxwaGEiLCAicmhvIildKQp0cnVlU2lnbWFfbGlzdCA8LSBsaXN0KCkKdGltZVRydWVfbGlzdCA8LSBsaXN0KCkKZm9yIChqIGluIDE6bnJvdyh1bmlxdWVfcGFyYW1zKSkgewogIGFscGhhX2ogPC0gdW5pcXVlX3BhcmFtcyRhbHBoYVtqXQogIHJob19qIDwtIHVuaXF1ZV9wYXJhbXMkcmhvW2pdCiAgCiAgbnVfaiA8LSBhbHBoYV9qIC0gMS8yCiAga2FwcGFfaiA8LSBzcXJ0KDggKiBudV9qKSAvIHJob19qCiAgdGF1X2ogPC0gc3FydChnYW1tYShudV9qKSAvIChzaWdtYV4yICoga2FwcGFfal4oMipudV9qKSAqICg0KnBpKV4oMS8yKSAqIGdhbW1hKG51X2ogKyAxLzIpKSkKICAKICBrZXkgPC0gc3ByaW50ZigiJS42Zl8lLjZmIiwgYWxwaGFfaiwgcmhvX2opCiAgCiAgdHJ5Q2F0Y2goewogIHRpbWVUcnVlX2xpc3RbW2tleV1dIDwtIHN5c3RlbS50aW1lKHsKICAgIHRydWVTaWdtYV9saXN0W1trZXldXSA8LSBnZXRzX3RydWVfY292X21hdCgKICAgICAgZ3JhcGggPSBncmFwaEZFTSwKICAgICAga2FwcGEgPSBrYXBwYV9qLAogICAgICB0YXUgPSB0YXVfaiwKICAgICAgYWxwaGEgPSBhbHBoYV9qLAogICAgICBuLm92ZXJraWxsID0gbk92ZXJraWxsCiAgICApCiAgfSlbImVsYXBzZWQiXQogIH0sIGVycm9yID0gZnVuY3Rpb24oZXJyKXsKICAgIHdhcm5pbmcocGFzdGUwKCJFcnJvciBvY2N1cnJlZCB3aGlsZSBjb21wdXRpbmcgdHJ1ZSBjb3ZhcmlhbmNlIGZvciBhbHBoYSA9ICIsIGFscGhhX2osIAogICAgICAgICAgICAgICAgICAgIiBhbmQgcmhvID0gIiwgcmhvX2osIAogICAgICAgICAgICAgICAgICAgIjogIiwgY29uZGl0aW9uTWVzc2FnZShlcnIpKSkKICAgIHNsYWNrcl9tc2codGV4dCA9IHBhc3RlMCgiRXJyb3Igb2NjdXJyZWQgd2hpbGUgY29tcHV0aW5nIHRydWUgY292YXJpYW5jZSBmb3IgYWxwaGEgPSAiLCBhbHBoYV9qLCAKICAgICAgICAgICAgICAgICAgICIgYW5kIHJobyA9ICIsIHJob19qLCAKICAgICAgICAgICAgICAgICAgICI6ICIsIGNvbmRpdGlvbk1lc3NhZ2UoZXJyKSksCiAgICAgICAgICAgICAgIGNoYW5uZWwgPSAiI3Jlc2VhcmNoIikKICAgIHRydWVTaWdtYV9saXN0W1trZXldXSA8LSBOQV9yZWFsXwogICAgdGltZVRydWVfbGlzdFtba2V5XV0gPC0gTkFfcmVhbF8KICB9KQogIHNsYWNrcl9tc2codGV4dCA9IHBhc3RlMCgiRmluaXNoZWQgY29tcHV0aW5nIHRydWUgY292YXJpYW5jZSBmb3IgYWxwaGEgPSAiLCBhbHBoYV9qLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiIGFuZCByaG8gPSAiLCByaG9faiwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiAsIGl0ZXJhdGlvbiAiLCBqLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiIG91dCBvZiAiLCBucm93KHVuaXF1ZV9wYXJhbXMpKSwgCiAgICAgICAgICAgICBjaGFubmVsID0gIiNyZXNlYXJjaCIpCiAgcHJpbnQoaikKfQoKc2F2ZSh0cnVlU2lnbWFfbGlzdCwgdGltZVRydWVfbGlzdCwgZmlsZSA9ICJ+L0Rlc2t0b3AvdHJ1ZVNpZ21hX2xpc3QuUkRhdGEiKQpgYGAKCgoKCgpgYGB7cn0KbG9hZCgifi9EZXNrdG9wL3RydWVTaWdtYV9saXN0LlJEYXRhIikKZm9yIChpIGluIDE6bnJvdyhkYXQpKSB7CiAgZGF0X2kgPC0gZGF0W2ksIF0KICBhbHBoYSA8LSBkYXRfaSRhbHBoYQogIG0gPC0gZGF0X2kkbQogIHJobyA8LSBkYXRfaSRyaG8KICB0eXBlX3JhdGlvbmFsX2FwcHJveCA8LSBkYXRfaSR0eXBlX3JhdGlvbmFsX2FwcHJveAogIAogIG51IDwtIGFscGhhIC0gMS8yCiAga2FwcGEgPC0gc3FydCg4Km51KS9yaG8KICB0YXUgPC0gc3FydChnYW1tYShudSkgLyAoc2lnbWFeMiAqIGthcHBhXigyKm51KSAqICg0KnBpKV4oMS8yKSAqIGdhbW1hKG51ICsgMS8yKSkpICAKICAKICByZXMgPC0gdHJ5Q2F0Y2goewogICAgICAgICAgICBrZXkgPC0gc3ByaW50ZigiJS42Zl8lLjZmIiwgYWxwaGEsIHJobykKCiAgICAgICAgICAgIHRydWVTaWdtYSA8LSB0cnVlU2lnbWFfbGlzdFtba2V5XV0KICAgICAgICAgICAgdGltZUVsYXBzZWRUcnVlIDwtIHRpbWVUcnVlX2xpc3RbW2tleV1dCiAgICAgICAgICAgIAogICAgICAgICAgICB0aW1lRWxhcHNlZEZFTSA8LSBzeXN0ZW0udGltZSh7CiAgICAgICAgICAgIEZFTVNpZ21hIDwtIGNvdmFyaWFuY2VfbWVzaCgKICAgICAgICAgICAgICBtYXRlcm4ub3BlcmF0b3JzKAogICAgICAgICAgICAgICAgYWxwaGEgPSBhbHBoYSwgCiAgICAgICAgICAgICAgICBrYXBwYSA9IGthcHBhLCAKICAgICAgICAgICAgICAgIHRhdSA9IHRhdSwKICAgICAgICAgICAgICAgIG0gPSBtLCAKICAgICAgICAgICAgICAgIGdyYXBoID0gZ3JhcGhGRU0sCiAgICAgICAgICAgICAgICB0eXBlID0gImNvdmFyaWFuY2UiLAogICAgICAgICAgICAgICAgdHlwZV9yYXRpb25hbF9hcHByb3hpbWF0aW9uID0gdHlwZV9yYXRpb25hbF9hcHByb3gpKQogICAgICAgICAgICB9KVsiZWxhcHNlZCJdCiAgICAgICAgICAgIAogICAgICAgICAgICB0aW1lRWxhcHNlZFJhdGlvbmFsIDwtIHN5c3RlbS50aW1lKHsKICAgICAgICAgICAgcmF0U2lnbWEgPC0gcmF0X2NvdmFyaWFuY2UoCiAgICAgICAgICAgICAgZ3JhcGggPSBncmFwaCwgCiAgICAgICAgICAgICAga2FwcGEgPSBrYXBwYSwgCiAgICAgICAgICAgICAgdGF1ID0gdGF1LCAKICAgICAgICAgICAgICBhbHBoYSA9IGFscGhhLCAKICAgICAgICAgICAgICBtID0gbSwKICAgICAgICAgICAgICB0eXBlX3JhdGlvbmFsX2FwcHJveCA9IHR5cGVfcmF0aW9uYWxfYXBwcm94LAogICAgICAgICAgICAgIHR5cGVfaW50ZXJwID0gdHlwZV9pbnRlcnAsCiAgICAgICAgICAgICAgYnVpbGRfY292ID0gVFJVRSkKICAgICAgICAgICAgfSlbImVsYXBzZWQiXQogICAgICAgICAgICAKICAgICAgICAgICAgIyBjb21wdXRpbmcgdGhlIGVycm9ycwogICAgICAgICAgICBMaW5mRXJyb3JSYXRpb25hbCA8LSBtYXgoYWJzKHRydWVTaWdtYSAtIHJhdFNpZ21hKSkKICAgICAgICAgICAgTDJFcnJvclJhdGlvbmFsICAgPC0gc3FydChhcy5kb3VibGUodChncmFwaEZFTSRtZXNoJHdlaWdodHMpJSolKHRydWVTaWdtYSAtIHJhdFNpZ21hKV4yJSolZ3JhcGhGRU0kbWVzaCR3ZWlnaHRzKSkKICAgICAgICAgICAgTGluZkVycm9yRkVNICAgICAgPC0gbWF4KGFicyh0cnVlU2lnbWEgLSBGRU1TaWdtYSkpCiAgICAgICAgICAgIEwyRXJyb3JGRU0gICAgICAgIDwtIHNxcnQoYXMuZG91YmxlKHQoZ3JhcGhGRU0kbWVzaCR3ZWlnaHRzKSUqJSh0cnVlU2lnbWEgLSBGRU1TaWdtYSleMiUqJWdyYXBoRkVNJG1lc2gkd2VpZ2h0cykpCiAgICAgICAgICAgIAogICAgICAgICAgICBsaXN0KAogICAgICAgICAgICAgICAgTGluZkVycm9yUmF0aW9uYWwgPSAgTGluZkVycm9yUmF0aW9uYWwsCiAgICAgICAgICAgICAgICBMMkVycm9yUmF0aW9uYWwgICA9ICBMMkVycm9yUmF0aW9uYWwsCiAgICAgICAgICAgICAgICBMaW5mRXJyb3JGRU0gICAgICA9ICBMaW5mRXJyb3JGRU0sCiAgICAgICAgICAgICAgICBMMkVycm9yRkVNICAgICAgICA9ICBMMkVycm9yRkVNLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRSYXRpb25hbCA9IHRpbWVFbGFwc2VkUmF0aW9uYWwsCiAgICAgICAgICAgICAgICB0aW1lRWxhcHNlZEZFTSAgICAgID0gdGltZUVsYXBzZWRGRU0sCiAgICAgICAgICAgICAgICB0aW1lRWxhcHNlZFRydWUgICAgID0gdGltZUVsYXBzZWRUcnVlLAogICAgICAgICAgICAgICAgc3RhdHVzID0gIm9rIgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICB9LCBlcnJvciA9IGZ1bmN0aW9uKGVycil7CiAgICAgICAgICAgICAgd2FybmluZyhwYXN0ZTAoIkVycm9yIG9jY3VycmVkIGF0IGl0ZXJhdGlvbiByaG8gPSAiLCByaG8sIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIiwga2FwcGEgPSAiLCBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICIsIG0gPSAiLCBtLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICIsIGFscGhhID0gIiwgYWxwaGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBudSA9ICIsIG51LCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICIsIEVycm9yOiIsIGNvbmRpdGlvbk1lc3NhZ2UoZXJyKSkpCiAgICAgICAgICAgICAgc2xhY2tyX21zZyh0ZXh0ID0gcGFzdGUwKCJFcnJvciBvY2N1cnJlZCBhdCBpdGVyYXRpb24gcmhvID0gIiwgcmhvLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBrYXBwYSA9ICIsIGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIG0gPSAiLCBtLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBhbHBoYSA9ICIsIGFscGhhLAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIG51ID0gIiwgbnUsIAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIHR5cGUgPSAiLCB0eXBlX3JhdGlvbmFsX2FwcHJveCwKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBFcnJvcjoiLCBjb25kaXRpb25NZXNzYWdlKGVycikpLAogICAgICAgICAgICAgICAgICAgICAgICAgY2hhbm5lbCA9ICIjcmVzZWFyY2giKQogICAgICAgICAgICAgIGxpc3QoCiAgICAgICAgICAgICAgICBMaW5mRXJyb3JSYXRpb25hbCA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgTDJFcnJvclJhdGlvbmFsICAgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIExpbmZFcnJvckZFTSAgICAgID0gTkFfcmVhbF8sCiAgICAgICAgICAgICAgICBMMkVycm9yRkVNICAgICAgICA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRSYXRpb25hbCA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRGRU0gICAgICA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRUcnVlICAgICA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgZXJyb3JfbXNnID0gY29uZGl0aW9uTWVzc2FnZShlcnIpLAogICAgICAgICAgICAgICAgc3RhdHVzID0gImVycm9yIgogICAgICAgICAgICAgICAgKQogICAgICAgICAgICB9KQogIGRhdFtpLCBuYW1lcyhyZXMpXSA8LSByZXMKICBzbGFja3JfbXNnKHRleHQgPSBwYXN0ZTAoIkN1cnJlbnQgcGFyYW1ldGVycyBhcmUgcmhvID0gIiwgcmhvLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBrYXBwYSA9ICIsIGthcHBhLAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIG0gPSAiLCBtLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBhbHBoYSA9ICIsIGFscGhhLAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIG51ID0gIiwgbnUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwgdHlwZSA9ICIsIHR5cGVfcmF0aW9uYWxfYXBwcm94LAogICAgICAgICAgICAgICAgICAgICAgICAgICIgLCBpdGVyYXRpb24gIiwgaSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiBvdXQgb2YgIiwgbnJvdyhkYXQpKSwgCiAgICAgICAgICAgICBjaGFubmVsID0gIiNyZXNlYXJjaCIpCiAgcHJpbnQoaSkKfQpzYXZlKGRhdCwgZmlsZSA9IGhlcmU6OmhlcmUoImRhdGFfZmlsZXMvZXJyb3JfY29tcGFyaXNvbl9yZXN1bHRzLlJEYXRhIikpCmBgYAoKCgpgYGB7cn0KbG9hZChoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL2Vycm9yX2NvbXBhcmlzb25fcmVzdWx0cy5SRGF0YSIpKQoKZGZfYWxsIDwtIGRhdCB8PgogIHBpdm90X2xvbmdlcigKICAgIGNvbHMgPSBjKEwyRXJyb3JSYXRpb25hbCwgTGluZkVycm9yUmF0aW9uYWwsCiAgICAgICAgICAgICBMMkVycm9yRkVNLCBMaW5mRXJyb3JGRU0pLAogICAgbmFtZXNfdG8gPSBjKCJtZXRyaWMiLCAibWV0aG9kIiksCiAgICBuYW1lc19wYXR0ZXJuID0gIihMMkVycm9yfExpbmZFcnJvcikoUmF0aW9uYWx8RkVNKSIsCiAgICB2YWx1ZXNfdG8gPSAiZXJyb3IiCiAgKSB8PgogIG11dGF0ZSgKICAgIG0gPSB7CiAgICAgIG1fdmFscyA8LSBzb3J0KHVuaXF1ZShtKSkKICAgICAgZmFjdG9yKAogICAgICAgIG0sCiAgICAgICAgbGV2ZWxzID0gbV92YWxzLAogICAgICAgIGxhYmVscyA9IG1fdmFscykKICAgICAgfSwKICAgIHJobyA9IHsKICAgICAgcmhvX3ZhbHMgPC0gc29ydCh1bmlxdWUocmhvKSkKICAgICAgZmFjdG9yKAogICAgICAgIHJobywKICAgICAgICBsZXZlbHMgPSByaG9fdmFscywKICAgICAgICBsYWJlbHMgPSBzcHJpbnRmKCIkXFxyaG8gPSAlZyQiLCByaG9fdmFscykKICAgICAgKQogICAgfSwKICAgIG1ldHJpYyA9IGZhY3RvcigKICAgICAgbWV0cmljLAogICAgICBsZXZlbHMgPSBjKCJMMkVycm9yIiwgIkxpbmZFcnJvciIpLAogICAgICBsYWJlbHMgPSBjKCIkTF8yKFxcR2FtbWFcXHRpbWVzXFxHYW1tYSkkIiwgIiRMX1xcaW5mdHkoXFxHYW1tYVxcdGltZXNcXEdhbW1hKSQiKQogICAgKSwKICAgIG1ldGhvZCA9IGZhY3RvcigKICAgICAgbWV0aG9kLAogICAgICBsZXZlbHMgPSBjKCJSYXRpb25hbCIsICJGRU0iKSwKICAgICAgbGFiZWxzID0gYygiUkFUIiwgIkZFTSIpCiAgICApCiAgKSB8PiBzZWxlY3QoLXN0YXR1cywgLXN0YXJ0c193aXRoKCJ0aW1lIikpIAoKdHlwZV9yYXRpb25hbF9hcHByb3hWZWN0b3IgPC0gYygiYnJhc2lsIiwgImNoZWJmdW5MQiIpClRSQSA8LSB0eXBlX3JhdGlvbmFsX2FwcHJveFZlY3RvclsyXQoKZGYgPC0gZmlsdGVyKGRmX2FsbCwgdHlwZV9yYXRpb25hbF9hcHByb3ggPT0gVFJBKQoKCmVycm9yUmF0RkVNY29tcGFyaXNvbiA8LSBnZ3Bsb3QoZGYsIGFlcyhhbHBoYSwgZXJyb3IsIGNvbG91ciA9IG0sIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGluZXR5cGUgPSBtZXRob2QsIGxpbmV3aWR0aCA9IG1ldGhvZCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFscGhhID0gbWV0aG9kKSkgKyAKICBmYWNldF9ncmlkKG1ldHJpYyB+IHJobykgKwogIGdlb21fbGluZSgpICsKICBzY2FsZV95X2xvZzEwKG4uYnJlYWtzID0gNSkgKwogIHNjYWxlX3hfY29udGludW91cyhuLmJyZWFrcyA9IDYpICsKICBzY2FsZV9saW5ldHlwZV9tYW51YWwodmFsdWVzID0gYygiUkFUIiA9ICJzb2xpZCIsICJGRU0iID0gImRvdHRlZCIpKSArIAogIHNjYWxlX2xpbmV3aWR0aF9tYW51YWwodmFsdWVzID0gYygiUkFUIiA9IDEuOCwgIkZFTSIgPSAwLjYpKSArCiAgc2NhbGVfYWxwaGFfbWFudWFsKHZhbHVlcyA9IGMoIlJBVCIgPSAwLjI1LCAiRkVNIiA9IDEuMCksIGd1aWRlID0gIm5vbmUiKSArCiAgdGhlbWVfYncoKSArCiAgdGhlbWUocGFuZWwuc3BhY2luZyA9IHVuaXQoMC4zLCAiY20iKSwgCiAgICAgICAgdGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHkgPSAiUGFsYXRpbm8iKSwKICAgICAgICBwbG90LnRpdGxlID0gZWxlbWVudF90ZXh0KGhqdXN0ID0gMC41LCBzaXplID0gMTYpLAogICAgICAgIHN0cmlwLnRleHQgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDEyKSwKICAgICAgICBheGlzLnRpdGxlID0gZWxlbWVudF90ZXh0KHNpemUgPSAxNCksCiAgICAgICAgYXhpcy50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMiksCiAgICAgICAgbGVnZW5kLnRpdGxlID0gZWxlbWVudF90ZXh0KHNpemUgPSAxNCksCiAgICAgICAgbGVnZW5kLnRleHQgPSBlbGVtZW50X3RleHQoc2l6ZSA9IDEyKSkgKwogIGxhYnMoeCA9ICIkXFxhbHBoYVxcOyhcXG1ib3h7U21vb3RobmVzcyBwYXJhbWV0ZXJ9KSQiLCAKICAgICAgIHkgPSAiJFxcbWJveHtDb3ZhcmlhbmNlIEVycm9yfSQiLCAKICAgICAgIGNvbG9yID0gIiRtJCIsIAogICAgICAgbGluZXR5cGUgPSAiTWV0aG9kIiwKICAgICAgIGxpbmV3aWR0aCA9ICJNZXRob2QiKSArIAogIHRoZW1lKAogIGxlZ2VuZC5wb3NpdGlvbiA9ICJib3R0b20iLAogIGxlZ2VuZC5kaXJlY3Rpb24gPSAiaG9yaXpvbnRhbCIsCiAgbGVnZW5kLmtleS53aWR0aCAgPSB1bml0KDIsICJjbSIpLAogIGxlZ2VuZC5rZXkuaGVpZ2h0ID0gdW5pdCgwLCAiY20iKQopICsKZ3VpZGVzKAogIGFscGhhID0gIm5vbmUiLAogIGxpbmV3aWR0aCA9ICJub25lIiwKICBjb2xvdXIgPSBndWlkZV9sZWdlbmQoCiAgICBucm93ID0gMSwKICAgIG92ZXJyaWRlLmFlcyA9IGxpc3QobGluZXdpZHRoID0gMSkKICApLAogIGxpbmV0eXBlID0gZ3VpZGVfbGVnZW5kKAogICAgbnJvdyA9IDEsCiAgICBvdmVycmlkZS5hZXMgPSBsaXN0KGxpbmV3aWR0aCA9IDEpCiAgKQopCgpteWdnc2F2ZShlcnJvclJhdEZFTWNvbXBhcmlzb24sIHdpZHRoID0gMTIsIGhlaWdodCA9IDYpCgpzbGFja3JfdXBsb2FkKAogIGZpbGVuYW1lID0gaGVyZTo6aGVyZSgiZGF0YV9maWxlcy90aWt6cGljL2Vycm9yUmF0RkVNY29tcGFyaXNvbi5wZGYiKSwgICAgICAgICMgcGF0aCB0byB5b3VyIGltYWdlCiAgaW5pdGlhbF9jb21tZW50ID0gcGFzdGUwKCJSZXN1bHQgd2l0aCAiLCBUUkEpLAogIGNoYW5uZWxzID0gIiNyZXNlYXJjaCIKKQpgYGAKCgoKCgpgYGB7cn0KZGZfRkVNIDwtIGZpbHRlcihkZiwgbWV0aG9kID09ICJGRU0iKSMsIGFscGhhIDw9IDIgJiBhbHBoYSA+PSAwLjYpCgplcnJvckZFTWFsb25lIDwtIGdncGxvdChkZl9GRU0sIGFlcyhhbHBoYSwgZXJyb3IsIGNvbG91ciA9IG0pKSArIAogIGZhY2V0X2dyaWQobWV0cmljIH4gcmhvKSArCiAgZ2VvbV9saW5lKGxpbmV3aWR0aCA9IDAuNikgKwogIHNjYWxlX3lfbG9nMTAobi5icmVha3MgPSA1KSArCiAgc2NhbGVfeF9jb250aW51b3VzKG4uYnJlYWtzID0gNCkgKwogIHRoZW1lX2J3KCkgKwogIHRoZW1lKHBhbmVsLnNwYWNpbmcgPSB1bml0KDAuMywgImNtIiksIAogICAgICAgIHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5ID0gIlBhbGF0aW5vIiksCiAgICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChoanVzdCA9IDAuNSwgc2l6ZSA9IDE2KSwKICAgICAgICBzdHJpcC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMiksCiAgICAgICAgYXhpcy50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGF4aXMudGV4dCA9IGVsZW1lbnRfdGV4dChzaXplID0gMTIpLAogICAgICAgIGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGxlZ2VuZC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMikpICsKICBsYWJzKHggPSAiJFxcYWxwaGFcXG1ib3h7IH0oXFxtYm94e1Ntb290aG5lc3MgcGFyYW1ldGVyfSkkIiwgCiAgICAgICB5ID0gIiRcXG1ib3h7Q292YXJpYW5jZSBFcnJvcn0kIiwgCiAgICAgICBjb2xvciA9ICIkbSQiKSArIAogIHRoZW1lKAogIGxlZ2VuZC5wb3NpdGlvbiA9ICJib3R0b20iLAogIGxlZ2VuZC5kaXJlY3Rpb24gPSAiaG9yaXpvbnRhbCIsCiAgbGVnZW5kLmtleS53aWR0aCAgPSB1bml0KDIsICJjbSIpLAogIGxlZ2VuZC5rZXkuaGVpZ2h0ID0gdW5pdCgwLCAiY20iKQopICsKZ3VpZGVzKAogIGNvbG91ciA9IGd1aWRlX2xlZ2VuZCgKICAgIG5yb3cgPSAxLAogICAgb3ZlcnJpZGUuYWVzID0gbGlzdChsaW5ld2lkdGggPSAxKQogICkKKQoKbXlnZ3NhdmUoZXJyb3JGRU1hbG9uZSwgd2lkdGggPSAxMiwgaGVpZ2h0ID0gNikKCnNsYWNrcl91cGxvYWQoCiAgZmlsZW5hbWUgPSBoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL3Rpa3pwaWMvZXJyb3JGRU1hbG9uZS5wZGYiKSwgICAgICAgICMgcGF0aCB0byB5b3VyIGltYWdlCiAgaW5pdGlhbF9jb21tZW50ID0gIlJlc3VsdCIsCiAgY2hhbm5lbHMgPSAiI3Jlc2VhcmNoIgopCmBgYAoKCmBgYHtyLCBldmFsID0gVFJVRSwgb3V0LndpZHRoPSIxMjAwcHgiLCBvdXQuaGVpZ2h0PSI2MDBweCIsIGZpZy5jYXAgPSBjYXB0aW9uZXIoIkNvdmFyaWFuY2UgZXJyb3IgZm9yIHRoZSB0YWRwb2xlIGdyYXBoLiIpfQprbml0cjo6aW5jbHVkZV9ncmFwaGljcyhoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL3Rpa3pwaWMvZXJyb3JSYXRGRU1jb21wYXJpc29uLnBkZiIpKQpgYGAKCgpgYGB7ciwgZXZhbCA9IFRSVUUsIG91dC53aWR0aD0iMTIwMHB4Iiwgb3V0LmhlaWdodD0iNjAwcHgiLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb3ZhcmlhbmNlIGVycm9yIGZvciB0aGUgdGFkcG9sZSBncmFwaC4iKX0Ka25pdHI6OmluY2x1ZGVfZ3JhcGhpY3MoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy90aWt6cGljL2Vycm9yRkVNYWxvbmUucGRmIikpCmBgYAoKCgoKCgoKCgoKCgoKCgoKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTnVtZXJpY2FsIGVycm9yIgpkYXRlOiAiTGFzdCBtb2RpZmllZDogYHIgZm9ybWF0KFN5cy50aW1lKCksICclZC0lbS0lWS4nKWAiCm91dHB1dDoKICBodG1sX2RvY3VtZW50OgogICAgbWF0aGpheDogImh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vbWF0aGpheEAzL2VzNS90ZXgtbW1sLWNodG1sLmpzIgogICAgaGlnaGxpZ2h0OiBweWdtZW50cwogICAgdGhlbWU6IGZsYXRseQogICAgY29kZV9mb2xkaW5nOiBoaWRlICMgY2xhc3Muc291cmNlID0gImZvbGQtaGlkZSIgdG8gaGlkZSBjb2RlIGFuZCBhZGQgYSBidXR0b24gdG8gc2hvdyBpdAogICAgZGZfcHJpbnQ6IHBhZ2VkCiAgICB0b2M6IHRydWUKICAgIHRvY19mbG9hdDoKICAgICAgY29sbGFwc2VkOiB0cnVlCiAgICAgIHNtb290aF9zY3JvbGw6IHRydWUKICAgIG51bWJlcl9zZWN0aW9uczogdHJ1ZQogICAgZmlnX2NhcHRpb246IHRydWUKICAgIGNvZGVfZG93bmxvYWQ6IHRydWUKICAgIGNzczogdmlzdWFsLmNzcwphbHdheXNfYWxsb3dfaHRtbDogdHJ1ZQpiaWJsaW9ncmFwaHk6IAogIC0gcmVmZXJlbmNlcy5iaWIKICAtIGdyYXRlZnVsLXJlZnMuYmliCmhlYWRlci1pbmNsdWRlczoKICAtIFxuZXdjb21tYW5ke1xhcn17XG1hdGhiYntSfX0KICAtIFxuZXdjb21tYW5ke1xsbGF2fVsxXXtcbGVmdFx7IzFccmlnaHRcfX0KICAtIFxuZXdjb21tYW5ke1xwYXJlfVsxXXtcbGVmdCgjMVxyaWdodCl9CiAgLSBcbmV3Y29tbWFuZHtcTmNhbH17XG1hdGhjYWx7Tn19CiAgLSBcbmV3Y29tbWFuZHtcVmNhbH17XG1hdGhjYWx7Vn19CiAgLSBcbmV3Y29tbWFuZHtcRWNhbH17XG1hdGhjYWx7RX19CiAgLSBcbmV3Y29tbWFuZHtcV2NhbH17XG1hdGhjYWx7V319CiAgLSBcbmV3Y29tbWFuZHtcYWxtb3N0ZXZlcnl3aGVyZX17XG1hdGhybXthLmUufVw7fQotLS0KCkdvIGJhY2sgdG8gdGhlIFtDb250ZW50c10oYWJvdXQuaHRtbCkgcGFnZS4KCjxkaXYgc3R5bGU9ImNvbG9yOiAjMmMzZTUwOyB0ZXh0LWFsaWduOiByaWdodDsiPgoqKioqKioqKiAgCjxzdHJvbmc+UHJlc3MgU2hvdyB0byByZXZlYWwgdGhlIGNvZGUgY2h1bmtzLjwvc3Ryb25nPiAgCgoqKioqKioqKgo8L2Rpdj4KCgpHbyBiYWNrIHRvIHRoZSBbQWJvdXQgcGFnZV0oYWJvdXQuaHRtbCkuCgpMZXQgdXMgc2V0IHNvbWUgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcyBpbiB0aGlzIGRvY3VtZW50LgoKCmBgYHtyfQojIENyZWF0ZSBhIGNsaXBib2FyZCBidXR0b24gb24gdGhlIHJlbmRlcmVkIEhUTUwgcGFnZQpzb3VyY2UoaGVyZTo6aGVyZSgiY2xpcGJvYXJkLlIiKSk7IGNsaXBib2FyZAojIFNldCBzZWVkIGZvciByZXByb2R1Y2liaWxpdHkKc2V0LnNlZWQoNTkzKSAKIyBTZXQgZ2xvYmFsIG9wdGlvbnMgZm9yIGFsbCBjb2RlIGNodW5rcwprbml0cjo6b3B0c19jaHVuayRzZXQoCiAgIyBEaXNhYmxlIG1lc3NhZ2VzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIG1lc3NhZ2UgPSBGQUxTRSwgICAgCiAgIyBEaXNhYmxlIHdhcm5pbmdzIHByaW50ZWQgYnkgUiBjb2RlIGNodW5rcwogIHdhcm5pbmcgPSBGQUxTRSwgICAgCiAgIyBTaG93IFIgY29kZSB3aXRoaW4gY29kZSBjaHVua3MgaW4gb3V0cHV0CiAgZWNobyA9IFRSVUUsICAgICAgICAKICAjIEluY2x1ZGUgYm90aCBSIGNvZGUgYW5kIGl0cyByZXN1bHRzIGluIG91dHB1dAogIGluY2x1ZGUgPSBUUlVFLCAgICAgCiAgIyBFdmFsdWF0ZSBSIGNvZGUgY2h1bmtzCiAgZXZhbCA9IEZBTFNFLCAgICAgICAKICAjIEVuYWJsZSBjYWNoaW5nIG9mIFIgY29kZSBjaHVua3MgZm9yIGZhc3RlciByZW5kZXJpbmcKICBjYWNoZSA9IEZBTFNFLCAgICAgIAogICMgQWxpZ24gZmlndXJlcyBpbiB0aGUgY2VudGVyIG9mIHRoZSBvdXRwdXQKICBmaWcuYWxpZ24gPSAiY2VudGVyIiwKICAjIEVuYWJsZSByZXRpbmEgZGlzcGxheSBmb3IgaGlnaC1yZXNvbHV0aW9uIGZpZ3VyZXMKICByZXRpbmEgPSAyLAogICMgU2hvdyBlcnJvcnMgaW4gdGhlIG91dHB1dCBpbnN0ZWFkIG9mIHN0b3BwaW5nIHJlbmRlcmluZwogIGVycm9yID0gVFJVRSwKICAjIERvIG5vdCBjb2xsYXBzZSBjb2RlIGFuZCBvdXRwdXQgaW50byBhIHNpbmdsZSBibG9jawogIGNvbGxhcHNlID0gRkFMU0UKKQojIFN0YXJ0IHRoZSBmaWd1cmUgY291bnRlcgpmaWdfY291bnQgPC0gMAojIERlZmluZSB0aGUgY2FwdGlvbmVyIGZ1bmN0aW9uCmNhcHRpb25lciA8LSBmdW5jdGlvbihjYXB0aW9uKSB7CiAgZmlnX2NvdW50IDw8LSBmaWdfY291bnQgKyAxCiAgcGFzdGUwKCJGaWd1cmUgIiwgZmlnX2NvdW50LCAiOiAiLCBjYXB0aW9uKQp9CiMgRGVmaW5lIHRoZSBmdW5jdGlvbiB0byB0cnVuY2F0ZSBhIG51bWJlciB0byB0d28gZGVjaW1hbCBwbGFjZXMKdHJ1bmNhdGVfdG9fdHdvIDwtIGZ1bmN0aW9uKHgpIHsKICB0cnVuY2F0ZWQgPC0gZmxvb3IoeCAqIDEwMCkgLyAxMDAKICBzcHJpbnRmKCIlLjJmIiwgdHJ1bmNhdGVkKQp9CmBgYAoKIyBJbXBvcnQgbGlicmFyaWVzCgpgYGB7ciwgZXZhbCA9IFRSVUV9CmxpYnJhcnkoTWV0cmljR3JhcGgpCmxpYnJhcnkoTWF0cml4KQpsaWJyYXJ5KHJTUERFKQoKbGlicmFyeShkcGx5cikKbGlicmFyeSh0aWR5dmVyc2UpCmxpYnJhcnkocGxvdGx5KQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkobGF0ZXgyZXhwKQpsaWJyYXJ5KGdndGV4dCkKCmxpYnJhcnkoZ3JhdGVmdWwpICMgQ2l0ZSBhbGwgbG9hZGVkIHBhY2thZ2VzCmxpYnJhcnkoaGVyZSkgIyBoZXJlOjpoZXJlKCkgc3RhcnRzIGZyb20gdGhlIGhvbWUgZGlyZWN0b3J5CgpsaWJyYXJ5KHNsYWNrcikKc291cmNlKCJrZXlzLlIiKQpzbGFja3Jfc2V0dXAodG9rZW4gPSB0b2tlbikgIyB0b2tlbiBjb21lcyBmcm9tIGtleXMuUgpgYGAKCgoKYGBge3J9CiMgZ2V0IHRoZSBmdW5jdGlvbnMgZnJvbSB0aGUgUm1kIGZpbGVzCmtuaXRyOjpwdXJsKGhlcmU6OmhlcmUoImFsbF9mdW5jdGlvbnMuUm1kIiksIG91dHB1dCA9IGhlcmU6OmhlcmUoImFsbF9mdW5jdGlvbnMuUiIpKQprbml0cjo6cHVybChoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlJtZCIpLCBvdXRwdXQgPSBoZXJlOjpoZXJlKCJtYXRlcm5fZnVuY3Rpb25zLlIiKSkKCiMgbG9hZCB0aGUgZnVuY3Rpb25zCnNvdXJjZShoZXJlOjpoZXJlKCJhbGxfZnVuY3Rpb25zLlIiKSkKc291cmNlKGhlcmU6OmhlcmUoIm1hdGVybl9mdW5jdGlvbnMuUiIpKQoKYGBgCgpgYGB7cn0KYWxwaGFWZWN0b3IgPC0gYyhzZXEoMC41MSwwLjU5LGJ5PTAuMDEpLAogICAgICAgICAgIHNlcSgwLjYsMC45LGJ5PTAuMDUpLCAKICAgICAgICAgICBzZXEoMC45MSwxLjA5LGJ5PTAuMDEpLAogICAgICAgICAgIHNlcSgxLjEsMS45LGJ5PTAuMDUpLCAKICAgICAgICAgICBzZXEoMS45MSwyLjA5LGJ5PTAuMDEpLAogICAgICAgICAgIHNlcSgyLjEsMi45LGJ5PTAuMDUpLCAKICAgICAgICAgICBzZXEoMi45MSwzLGJ5PTAuMDEpKSAKbVZlY3RvciA8LSAxOjcKcmhvVmVjdG9yIDwtIGMoMC4wMDUpCgpzaWdtYSA8LSAxCmggPC0gMC4wMDEKbk92ZXJraWxsIDwtIDEwMDAKdHlwZV9yYXRpb25hbF9hcHByb3hWZWN0b3IgPC0gYygiYnJhc2lsIiwgImNoZWJmdW5MQiIpCnR5cGVfaW50ZXJwIDwtICJzcGxpbmUiCgoKZGF0IDwtIGV4cGFuZF9ncmlkKAogIGFscGhhID0gYWxwaGFWZWN0b3IsCiAgbSA9IG1WZWN0b3IsCiAgcmhvID0gcmhvVmVjdG9yLAogIHR5cGVfcmF0aW9uYWxfYXBwcm94ID0gdHlwZV9yYXRpb25hbF9hcHByb3hWZWN0b3IKKSB8PiAKICBtdXRhdGUoCiAgICBMMkVycm9yUmF0aW9uYWwgPSBOQV9yZWFsXywgCiAgICBMaW5mRXJyb3JSYXRpb25hbCA9IE5BX3JlYWxfLCAKICAgIHRpbWVFbGFwc2VkUmF0aW9uYWwgPSBOQV9yZWFsXywgCiAgICBMMkVycm9yRkVNID0gTkFfcmVhbF8sCiAgICBMaW5mRXJyb3JGRU0gPSBOQV9yZWFsXywKICAgIHRpbWVFbGFwc2VkRkVNID0gTkFfcmVhbF8sCiAgICB0aW1lRWxhcHNlZFRydWUgPSBOQV9yZWFsXywKICAgIGVycm9yX21zZyA9IE5BX2NoYXJhY3Rlcl8sCiAgICBzdGF0dXMgPSAibm90X2NvbXB1dGVkIiAgIAogICkKCgpncmFwaEZFTSA8LSBnZXRzLmdyYXBoLnRhZHBvbGUoZmxpcF9lZGdlID0gRkFMU0UpCmdyYXBoIDwtIGdyYXBoRkVNJGNsb25lKCkKCmdyYXBoRkVNJGJ1aWxkX21lc2goaCA9IGgpCgptZXNoX2xvY2F0aW9ucyA8LSBncmFwaEZFTSRnZXRfbWVzaF9sb2NhdGlvbnMoKSAlPiUgCiAgYXMuZGF0YS5mcmFtZSgpICU+JSAKICBtdXRhdGUoZHVtbXkgPSAxKSAlPiUKICByZW5hbWUoZWRnZV9udW1iZXIgPSBWMSwgZGlzdGFuY2Vfb25fZWRnZSA9IFYyKQoKIyBhZGQgbWVzaCBsb2NhdGlvbnMgYXMgb2JzZXJ2YXRpb25zCmdyYXBoJGFkZF9vYnNlcnZhdGlvbnMoCiAgZGF0YSA9IG1lc2hfbG9jYXRpb25zLAogIG5vcm1hbGl6ZWQgPSBUUlVFKQoKZ3JhcGgkb2JzZXJ2YXRpb25fdG9fdmVydGV4KCkKYGBgCgoKYGBge3J9CnVuaXF1ZV9wYXJhbXMgPC0gdW5pcXVlKGRhdFssIGMoImFscGhhIiwgInJobyIpXSkKdHJ1ZVNpZ21hX2xpc3QgPC0gbGlzdCgpCnRpbWVUcnVlX2xpc3QgPC0gbGlzdCgpCmZvciAoaiBpbiAxOm5yb3codW5pcXVlX3BhcmFtcykpIHsKICBhbHBoYV9qIDwtIHVuaXF1ZV9wYXJhbXMkYWxwaGFbal0KICByaG9faiA8LSB1bmlxdWVfcGFyYW1zJHJob1tqXQogIAogIG51X2ogPC0gYWxwaGFfaiAtIDEvMgogIGthcHBhX2ogPC0gc3FydCg4ICogbnVfaikgLyByaG9fagogIHRhdV9qIDwtIHNxcnQoZ2FtbWEobnVfaikgLyAoc2lnbWFeMiAqIGthcHBhX2peKDIqbnVfaikgKiAoNCpwaSleKDEvMikgKiBnYW1tYShudV9qICsgMS8yKSkpCiAgCiAga2V5IDwtIHNwcmludGYoIiUuNmZfJS42ZiIsIGFscGhhX2osIHJob19qKQogIAogIHRyeUNhdGNoKHsKICB0aW1lVHJ1ZV9saXN0W1trZXldXSA8LSBzeXN0ZW0udGltZSh7CiAgICB0cnVlU2lnbWFfbGlzdFtba2V5XV0gPC0gZ2V0c190cnVlX2Nvdl9tYXQoCiAgICAgIGdyYXBoID0gZ3JhcGhGRU0sCiAgICAgIGthcHBhID0ga2FwcGFfaiwKICAgICAgdGF1ID0gdGF1X2osCiAgICAgIGFscGhhID0gYWxwaGFfaiwKICAgICAgbi5vdmVya2lsbCA9IG5PdmVya2lsbAogICAgKQogIH0pWyJlbGFwc2VkIl0KICB9LCBlcnJvciA9IGZ1bmN0aW9uKGVycil7CiAgICB3YXJuaW5nKHBhc3RlMCgiRXJyb3Igb2NjdXJyZWQgd2hpbGUgY29tcHV0aW5nIHRydWUgY292YXJpYW5jZSBmb3IgYWxwaGEgPSAiLCBhbHBoYV9qLCAKICAgICAgICAgICAgICAgICAgICIgYW5kIHJobyA9ICIsIHJob19qLCAKICAgICAgICAgICAgICAgICAgICI6ICIsIGNvbmRpdGlvbk1lc3NhZ2UoZXJyKSkpCiAgICBzbGFja3JfbXNnKHRleHQgPSBwYXN0ZTAoIkVycm9yIG9jY3VycmVkIHdoaWxlIGNvbXB1dGluZyB0cnVlIGNvdmFyaWFuY2UgZm9yIGFscGhhID0gIiwgYWxwaGFfaiwgCiAgICAgICAgICAgICAgICAgICAiIGFuZCByaG8gPSAiLCByaG9faiwgCiAgICAgICAgICAgICAgICAgICAiOiAiLCBjb25kaXRpb25NZXNzYWdlKGVycikpLAogICAgICAgICAgICAgICBjaGFubmVsID0gIiNyZXNlYXJjaCIpCiAgICB0cnVlU2lnbWFfbGlzdFtba2V5XV0gPC0gTkFfcmVhbF8KICAgIHRpbWVUcnVlX2xpc3RbW2tleV1dIDwtIE5BX3JlYWxfCiAgfSkKICBzbGFja3JfbXNnKHRleHQgPSBwYXN0ZTAoIkZpbmlzaGVkIGNvbXB1dGluZyB0cnVlIGNvdmFyaWFuY2UgZm9yIGFscGhhID0gIiwgYWxwaGFfaiwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiBhbmQgcmhvID0gIiwgcmhvX2osIAogICAgICAgICAgICAgICAgICAgICAgICAgICIgLCBpdGVyYXRpb24gIiwgaiwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiBvdXQgb2YgIiwgbnJvdyh1bmlxdWVfcGFyYW1zKSksIAogICAgICAgICAgICAgY2hhbm5lbCA9ICIjcmVzZWFyY2giKQogIHByaW50KGopCn0KCnNhdmUodHJ1ZVNpZ21hX2xpc3QsIHRpbWVUcnVlX2xpc3QsIGZpbGUgPSAifi9EZXNrdG9wL3RydWVTaWdtYV9saXN0LlJEYXRhIikKYGBgCgoKCgoKYGBge3J9CmxvYWQoIn4vRGVza3RvcC90cnVlU2lnbWFfbGlzdC5SRGF0YSIpCmZvciAoaSBpbiAxOm5yb3coZGF0KSkgewogIGRhdF9pIDwtIGRhdFtpLCBdCiAgYWxwaGEgPC0gZGF0X2kkYWxwaGEKICBtIDwtIGRhdF9pJG0KICByaG8gPC0gZGF0X2kkcmhvCiAgdHlwZV9yYXRpb25hbF9hcHByb3ggPC0gZGF0X2kkdHlwZV9yYXRpb25hbF9hcHByb3gKICAKICBudSA8LSBhbHBoYSAtIDEvMgogIGthcHBhIDwtIHNxcnQoOCpudSkvcmhvCiAgdGF1IDwtIHNxcnQoZ2FtbWEobnUpIC8gKHNpZ21hXjIgKiBrYXBwYV4oMipudSkgKiAoNCpwaSleKDEvMikgKiBnYW1tYShudSArIDEvMikpKSAgCiAgCiAgcmVzIDwtIHRyeUNhdGNoKHsKICAgICAgICAgICAga2V5IDwtIHNwcmludGYoIiUuNmZfJS42ZiIsIGFscGhhLCByaG8pCgogICAgICAgICAgICB0cnVlU2lnbWEgPC0gdHJ1ZVNpZ21hX2xpc3RbW2tleV1dCiAgICAgICAgICAgIHRpbWVFbGFwc2VkVHJ1ZSA8LSB0aW1lVHJ1ZV9saXN0W1trZXldXQogICAgICAgICAgICAKICAgICAgICAgICAgdGltZUVsYXBzZWRGRU0gPC0gc3lzdGVtLnRpbWUoewogICAgICAgICAgICBGRU1TaWdtYSA8LSBjb3ZhcmlhbmNlX21lc2goCiAgICAgICAgICAgICAgbWF0ZXJuLm9wZXJhdG9ycygKICAgICAgICAgICAgICAgIGFscGhhID0gYWxwaGEsIAogICAgICAgICAgICAgICAga2FwcGEgPSBrYXBwYSwgCiAgICAgICAgICAgICAgICB0YXUgPSB0YXUsCiAgICAgICAgICAgICAgICBtID0gbSwgCiAgICAgICAgICAgICAgICBncmFwaCA9IGdyYXBoRkVNLAogICAgICAgICAgICAgICAgdHlwZSA9ICJjb3ZhcmlhbmNlIiwKICAgICAgICAgICAgICAgIHR5cGVfcmF0aW9uYWxfYXBwcm94aW1hdGlvbiA9IHR5cGVfcmF0aW9uYWxfYXBwcm94KSkKICAgICAgICAgICAgfSlbImVsYXBzZWQiXQogICAgICAgICAgICAKICAgICAgICAgICAgdGltZUVsYXBzZWRSYXRpb25hbCA8LSBzeXN0ZW0udGltZSh7CiAgICAgICAgICAgIHJhdFNpZ21hIDwtIHJhdF9jb3ZhcmlhbmNlKAogICAgICAgICAgICAgIGdyYXBoID0gZ3JhcGgsIAogICAgICAgICAgICAgIGthcHBhID0ga2FwcGEsIAogICAgICAgICAgICAgIHRhdSA9IHRhdSwgCiAgICAgICAgICAgICAgYWxwaGEgPSBhbHBoYSwgCiAgICAgICAgICAgICAgbSA9IG0sCiAgICAgICAgICAgICAgdHlwZV9yYXRpb25hbF9hcHByb3ggPSB0eXBlX3JhdGlvbmFsX2FwcHJveCwKICAgICAgICAgICAgICB0eXBlX2ludGVycCA9IHR5cGVfaW50ZXJwLAogICAgICAgICAgICAgIGJ1aWxkX2NvdiA9IFRSVUUpCiAgICAgICAgICAgIH0pWyJlbGFwc2VkIl0KICAgICAgICAgICAgCiAgICAgICAgICAgICMgY29tcHV0aW5nIHRoZSBlcnJvcnMKICAgICAgICAgICAgTGluZkVycm9yUmF0aW9uYWwgPC0gbWF4KGFicyh0cnVlU2lnbWEgLSByYXRTaWdtYSkpCiAgICAgICAgICAgIEwyRXJyb3JSYXRpb25hbCAgIDwtIHNxcnQoYXMuZG91YmxlKHQoZ3JhcGhGRU0kbWVzaCR3ZWlnaHRzKSUqJSh0cnVlU2lnbWEgLSByYXRTaWdtYSleMiUqJWdyYXBoRkVNJG1lc2gkd2VpZ2h0cykpCiAgICAgICAgICAgIExpbmZFcnJvckZFTSAgICAgIDwtIG1heChhYnModHJ1ZVNpZ21hIC0gRkVNU2lnbWEpKQogICAgICAgICAgICBMMkVycm9yRkVNICAgICAgICA8LSBzcXJ0KGFzLmRvdWJsZSh0KGdyYXBoRkVNJG1lc2gkd2VpZ2h0cyklKiUodHJ1ZVNpZ21hIC0gRkVNU2lnbWEpXjIlKiVncmFwaEZFTSRtZXNoJHdlaWdodHMpKQogICAgICAgICAgICAKICAgICAgICAgICAgbGlzdCgKICAgICAgICAgICAgICAgIExpbmZFcnJvclJhdGlvbmFsID0gIExpbmZFcnJvclJhdGlvbmFsLAogICAgICAgICAgICAgICAgTDJFcnJvclJhdGlvbmFsICAgPSAgTDJFcnJvclJhdGlvbmFsLAogICAgICAgICAgICAgICAgTGluZkVycm9yRkVNICAgICAgPSAgTGluZkVycm9yRkVNLAogICAgICAgICAgICAgICAgTDJFcnJvckZFTSAgICAgICAgPSAgTDJFcnJvckZFTSwKICAgICAgICAgICAgICAgIHRpbWVFbGFwc2VkUmF0aW9uYWwgPSB0aW1lRWxhcHNlZFJhdGlvbmFsLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRGRU0gICAgICA9IHRpbWVFbGFwc2VkRkVNLAogICAgICAgICAgICAgICAgdGltZUVsYXBzZWRUcnVlICAgICA9IHRpbWVFbGFwc2VkVHJ1ZSwKICAgICAgICAgICAgICAgIHN0YXR1cyA9ICJvayIKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgfSwgZXJyb3IgPSBmdW5jdGlvbihlcnIpewogICAgICAgICAgICAgIHdhcm5pbmcocGFzdGUwKCJFcnJvciBvY2N1cnJlZCBhdCBpdGVyYXRpb24gcmhvID0gIiwgcmhvLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICIsIGthcHBhID0gIiwga2FwcGEsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBtID0gIiwgbSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBhbHBoYSA9ICIsIGFscGhhLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgIiwgbnUgPSAiLCBudSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBFcnJvcjoiLCBjb25kaXRpb25NZXNzYWdlKGVycikpKQogICAgICAgICAgICAgIHNsYWNrcl9tc2codGV4dCA9IHBhc3RlMCgiRXJyb3Igb2NjdXJyZWQgYXQgaXRlcmF0aW9uIHJobyA9ICIsIHJobywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwga2FwcGEgPSAiLCBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBtID0gIiwgbSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwgYWxwaGEgPSAiLCBhbHBoYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBudSA9ICIsIG51LCAKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCB0eXBlID0gIiwgdHlwZV9yYXRpb25hbF9hcHByb3gsCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwgRXJyb3I6IiwgY29uZGl0aW9uTWVzc2FnZShlcnIpKSwKICAgICAgICAgICAgICAgICAgICAgICAgIGNoYW5uZWwgPSAiI3Jlc2VhcmNoIikKICAgICAgICAgICAgICBsaXN0KAogICAgICAgICAgICAgICAgTGluZkVycm9yUmF0aW9uYWwgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIEwyRXJyb3JSYXRpb25hbCAgID0gTkFfcmVhbF8sCiAgICAgICAgICAgICAgICBMaW5mRXJyb3JGRU0gICAgICA9IE5BX3JlYWxfLAogICAgICAgICAgICAgICAgTDJFcnJvckZFTSAgICAgICAgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIHRpbWVFbGFwc2VkUmF0aW9uYWwgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIHRpbWVFbGFwc2VkRkVNICAgICAgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIHRpbWVFbGFwc2VkVHJ1ZSAgICAgPSBOQV9yZWFsXywKICAgICAgICAgICAgICAgIGVycm9yX21zZyA9IGNvbmRpdGlvbk1lc3NhZ2UoZXJyKSwKICAgICAgICAgICAgICAgIHN0YXR1cyA9ICJlcnJvciIKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgfSkKICBkYXRbaSwgbmFtZXMocmVzKV0gPC0gcmVzCiAgc2xhY2tyX21zZyh0ZXh0ID0gcGFzdGUwKCJDdXJyZW50IHBhcmFtZXRlcnMgYXJlIHJobyA9ICIsIHJobywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwga2FwcGEgPSAiLCBrYXBwYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBtID0gIiwgbSwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIiwgYWxwaGEgPSAiLCBhbHBoYSwKICAgICAgICAgICAgICAgICAgICAgICAgICAiLCBudSA9ICIsIG51LAogICAgICAgICAgICAgICAgICAgICAgICAgICIsIHR5cGUgPSAiLCB0eXBlX3JhdGlvbmFsX2FwcHJveCwKICAgICAgICAgICAgICAgICAgICAgICAgICAiICwgaXRlcmF0aW9uICIsIGksIAogICAgICAgICAgICAgICAgICAgICAgICAgICIgb3V0IG9mICIsIG5yb3coZGF0KSksIAogICAgICAgICAgICAgY2hhbm5lbCA9ICIjcmVzZWFyY2giKQogIHByaW50KGkpCn0Kc2F2ZShkYXQsIGZpbGUgPSBoZXJlOjpoZXJlKCJkYXRhX2ZpbGVzL2Vycm9yX2NvbXBhcmlzb25fcmVzdWx0cy5SRGF0YSIpKQpgYGAKCgoKYGBge3J9CmxvYWQoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy9lcnJvcl93aXRoX2gwLjAxLlJEYXRhIikpCgpkZl9hbGwgPC0gZGF0IHw+CiAgcGl2b3RfbG9uZ2VyKAogICAgY29scyA9IGMoTDJFcnJvclJhdGlvbmFsLCBMaW5mRXJyb3JSYXRpb25hbCwKICAgICAgICAgICAgIEwyRXJyb3JGRU0sIExpbmZFcnJvckZFTSksCiAgICBuYW1lc190byA9IGMoIm1ldHJpYyIsICJtZXRob2QiKSwKICAgIG5hbWVzX3BhdHRlcm4gPSAiKEwyRXJyb3J8TGluZkVycm9yKShSYXRpb25hbHxGRU0pIiwKICAgIHZhbHVlc190byA9ICJlcnJvciIKICApIHw+CiAgbXV0YXRlKAogICAgbSA9IHsKICAgICAgbV92YWxzIDwtIHNvcnQodW5pcXVlKG0pKQogICAgICBmYWN0b3IoCiAgICAgICAgbSwKICAgICAgICBsZXZlbHMgPSBtX3ZhbHMsCiAgICAgICAgbGFiZWxzID0gbV92YWxzKQogICAgICB9LAogICAgcmhvID0gewogICAgICByaG9fdmFscyA8LSBzb3J0KHVuaXF1ZShyaG8pKQogICAgICBmYWN0b3IoCiAgICAgICAgcmhvLAogICAgICAgIGxldmVscyA9IHJob192YWxzLAogICAgICAgIGxhYmVscyA9IHNwcmludGYoIiRcXHJobyA9ICVnJCIsIHJob192YWxzKQogICAgICApCiAgICB9LAogICAgbWV0cmljID0gZmFjdG9yKAogICAgICBtZXRyaWMsCiAgICAgIGxldmVscyA9IGMoIkwyRXJyb3IiLCAiTGluZkVycm9yIiksCiAgICAgIGxhYmVscyA9IGMoIiRMXzIoXFxHYW1tYVxcdGltZXNcXEdhbW1hKSQiLCAiJExfXFxpbmZ0eShcXEdhbW1hXFx0aW1lc1xcR2FtbWEpJCIpCiAgICApLAogICAgbWV0aG9kID0gZmFjdG9yKAogICAgICBtZXRob2QsCiAgICAgIGxldmVscyA9IGMoIlJhdGlvbmFsIiwgIkZFTSIpLAogICAgICBsYWJlbHMgPSBjKCJSYXRpb25hbCIsICJGRU0iKQogICAgKQogICkgfD4gc2VsZWN0KC1zdGF0dXMsIC1zdGFydHNfd2l0aCgidGltZSIpKSB8PiBmaWx0ZXIocmhvID09ICIkXFxyaG8gPSAwLjEkIikgfD4gZmlsdGVyKG0gJWluJSBjKDE6NSkpCgp0eXBlX3JhdGlvbmFsX2FwcHJveFZlY3RvciA8LSBjKCJicmFzaWwiLCAiY2hlYmZ1bkxCIiwgImNoZWJmdW4iKQpUUkEgPC0gdHlwZV9yYXRpb25hbF9hcHByb3hWZWN0b3JbMV0KCmRmIDwtIGZpbHRlcihkZl9hbGwsIHR5cGVfcmF0aW9uYWxfYXBwcm94ID09IFRSQSkKCgplcnJvclJhdEZFTWNvbXBhcmlzb24gPC0gZ2dwbG90KGRmLCBhZXMoYWxwaGEsIGVycm9yLCBjb2xvdXIgPSBtLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxpbmV0eXBlID0gbWV0aG9kLCBsaW5ld2lkdGggPSBtZXRob2QsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbHBoYSA9IG1ldGhvZCkpICsgCiAgZmFjZXRfZ3JpZCh+IG1ldHJpYykgKwogIGdlb21fbGluZSgpICsKICBzY2FsZV95X2xvZzEwKG4uYnJlYWtzID0gNSkgKwogIHNjYWxlX3hfY29udGludW91cyhuLmJyZWFrcyA9IDYpICsKICBzY2FsZV9saW5ldHlwZV9tYW51YWwodmFsdWVzID0gYygiUmF0aW9uYWwiID0gInNvbGlkIiwgIkZFTSIgPSAiZGFzaGVkIikpICsgCiAgc2NhbGVfbGluZXdpZHRoX21hbnVhbCh2YWx1ZXMgPSBjKCJSYXRpb25hbCIgPSAxLCAiRkVNIiA9IDEpKSArCiAgc2NhbGVfYWxwaGFfbWFudWFsKHZhbHVlcyA9IGMoIlJhdGlvbmFsIiA9IDAuNSwgIkZFTSIgPSAxLjApLCBndWlkZSA9ICJub25lIikgKwogIHRoZW1lX2J3KCkgKwogIHRoZW1lKHBhbmVsLnNwYWNpbmcgPSB1bml0KDAuMywgImNtIiksIAogICAgICAgIHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5ID0gIlBhbGF0aW5vIiksCiAgICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChoanVzdCA9IDAuNSwgc2l6ZSA9IDE2KSwKICAgICAgICBzdHJpcC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMiksCiAgICAgICAgYXhpcy50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGF4aXMudGV4dCA9IGVsZW1lbnRfdGV4dChzaXplID0gMTIpLAogICAgICAgIGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGxlZ2VuZC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMikpICsKICBsYWJzKHggPSAiJFxcYWxwaGFcXDsoXFxtYm94e1Ntb290aG5lc3MgcGFyYW1ldGVyfSkkIiwgCiAgICAgICB5ID0gIiRcXG1ib3h7Q292YXJpYW5jZSBFcnJvcn1cXHF1YWQoXFxsb2dfezEwfVxcbWJveHsgc2NhbGV9KSQiLCAKICAgICAgIGNvbG9yID0gIiRtJCIsIAogICAgICAgbGluZXR5cGUgPSAiTWV0aG9kIiwKICAgICAgIGxpbmV3aWR0aCA9ICJNZXRob2QiKSArIAogIHRoZW1lKAogIGxlZ2VuZC5wb3NpdGlvbiA9ICJib3R0b20iLAogIGxlZ2VuZC5kaXJlY3Rpb24gPSAiaG9yaXpvbnRhbCIsCiAgbGVnZW5kLmtleS53aWR0aCAgPSB1bml0KDEsICJjbSIpLAogIGxlZ2VuZC5rZXkuaGVpZ2h0ID0gdW5pdCgwLCAiY20iKQopICsKZ3VpZGVzKAogIGFscGhhID0gIm5vbmUiLAogIGxpbmV3aWR0aCA9ICJub25lIiwKICBjb2xvdXIgPSBndWlkZV9sZWdlbmQoCiAgICBvcmRlciA9IDIsCiAgICBucm93ID0gMSwKICAgIG92ZXJyaWRlLmFlcyA9IGxpc3QobGluZXdpZHRoID0gMSkKICApLAogIGxpbmV0eXBlID0gZ3VpZGVfbGVnZW5kKAogICAgb3JkZXIgPSAxLAogICAgbnJvdyA9IDEsCiAgICBvdmVycmlkZS5hZXMgPSBsaXN0KGxpbmV3aWR0aCA9IDEpCiAgKQopCgpteWdnc2F2ZShlcnJvclJhdEZFTWNvbXBhcmlzb24sIHdpZHRoID0gOCwgaGVpZ2h0ID0gNCkKCiMgc2xhY2tyX3VwbG9hZCgKIyAgIGZpbGVuYW1lID0gaGVyZTo6aGVyZSgiZGF0YV9maWxlcy90aWt6cGljL2Vycm9yUmF0RkVNY29tcGFyaXNvbi5wZGYiKSwgICAgICAgICMgcGF0aCB0byB5b3VyIGltYWdlCiMgICBpbml0aWFsX2NvbW1lbnQgPSBwYXN0ZTAoIlJlc3VsdCB3aXRoICIsIFRSQSksCiMgICBjaGFubmVscyA9ICIjcmVzZWFyY2giCiMgKQpgYGAKCgoKCgpgYGB7cn0KZGZfRkVNIDwtIGZpbHRlcihkZiwgbWV0aG9kID09ICJGRU0iKSMsIGFscGhhIDw9IDIgJiBhbHBoYSA+PSAwLjYpCgplcnJvckZFTWFsb25lIDwtIGdncGxvdChkZl9GRU0sIGFlcyhhbHBoYSwgZXJyb3IsIGNvbG91ciA9IG0pKSArIAogIGZhY2V0X2dyaWQofiBtZXRyaWMpICsKICBnZW9tX2xpbmUobGluZXdpZHRoID0gMSwgbGluZXR5cGUgPSAiZGFzaGVkIikgKwogIHNjYWxlX3lfbG9nMTAobi5icmVha3MgPSA1KSArCiAgc2NhbGVfeF9jb250aW51b3VzKG4uYnJlYWtzID0gNikgKwogIHRoZW1lX2J3KCkgKwogIHRoZW1lKHBhbmVsLnNwYWNpbmcgPSB1bml0KDAuMywgImNtIiksIAogICAgICAgIHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5ID0gIlBhbGF0aW5vIiksCiAgICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChoanVzdCA9IDAuNSwgc2l6ZSA9IDE2KSwKICAgICAgICBzdHJpcC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMiksCiAgICAgICAgYXhpcy50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGF4aXMudGV4dCA9IGVsZW1lbnRfdGV4dChzaXplID0gMTIpLAogICAgICAgIGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gMTQpLAogICAgICAgIGxlZ2VuZC50ZXh0ID0gZWxlbWVudF90ZXh0KHNpemUgPSAxMikpICsKICBsYWJzKHggPSAiJFxcYWxwaGFcXDsoXFxtYm94e1Ntb290aG5lc3MgcGFyYW1ldGVyfSkkIiwgCiAgICAgICB5ID0gIiRcXG1ib3h7Q292YXJpYW5jZSBFcnJvcn1cXHF1YWQoXFxsb2dfezEwfVxcbWJveHsgc2NhbGV9KSQiLCAKICAgICAgIGNvbG9yID0gIiRtJCIpICsgCiAgdGhlbWUoCiAgbGVnZW5kLnBvc2l0aW9uID0gImJvdHRvbSIsCiAgbGVnZW5kLmRpcmVjdGlvbiA9ICJob3Jpem9udGFsIiwKICBsZWdlbmQua2V5LndpZHRoICA9IHVuaXQoMSwgImNtIiksCiAgbGVnZW5kLmtleS5oZWlnaHQgPSB1bml0KDAsICJjbSIpCikgKwpndWlkZXMoCiAgY29sb3VyID0gZ3VpZGVfbGVnZW5kKAogICAgbnJvdyA9IDEsCiAgICBvdmVycmlkZS5hZXMgPSBsaXN0KGxpbmV3aWR0aCA9IDEpCiAgKQopCgpteWdnc2F2ZShlcnJvckZFTWFsb25lLCB3aWR0aCA9IDgsIGhlaWdodCA9IDQpCgojIHNsYWNrcl91cGxvYWQoCiMgICBmaWxlbmFtZSA9IGhlcmU6OmhlcmUoImRhdGFfZmlsZXMvdGlrenBpYy9lcnJvckZFTWFsb25lLnBkZiIpLCAgICAgICAgIyBwYXRoIHRvIHlvdXIgaW1hZ2UKIyAgIGluaXRpYWxfY29tbWVudCA9ICJSZXN1bHQiLAojICAgY2hhbm5lbHMgPSAiI3Jlc2VhcmNoIgojICkKYGBgCgoKYGBge3IsIGV2YWwgPSBUUlVFLCBvdXQud2lkdGg9IjgwMHB4Iiwgb3V0LmhlaWdodD0iNDAwcHgiLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb3ZhcmlhbmNlIGVycm9yIGZvciB0aGUgdGFkcG9sZSBncmFwaC4iKX0Ka25pdHI6OmluY2x1ZGVfZ3JhcGhpY3MoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy90aWt6cGljL2Vycm9yUmF0RkVNY29tcGFyaXNvbi5wZGYiKSkKYGBgCgoKYGBge3IsIGV2YWwgPSBUUlVFLCBvdXQud2lkdGg9IjgwMHB4Iiwgb3V0LmhlaWdodD0iNDAwcHgiLCBmaWcuY2FwID0gY2FwdGlvbmVyKCJDb3ZhcmlhbmNlIGVycm9yIGZvciB0aGUgdGFkcG9sZSBncmFwaC4iKX0Ka25pdHI6OmluY2x1ZGVfZ3JhcGhpY3MoaGVyZTo6aGVyZSgiZGF0YV9maWxlcy90aWt6cGljL2Vycm9yRkVNYWxvbmUucGRmIikpCmBgYAoKCgoKCgoKCgoKCgoKCgoKCg==</div>
 
 
 </div>
