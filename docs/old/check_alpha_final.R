@@ -13,8 +13,8 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.01
-kappa <- 10
+h <- 0.001
+kappa <- 200
 sigma <- 0.8
 alpha <- 3
 m <- 4
@@ -115,10 +115,10 @@ graph_true$plot_function(X = Approx_Sigma[,2], p = q, type = "plotly", line_colo
 
 
 
-# q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
-# graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
-#   graph_true$plot_function(X = diag(FEM_Sigma), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
-# 
+q <- graph_true$plot_function(X = diag(True_Sigma), type = "plotly", line_color = "red", interpolate_plot = FALSE, name = "True", showlegend = TRUE)
+graph_true$plot_function(X = diag(Approx_Sigma), p = q, type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "Approx", showlegend = TRUE) %>%
+  graph_true$plot_function(X = diag(FEM_Sigma), p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "FEM", showlegend = TRUE)
+
 
 
 L_2_error_RAT <- sqrt(as.double(t(graph_true$mesh$weights)%*%(True_Sigma - Approx_Sigma)^2%*%graph_true$mesh$weights))
