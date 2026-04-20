@@ -1,0 +1,908 @@
+---
+title: "Boundaryless"
+date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
+output:
+  html_document:
+    mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    highlight: pygments
+    theme: flatly
+    code_folding: hide # class.source = "fold-hide" to hide code and add a button to show it
+    df_print: paged
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    fig_caption: true
+    code_download: true
+    css: visual.css
+always_allow_html: true
+bibliography: 
+  - references.bib
+  - grateful-refs.bib
+header-includes:
+  - \newcommand{\ar}{\mathbb{R}}
+  - \newcommand{\llav}[1]{\left\{#1\right\}}
+  - \newcommand{\pare}[1]{\left(#1\right)}
+  - \newcommand{\Ncal}{\mathcal{N}}
+  - \newcommand{\Vcal}{\mathcal{V}}
+  - \newcommand{\Ecal}{\mathcal{E}}
+  - \newcommand{\Wcal}{\mathcal{W}}
+  - \newcommand{\almosteverywhere}{\mathrm{a.e.}\;}
+---
+
+Go back to the [Contents](about.html) page.
+
+<div style="color: #2c3e50; text-align: right;">
+********  
+<strong>Press Show to reveal the code chunks.</strong>  
+
+********
+</div>
+
+
+Go back to the [About page](about.html).
+
+Let us set some global options for all code chunks in this document.
+
+
+```{r}
+# Create a clipboard button on the rendered HTML page
+source(here::here("clipboard.R")); clipboard
+# Set seed for reproducibility
+set.seed(1200) 
+# Set global options for all code chunks
+knitr::opts_chunk$set(
+  # Disable messages printed by R code chunks
+  message = FALSE,    
+  # Disable warnings printed by R code chunks
+  warning = FALSE,    
+  # Show R code within code chunks in output
+  echo = TRUE,        
+  # Include both R code and its results in output
+  include = TRUE,     
+  # Evaluate R code chunks
+  eval = TRUE,       
+  # Enable caching of R code chunks for faster rendering
+  cache = FALSE,      
+  # Align figures in the center of the output
+  fig.align = "center",
+  # Enable retina display for high-resolution figures
+  retina = 2,
+  # Show errors in the output instead of stopping rendering
+  error = TRUE,
+  # Do not collapse code and output into a single block
+  collapse = FALSE,
+  out.width = "100%"
+)
+# Start the figure counter
+fig_count <- 0
+# Define the captioner function
+captioner <- function(caption) {
+  fig_count <<- fig_count + 1
+  paste0("Figure ", fig_count, ": ", caption)
+}
+# Define the function to truncate a number to two decimal places
+truncate_to_two <- function(x) {
+  truncated <- floor(x * 100) / 100
+  sprintf("%.2f", truncated)
+}
+```
+
+# Import libraries
+
+```{r, eval = TRUE}
+library(MetricGraph)
+library(Matrix)
+library(rSPDE)
+
+library(dplyr)
+library(tidyverse)
+library(plotly)
+library(ggplot2)
+library(latex2exp)
+library(ggtext)
+
+library(grateful) # Cite all loaded packages
+library(here) # here::here() starts from the home directory
+
+library(slackr)
+source("keys.R")
+slackr_setup(token = token) # token comes from keys.R
+```
+
+
+
+```{r}
+# get the functions from the Rmd files
+knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
+knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
+
+# load the functions
+source(here::here("all_functions.R"))
+source(here::here("matern_functions.R"))
+
+```
+
+
+
+```{r}
+# parameters
+kappa <- 10
+sigma <- 10
+alpha <- 1
+m <- 4
+nu <- alpha - 0.5
+tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
+n.overkill <- 1000
+ell <- 1
+
+h <- 0.025
+
+linear_mesh <- seq(0, ell, by = h)
+
+e1 <- rbind(c(0,0), c(ell,0))#[c(2,1),]
+e2 <- rbind(c(ell,0), c(ell,ell))
+e3 <- rbind(c(ell,ell), c(0,ell))#[c(2,1),]
+e4 <- rbind(c(0,ell), c(0,0))
+e5 <- rbind(c(0,0), c(-ell,-ell)/sqrt(2))#[c(2,1),]
+edges <- list(e1, e2, e3, e4, e5)
+
+graphFEM <- metric_graph$new(edges = edges,
+                          longlat = FALSE,
+                          perform_merges = FALSE)
+
+graph <- graphFEM$clone()
+
+graphFEM$build_mesh(h = h)
+
+mesh_XY <- graphFEM$mesh$V %>% as.data.frame()
+
+mesh_locations <- graphFEM$get_mesh_locations() %>% 
+  as.data.frame() %>% 
+  mutate(dummy = 1) %>%
+  rename(edge_number = V1, distance_on_edge = V2)
+
+# add mesh locations as observations
+graph$add_observations(
+  data = mesh_locations,
+  normalized = TRUE)
+
+# add observations as vertices
+graph$observation_to_vertex()
+
+data <- graph$get_data()
+
+order <- data %>%
+  as.data.frame() %>%
+  select(.coord_x, .coord_y) %>%
+  rename(X = .coord_x, Y = .coord_y)
+
+
+Approx_Sigma <- rat_covariance(
+  graph = graph, 
+  kappa = kappa, 
+  tau = tau, 
+  alpha = alpha, 
+  m = m,
+  type_rational_approx = "chebfun",
+  type_interp = "spline",
+  build_cov = TRUE)
+
+
+
+digits <- 10
+
+idx <- match(
+  paste(round(mesh_XY$X, digits), 
+        round(mesh_XY$Y, digits)),
+  paste(round(order$X, digits), 
+        round(order$Y, digits))
+)
+
+Approx_Sigma <- Approx_Sigma[idx, idx]
+
+op <- matern.operators(alpha = alpha, 
+                      kappa = kappa, 
+                      tau = tau,
+                      m = m, 
+                      graph = graphFEM)
+
+FEM_Sigma <- covariance_mesh(op)
+
+set.seed(2)
+
+noise <- rnorm(dim(Approx_Sigma)[1])
+R <- chol(Approx_Sigma)
+sample <- as.vector(t(R) %*% noise)
+
+
+```
+
+
+
+```{r}
+VtE <- graphFEM$mesh$VtE %>% as.data.frame() %>% rename(edge_number = V1, distance_on_edge = V2) 
+xy_mesh <- graphFEM$mesh$V %>% as.data.frame() %>% rename(x = X, y = Y)
+
+all_data <- cbind(xy_mesh, VtE, noise = noise, sample = sample)
+
+on_vertex <- all_data %>%
+  slice((1:graphFEM$nV))
+all_data_no_vertex <- all_data %>%
+  slice(-(1:graphFEM$nV))
+
+# Split by edge_number
+edge_groups <- split(all_data_no_vertex, all_data_no_vertex$edge_number)
+
+
+# Function to create a single edge block
+create_edge_block <- function(edge_index) {
+  start_v <- graphFEM$E[edge_index, 1]
+  end_v   <- graphFEM$E[edge_index, 2]
+  
+  # Get edge data (assuming edge_index corresponds to the same index in edge_groups)
+  edge_data <- edge_groups[[edge_index]]
+  
+  # Create NA row matching the number of columns
+  na_row <- as.data.frame(matrix(NA, nrow = 1, ncol = ncol(on_vertex)))
+  colnames(na_row) <- colnames(on_vertex)
+  
+  # Combine: start vertex, edge, end vertex, NA
+  rbind(on_vertex[start_v, ],
+        edge_data,
+        on_vertex[end_v, ],
+        na_row)
+}
+
+# Apply for all edges and combine
+final_data <- do.call(rbind, lapply(seq_len(nrow(graphFEM$E)), create_edge_block))
+
+final_data$trueEdge <- cumsum(is.na(final_data$x)) + 1
+final_data$trueEdge[is.na(final_data$x)] <- NA
+
+final_data$trueDist <- rep(c(linear_mesh, NA), graphFEM$nV)
+
+# final_data <- final_data |>
+#   mutate(noise = if_else(trueDist %in% c(0, 1), rnorm(1), noise))
+
+```
+
+
+
+
+```{r}
+r_bridge <- function(t1, t2, kappa, alpha, sigma, ell){
+  nu <- alpha - 1/2
+  r1_t1_0 <- sigma^2*matern.p.joint(s = t1, t = 0, kappa = kappa, p = 0, alpha = alpha)[1,]
+  r1_t1_ell <- sigma^2*matern.p.joint(s = t1, t = ell, kappa = kappa, p = 0, alpha = alpha)[1,]
+  
+  r_0_0 <- sigma^2*matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_0_ell <- sigma^2*matern.p.joint(s = 0, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_0 <- sigma^2*matern.p.joint(s = ell, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_ell <- sigma^2*matern.p.joint(s = ell, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  
+  r1_0_t2 <- sigma^2*matern.p.joint(s = 0, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
+  r1_ell_t2 <- sigma^2*matern.p.joint(s = ell, t = t2, kappa = kappa, p = 0, alpha = alpha)[1,]
+  
+  r1_h <- matrix(c(r1_t1_0, r1_t1_ell), nrow = 1, ncol = 2*alpha)
+  r1_v <- matrix(c(r1_0_t2, r1_ell_t2), nrow = 2*alpha, ncol = 1)
+  
+  cov <- matern.covariance(h = t1 - t2, kappa = kappa, nu = nu, sigma = sigma) - r1_h %*% solve(rbind(cbind(r_0_0, r_0_ell), cbind(r_ell_0, r_ell_ell)), r1_v)
+  return(as.numeric(cov))
+}
+```
+
+
+```{r}
+S_e <- function(t, kappa, alpha, sigma, ell){
+  nu <- alpha - 1/2
+  r1_t1_0 <- sigma^2*matern.p.joint(s = t, t = 0, kappa = kappa, p = 0, alpha = alpha)[1,]
+  r1_t1_ell <- sigma^2*matern.p.joint(s = t, t = ell, kappa = kappa, p = 0, alpha = alpha)[1,]
+  
+  r_0_0 <- sigma^2*matern.p.joint(s = 0, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_0_ell <- sigma^2*matern.p.joint(s = 0, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_0 <- sigma^2*matern.p.joint(s = ell, t = 0, kappa = kappa, p = 0, alpha = alpha)
+  r_ell_ell <- sigma^2*matern.p.joint(s = ell, t = ell, kappa = kappa, p = 0, alpha = alpha)
+  
+  r1_h <- matrix(c(r1_t1_0, r1_t1_ell), nrow = 1, ncol = 2*alpha)
+  
+  cov <- r1_h %*% solve(rbind(cbind(r_0_0, r_0_ell), cbind(r_ell_0, r_ell_ell)))
+  return(cov)
+}
+```
+
+
+
+
+
+```{r}
+Sigma_bridge <- matrix(NA, nrow = length(linear_mesh), ncol = length(linear_mesh))
+for (i in 1:length(linear_mesh)) {
+  for (j in 1:length(linear_mesh)) {
+    Sigma_bridge[i,j] = r_bridge(t1 = linear_mesh[i], t2 = linear_mesh[j], kappa = kappa, alpha = alpha, sigma = sigma, ell = ell)
+  }
+}
+
+eps <- 1e-16
+Sigma_bridge <- Sigma_bridge + diag(eps, nrow(Sigma_bridge))
+
+R <- chol(Sigma_bridge)
+
+final_data$indSample <- NA
+
+# loop over blocks (ignoring NA separators)
+blocks <- split(seq_len(nrow(final_data)), final_data$trueEdge)
+
+for (b in names(blocks)) {
+  if (is.na(b)) next
+  
+  idx <- blocks[[b]]
+  
+  # extract noise vector for this block
+  v <- final_data$noise[idx]
+  
+  #if(b%in%c(3,4,5)) v <- rev(v)
+  
+  # apply transformation
+  res <- as.vector(t(R) %*% v)
+  
+  # store back
+  final_data$indSample[idx] <- res
+}
+```
+
+
+```{r}
+final_data$residual <- sapply(seq_len(nrow(final_data)), function(i) {
+  e <- final_data$trueEdge[i]
+  t <- final_data$trueDist[i]
+  
+  # Handle NA rows
+  if (is.na(e) || is.na(t)) return(NA)
+  
+  s0 <- final_data$sample[!is.na(final_data$trueEdge) & final_data$trueEdge == e & final_data$trueDist == 0]
+  s1 <- final_data$sample[!is.na(final_data$trueEdge) & final_data$trueEdge == e & final_data$trueDist == 1]
+  
+  # If endpoints not found, return NA
+  if (length(s0) == 0 || length(s1) == 0) return(NA)
+  
+  
+  as.numeric(S_e(t =t, kappa = kappa, alpha = alpha, sigma = sigma, ell = ell) %*% c(s0[1], s1[1]))
+})
+
+
+final_data <- final_data |> mutate(substracted = sample - indSample)
+
+```
+
+
+
+```{r}
+
+x_range <- range(final_data$x, na.rm = TRUE)*1.001
+y_range <- range(final_data$y, na.rm = TRUE)*1.001
+z_range <- range(final_data[, c("sample", "indSample")], na.rm = TRUE)*1.001
+
+x_asp <- x_range[2] - x_range[1]
+y_asp <- y_range[2] - y_range[1]
+z_asp <- z_range[2] - z_range[1]
+
+colaxnn <- "black"
+
+z_vals <- as.vector(rbind(
+  pmin(final_data$maxNegative, 0),
+  pmax(final_data$maxPositive, 0),
+  NA
+))
+
+first_eyer <- 1.5
+
+p <- plot_ly() |>
+  add_trace(data = final_data,
+            x = ~x,
+            y = ~y,
+            z = ~y*0,
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "black", width = 4),
+            showlegend = FALSE) |>
+  add_trace(data = final_data,
+            x = ~x,
+            y = ~y,
+            z = ~sample,
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "blue", width = 4),
+            showlegend = FALSE) |>
+  add_trace(data = final_data,
+            x = ~x,
+            y = ~y,
+            z = ~indSample,
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "red", width = 4),
+            showlegend = FALSE) |>
+  add_trace(data = final_data,
+            x = ~x,
+            y = ~y,
+            z = ~residual,
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "green", width = 4),
+            showlegend = FALSE) |>
+    add_trace(data = final_data,
+            x = ~x,
+            y = ~y,
+            z = ~substracted,
+            type = "scatter3d", 
+            mode = "lines",
+            line = list(color = "violet", width = 4, dash = "dash"),
+            showlegend = FALSE) |>
+  add_trace(
+  x = rep(final_data$x, each = 3), 
+  y = rep(final_data$y, each = 3), 
+  z = z_vals,
+  type = "scatter3d", 
+  mode = "lines",
+  line = list(color = "gray", width = 1),
+  showlegend = FALSE 
+) |>
+  config(mathjax = 'cdn') |>
+  layout(font = list(family = "URW Palladio L"), #"Palatino Linotype"
+            margin = list(l = 0, r = 0, b = 0, t = 0),
+            scene = list(
+              xaxis = list(title = list(text = "Longitude", font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16),  range = x_range),
+              yaxis = list(title = list(text = "Latitude", font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16), range = y_range),
+              zaxis = list(title = list(text = "", font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16), range = z_range),
+    aspectratio = list(x = x_asp*4, y = y_asp*4, z = 2),
+    camera = list(eye = list(x = 2*first_eyer, y = -1*first_eyer, z = 2*first_eyer),
+                            center = list(x = 0, y = 0, z = 0))
+  )
+)
+
+
+p
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+final_data$maxRange <- ifelse(
+  abs(final_data$sample) >= abs(final_data$indSample),
+  final_data$sample,
+  final_data$indSample
+)
+
+final_data$maxPositive <- pmax(final_data$sample, final_data$indSample, na.rm = TRUE)
+final_data$maxNegative <- pmin(final_data$sample, final_data$indSample, na.rm = TRUE)
+
+offset <- ell/4
+
+FINAL_DATA <- final_data %>%
+  mutate(
+    x0 = x,
+    y0 = y,
+    x1 = case_when(
+      trueEdge == 1 ~ x + 0*offset,
+      trueEdge == 2 ~ x + 1*offset,
+      trueEdge == 3 ~ x + 0*offset,
+      trueEdge == 4 ~ x - 1*offset,
+      trueEdge == 5 ~ x - 1*offset,
+      TRUE ~ x
+    ),
+    y1 = case_when(
+      trueEdge == 1 ~ y - 1*offset,
+      trueEdge == 2 ~ y + 0*offset,
+      trueEdge == 3 ~ y + 1*offset,
+      trueEdge == 4 ~ y + 0*offset,
+      trueEdge == 5 ~ y - 2*offset,
+      TRUE ~ y
+    )
+  )
+
+t_switch <- 0.5
+
+n_frames <- 51
+t_vals <- seq(0, 1, length.out = n_frames)
+
+
+ANIM <- bind_rows(lapply(seq_along(t_vals), function(i) {
+  t <- t_vals[i]
+  
+  FINAL_DATA %>%
+    mutate(
+      frame = i,
+      
+      # BLUE fixed
+      x_blue = x0,
+      y_blue = y0,
+      z_blue = sample,
+      
+      # SHARED rigid geometry
+      x_move = if (t <= t_switch)
+        (1 - t / t_switch) * x1 + (t / t_switch) * x0
+      else x0,
+      
+      y_move = if (t <= t_switch)
+        (1 - t / t_switch) * y1 + (t / t_switch) * y0
+      else y0,
+      
+      # RED only differs in value
+      z_red = if (t <= t_switch) {
+        indSample
+      } else {
+        s <- (t - t_switch) / (1 - t_switch)
+        (1 - s) * indSample + s * sample
+      }
+    )
+}))
+
+ANIM <- ANIM %>%
+  mutate(
+    zmin_all = pmin(z_blue, z_red, 0),
+    zmax_all = pmax(z_blue, z_red, 0)
+  )
+
+
+SEG_BLUE <- ANIM %>%
+  group_by(frame) %>%
+  group_split() %>%
+  lapply(function(df) {
+    
+    data.frame(
+      frame = df$frame[1],
+      x = rep(df$x_blue, each = 3),
+      y = rep(df$y_blue, each = 3),
+      z = as.vector(rbind(
+        pmin(df$z_blue, 0),
+        pmax(df$z_blue, 0),
+        NA
+      ))
+    )
+  }) %>%
+  bind_rows()
+
+SEG_RED <- ANIM %>%
+  group_by(frame) %>%
+  group_split() %>%
+  lapply(function(df) {
+    
+    data.frame(
+      frame = df$frame[1],
+      x = rep(df$x_move, each = 3),
+      y = rep(df$y_move, each = 3),
+      z = as.vector(rbind(
+        pmin(df$z_red, 0),
+        pmax(df$z_red, 0),
+        NA
+      ))
+    )
+  }) %>%
+  bind_rows()
+
+SEG_ENV <- ANIM %>%
+  filter(frame > t_switch * n_frames) %>%
+  group_by(frame) %>%
+  group_split() %>%
+  lapply(function(df) {
+    
+    data.frame(
+      frame = df$frame[1],
+      x = rep(df$x_blue, each = 3),
+      y = rep(df$y_blue, each = 3),
+      z = as.vector(rbind(
+        pmin(df$z_blue, df$z_red, 0),
+        pmax(df$z_blue, df$z_red, 0),
+        NA
+      ))
+    )
+  }) %>%
+  bind_rows()
+
+
+
+VERTICES <- final_data %>%
+  filter(trueDist %in% c(0, 1)) %>%
+  mutate(
+    x0 = x,
+    y0 = y,
+    
+    x1 = case_when(
+      trueEdge == 1 ~ x + 0*offset,
+      trueEdge == 2 ~ x + 1*offset,
+      trueEdge == 3 ~ x + 0*offset,
+      trueEdge == 4 ~ x - 1*offset,
+      trueEdge == 5 ~ x - 1*offset,
+      TRUE ~ x
+    ),
+    y1 = case_when(
+      trueEdge == 1 ~ y - 1*offset,
+      trueEdge == 2 ~ y + 0*offset,
+      trueEdge == 3 ~ y + 1*offset,
+      trueEdge == 4 ~ y + 0*offset,
+      trueEdge == 5 ~ y - 2*offset,
+      TRUE ~ y
+    )
+  )
+t_switch <- t_switch + t_vals[2]
+VERT_ANIM <- bind_rows(lapply(seq_along(t_vals), function(i) {
+  t <- t_vals[i]
+  
+  VERTICES %>%
+    mutate(
+      frame = i,
+      
+      # BLUE fixed
+      x_blue = x0,
+      y_blue = y0,
+      
+      # RED moves then locks
+      x_red = if (t <= t_switch)
+        (1 - t / t_switch) * x1 + (t / t_switch) * x0
+      else x0,
+      
+      y_red = if (t <= t_switch)
+        (1 - t / t_switch) * y1 + (t / t_switch) * y0
+      else y0
+    )
+})) %>% bind_rows()
+
+
+x_range <- range(ANIM$x1, na.rm = TRUE)*1.001
+y_range <- range(ANIM$y1, na.rm = TRUE)*1.001
+z_range <- range(final_data[, c("sample", "indSample")], na.rm = TRUE)*1.001
+
+x_asp <- x_range[2] - x_range[1]
+y_asp <- y_range[2] - y_range[1]
+z_asp <- z_range[2] - z_range[1]
+
+colaxnn <- "black"
+eyer <- 2.7
+
+
+
+p_bridge <- plot_ly() |>
+  
+  # base plane
+  add_trace(
+    data = ANIM,
+    x = ~x_blue, y = ~y_blue, z = ~0,
+    frame = ~frame,
+    type = "scatter3d",
+    mode = "lines",
+    line = list(color = "black", width = 7),
+    opacity = 1,
+    showlegend = FALSE
+  ) |>
+  
+  # BLUE (stationary target)
+  add_trace(
+    data = ANIM,
+    x = ~x_blue, y = ~y_blue, z = ~z_blue,
+    frame = ~frame,
+    type = "scatter3d",
+    mode = "lines",
+    line = list(color = "green", width = 7),
+    opacity = 1,
+    showlegend = FALSE
+  ) |>
+  
+  # RED (moving → morphing)
+  add_trace(
+  data = ANIM,
+  x = ~x_move,
+  y = ~y_move,
+  z = ~z_red,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "lines",
+  line = list(color = "red", width = 7),
+  opacity = 1,
+  showlegend = FALSE
+) |>
+  
+  # vertical segments (must use same geometry as blue anchor)
+  add_trace(
+  data = SEG_BLUE,
+  x = ~x, y = ~y, z = ~z,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "lines",
+  line = list(color = "gray", width = 0.5),
+  opacity = 1,
+  showlegend = FALSE
+) |>
+  add_trace(
+  data = SEG_RED %>% filter(frame <= t_switch * n_frames),
+  x = ~x, y = ~y, z = ~z,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "lines",
+  line = list(color = "gray", width = 0.5),
+  opacity = 1,
+  showlegend = FALSE
+) |>
+  add_trace(
+  data = SEG_ENV,
+  x = ~x, y = ~y, z = ~z,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "lines",
+  line = list(color = "gray", width = 0.5),
+  opacity = 1,
+  showlegend = FALSE
+) |>
+  # RED BASE (moving rigid platform)
+add_trace(
+  data = ANIM,
+  x = ~x_move,
+  y = ~y_move,
+  z = ~0,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "lines",
+  line = list(color = "black", width = 7),
+  opacity = 1,
+  showlegend = FALSE
+) |>
+  # BLUE (always)
+add_trace(
+  data = VERT_ANIM,
+  x = ~x_blue, y = ~y_blue, z = 0,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(color = "blue", size = 7),
+  showlegend = FALSE
+) |>
+
+# RED (only moving phase)
+add_trace(
+  data = VERT_ANIM %>% filter(frame <= t_switch * n_frames),
+  x = ~x_red, y = ~y_red, z = 0,
+  frame = ~frame,
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(color = "blue", size = 7),
+  showlegend = FALSE
+) |>
+  config(mathjax = 'cdn') |>
+  layout(
+    font = list(family = "Palatino Linotype"), # Palatino Linotype
+    margin = list(l = 0, r = 0, b = 0, t = 0),
+    
+    scene = list(
+      xaxis = list(title = list(text = TeX("x"), font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16),  range = x_range),
+              yaxis = list(title = list(text = TeX("y"), font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16), range = y_range),
+              zaxis = list(title = list(text = TeX("z"), font = list(color = colaxnn, size = 22)),  
+                           tickfont = list(color = colaxnn, size = 16), range = z_range),
+      
+      aspectratio = list(x = x_asp, y = y_asp, z = 2),
+      
+      camera = list(
+        eye = list(x = 1*eyer, y = -1*eyer, z = 1.5*eyer),
+        center = list(x = 0, y = 0, z = 0)
+      )
+    )
+  ) 
+# |>
+#   layout(
+#     updatemenus = list(
+#       list(
+#         type = "buttons",
+#         direction = "left",
+#         x = 1, xanchor = "left",
+#         y = 0, yanchor = "bottom",
+#         buttons = list(
+#           
+#           # ▶ PLAY
+#           # list(
+#           #   label = "Play",
+#           #   method = "animate",
+#           #   args = list(
+#           #     NULL,
+#           #     list(
+#           #       frame = list(duration = 30, redraw = FALSE),
+#           #       transition = list(duration = 0),
+#           #       fromcurrent = TRUE,
+#           #       mode = "immediate"
+#           #     )
+#           #   )
+#           # ),
+#           
+#           # ⏸ PAUSE
+#           list(
+#             label = "Pause",
+#             method = "animate",
+#             args = list(
+#               NULL,
+#               list(
+#                 frame = list(duration = 0, redraw = FALSE),
+#                 mode = "immediate"
+#               )
+#             )
+#           )
+#         )
+#       )
+#     )
+#   )
+# |> animation_opts(
+#     frame = 10,      # time per frame in ms (smaller = faster)
+#     transition = 0,  # no smooth interpolation → faster
+#     redraw = FALSE
+#   ) 
+# |>
+#   animation_button(
+#     x = 1, xanchor = "right",
+#     y = 0, yanchor = "bottom"
+#   )
+
+save(p_bridge, file = here::here("data_files/bridge_representation.RData"))
+```
+
+
+
+
+
+
+:::: {style="display: grid; grid-template-columns: 580px 580px 580px; grid-column-gap: 0px;"}
+
+
+::: {}
+
+
+```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Animation.")}
+load(here::here("data_files/bridge_representation.RData"))
+htmlwidgets::onRender(
+  p_bridge,
+  'function(el, x) {
+     Plotly.animate(el);
+   }'
+)
+```
+
+
+:::
+
+::: {}
+
+```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Still.")}
+load(here::here("data_files/bridge_representation.RData"))
+p_bridge
+```
+
+
+:::
+
+::: {}
+
+```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Still.")}
+load(here::here("data_files/bridge_representation.RData"))
+p_bridge
+```
+
+
+:::
+
+
+
+::::
+
+
+

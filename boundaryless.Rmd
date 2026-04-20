@@ -128,8 +128,8 @@ source(here::here("matern_functions.R"))
 
 ```{r}
 # parameters
-kappa <- 12
-sigma <- 0.8
+kappa <- 10
+sigma <- 1
 alpha <- 3
 m <- 4
 nu <- alpha - 0.5
@@ -329,6 +329,49 @@ for (b in names(blocks)) {
 }
 ```
 
+
+```
+{r}
+K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph = graph)
+n <- length(linear_mesh)
+b <- n - 2
+
+index <- vector("integer", length = 5 * (1 + b))
+
+pos <- 1
+
+for (i in 1:5) {
+  index[pos] <- i
+  pos <- pos + 1
+  
+  block_start <- 5 + (i - 1) * b + 1
+  index[pos:(pos + b - 1)] <- block_start:(block_start + b - 1)
+  pos <- pos + b
+}
+
+repeated_index <- rep(index, each = 2)
+
+K_reordered <- K[,repeated_index]
+
+library(pracma)
+
+N <- nullspace(as.matrix(K_reordered))   # columns span ker(K)
+
+
+
+x <- final_data$indSample
+
+blocks <- split(x, cumsum(is.na(x)) + 1)
+blocks <- lapply(blocks, function(v) v[!is.na(v)])
+
+out <- unlist(lapply(blocks, function(v) {
+  if (length(v) <= 2) return(v)
+
+  c(v[1], rep(v[2:(length(v)-1)], each = 2), v[length(v)])
+}))
+
+U <- N %*% (t(N) %*% out)
+```
 
 
 

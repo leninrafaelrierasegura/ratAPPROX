@@ -45,7 +45,7 @@ Go back to the [Contents](about.html) page.
 # Create a clipboard button on the rendeblack HTML page
 source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
-set.seed(1982) 
+set.seed(21) 
 # Set global options for all code chunks
 knitr::opts_chunk$set(
   # Disable messages printed by R code chunks
@@ -137,7 +137,7 @@ type = "covariance"
 type_rational_approximation = "chebfun"
 rho = 4
 m = 1
-nu = 1.5
+nu = 0.5
 sigma = 2
 
 kappa = sqrt(8*nu)/rho
@@ -328,11 +328,12 @@ cat(" L2 error (Matern - FEM) sample:", L_2_error_Matern_FEM_sample, "\n",
 
 
 
-```{r}
+```{r, out.width= "100%"}
 graph$plot_function(data = x_FEM, type = "plotly", , line_color = "red", interpolate_plot = FALSE, name = "FEM",line_width = 4) %>%
     graph$plot_function(data = x_Matern, p = ., type = "plotly", line_color = "blue", interpolate_plot = FALSE, name = "r",line_width = 4) %>%
     graph$plot_function(data = x_bridge, p = ., type = "plotly", line_color = "green", interpolate_plot = FALSE, name = "bridge",line_width = 4) %>%
-    graph$plot_function(data = x_hat, p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4)
+    graph$plot_function(data = x_hat, p = ., type = "plotly", line_color = "black", interpolate_plot = FALSE, name = "hat",line_width = 4) %>%
+  layout(scene = list(aspectratio = list(x = 1, y = 2, z = 1)))
 ```
 
 

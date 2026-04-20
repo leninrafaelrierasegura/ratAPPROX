@@ -13,8 +13,8 @@ source(here::here("all_functions.R"))
 source(here::here("matern_functions.R"))
 
 # parameters
-h <- 0.001
-kappa <- 200
+h <- 0.1
+kappa <- 1
 sigma <- 0.8
 alpha <- 3
 m <- 4
