@@ -1613,3 +1613,23 @@ myggsave <- function(plot, width = 9.22, height = 7.05) {
   message("PDF saved at: ", file.path(dir_to_save, paste0(obj_name, ".pdf")))
 }
 
+
+## -----------------------------------------------------------------------------
+save_dual_for_presentation <- function(obj) {
+  obj_name <- deparse(substitute(obj))
+  filename <- paste0(obj_name, ".RData")
+  
+  path1 <- here::here("data_files", filename)
+  path2 <- file.path("~", "Desktop", "leninPresentations", "data_files", filename)
+  
+  e <- new.env()
+  assign(obj_name, obj, envir = e)
+  
+  save(list = obj_name, file = path1, envir = e)
+  save(list = obj_name, file = path2, envir = e)
+  
+  cat("Saved file in:\n",
+      " -", path1, "\n",
+      " -", path2, "\n")
+}
+

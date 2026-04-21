@@ -129,15 +129,15 @@ source(here::here("matern_functions.R"))
 ```{r}
 # parameters
 kappa <- 10
-sigma <- 1
-alpha <- 3
+sigma <- 10
+alpha <- 1
 m <- 4
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
 ell <- 1
 
-h <- 0.025
+h <- 0.05
 
 linear_mesh <- seq(0, ell, by = h)
 
@@ -210,9 +210,10 @@ op <- matern.operators(alpha = alpha,
 
 FEM_Sigma <- covariance_mesh(op)
 
-set.seed(2)
+#set.seed(2)
+source("produces_sample_for_bridge_and_boundaryless.R")
+noise <- get_sample(dim(Approx_Sigma)[1]) #rnorm(dim(Approx_Sigma)[1])
 
-noise <- rnorm(dim(Approx_Sigma)[1])
 R <- chol(Approx_Sigma)
 sample <- as.vector(t(R) %*% noise)
 
@@ -645,14 +646,17 @@ VERT_ANIM <- bind_rows(lapply(seq_along(t_vals), function(i) {
 
 x_range <- range(ANIM$x1, na.rm = TRUE)*1.001
 y_range <- range(ANIM$y1, na.rm = TRUE)*1.001
-z_range <- range(final_data[, c("sample", "indSample")], na.rm = TRUE)*1.001
+#z_range <- range(final_data[, c("sample", "indSample")], na.rm = TRUE)*1.001
+# run bridge.Rmd first
+load(here::here("data_files/z_range_for_bridge_from_boundaryless.RData"))
+
 
 x_asp <- x_range[2] - x_range[1]
 y_asp <- y_range[2] - y_range[1]
 z_asp <- z_range[2] - z_range[1]
 
 colaxnn <- "black"
-eyer <- 2.7
+eyer <- 1.4#2.7  # 1 for presentation
 
 
 
@@ -679,7 +683,9 @@ p_boundaryless <- plot_ly() |>
     mode = "lines",
     line = list(color = "green", width = 7),
     opacity = 1,
-    showlegend = FALSE
+    name = "$\\mbox{field }u(s)$",
+    legendgroup = "target",
+    showlegend = TRUE
   ) |>
   
   # RED (moving → morphing)
@@ -691,9 +697,11 @@ p_boundaryless <- plot_ly() |>
   frame = ~frame,
   type = "scatter3d",
   mode = "lines",
-  line = list(color = "red", width = 7),
+  line = list(color = "blue", width = 7),
   opacity = 1,
-  showlegend = FALSE
+  name = "$\\mbox{boundaryless }u_e(s)$",
+  legendgroup = "moving",
+  showlegend = TRUE
 ) |>
   
   # vertical segments (must use same geometry as blue anchor)
@@ -747,7 +755,7 @@ add_trace(
   frame = ~frame,
   type = "scatter3d",
   mode = "markers",
-  marker = list(color = "blue", size = 7),
+  marker = list(color = "black", size = 7),
   showlegend = FALSE
 ) |>
 
@@ -758,7 +766,7 @@ add_trace(
   frame = ~frame,
   type = "scatter3d",
   mode = "markers",
-  marker = list(color = "blue", size = 7),
+  marker = list(color = "black", size = 7),
   showlegend = FALSE
 ) |>
   config(mathjax = 'cdn') |>
@@ -781,7 +789,15 @@ add_trace(
         center = list(x = 0, y = 0, z = 0)
       )
     )
-  ) 
+  ) |>
+  layout(
+  legend = list(
+    x = 0,
+    y = 0.9, # default = 1
+    xanchor = "left",
+    yanchor = "top"
+  )
+)
 # |>
 #   layout(
 #     updatemenus = list(
@@ -834,7 +850,8 @@ add_trace(
 #     y = 0, yanchor = "bottom"
 #   )
 
-save(p_boundaryless, file = here::here("data_files/boundaryless.RData"))
+#save(p_boundaryless, file = here::here("data_files/boundaryless.RData"))
+save_dual_for_presentation(p_boundaryless)
 ```
 
 
@@ -849,7 +866,7 @@ save(p_boundaryless, file = here::here("data_files/boundaryless.RData"))
 
 
 ```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Animation.")}
-load(here::here("data_files/boundaryless.RData"))
+load(here::here("data_files/p_boundaryless.RData"))
 htmlwidgets::onRender(
   p_boundaryless,
   'function(el, x) {
@@ -864,7 +881,7 @@ htmlwidgets::onRender(
 ::: {}
 
 ```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Still.")}
-load(here::here("data_files/boundaryless.RData"))
+load(here::here("data_files/p_boundaryless.RData"))
 p_boundaryless
 ```
 
@@ -874,7 +891,7 @@ p_boundaryless
 ::: {}
 
 ```{r, eval =TRUE, fig.height = 7, fig.cap = captioner("Still.")}
-load(here::here("data_files/boundaryless.RData"))
+load(here::here("data_files/p_boundaryless.RData"))
 p_boundaryless
 ```
 
