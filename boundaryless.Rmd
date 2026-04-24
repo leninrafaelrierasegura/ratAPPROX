@@ -131,11 +131,24 @@ source(here::here("matern_functions.R"))
 kappa <- 10
 sigma <- 10
 alpha <- 1
-m <- 4
+
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
-n.overkill <- 1000
 ell <- 1
+
+
+# rho <- 0.5
+# nu <- 1.5
+# sigma <- 1
+# 
+# kappa <- sqrt(8*nu)/rho
+# tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))  #sigma = 1, d = 1
+# alpha <- nu + 1/2
+# ell <- 2
+
+m <- 4
+n.overkill <- 1000
+
 
 h <- 0.05
 

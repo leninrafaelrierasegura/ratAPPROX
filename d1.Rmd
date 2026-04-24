@@ -157,7 +157,8 @@ Approx_Sigma <- gets_cov_mat_rat_approx_alpha_1_to_2(
   kappa = kappa, 
   tau = tau, 
   alpha = alpha, 
-  m = m)
+  m = m,
+  build_cov = TRUE)
 
 ```
 
