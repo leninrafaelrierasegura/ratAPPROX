@@ -556,9 +556,9 @@ save(p_sample, file = here::here("data_files/p_sample.RData"))
 
 
 ```{r}
-save_plotly_figure_fixed(p_cov, dpi = 600, scale = 2, viewer_change = 0.65)
-save_plotly_figure_fixed(p_diag, dpi = 600, scale = 2, viewer_change = 0.65)
-save_plotly_figure_fixed(p_sample, dpi = 600, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_cov, dpi = 300, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_diag, dpi = 300, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_sample, dpi = 300, scale = 2, viewer_change = 0.65)
 
 png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov.png",
                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_diag.png",
