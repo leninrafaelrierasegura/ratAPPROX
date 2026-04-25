@@ -45,7 +45,7 @@ Go back to the [Contents](about.html) page.
 # Create a clipboard button on the rendeblack HTML page
 source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
-set.seed(21) 
+set.seed(2) 
 # Set global options for all code chunks
 knitr::opts_chunk$set(
   # Disable messages printed by R code chunks
@@ -57,7 +57,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -92,6 +92,15 @@ source("keys.R")
 slackr_setup(token = token) # token comes from keys.R
 ```
 
+```{r}
+reticulate::use_python(
+  "/home/rierasl/miniconda3/envs/phdenv/bin/python",
+  required = TRUE
+)
+
+reticulate::py_config()
+```
+
 
 ```{r}
 capture.output(
@@ -123,7 +132,7 @@ gets_graph_interval <- function(h, ell){
 
 ```{r}
 # Parameters of the approximation
-h = 0.04
+h = 0.02
 ell = 2
 
 # Get the graph and build the mesh
@@ -277,6 +286,7 @@ nodes_order <- nodes[right_order]
 ```
 
 
+
 ```{r}
 one_row_Sigma_Matern <- Sigma_Matern[m1,][right_order]
 one_row_Sigma_FEM <- Sigma_FEM[m1, ][right_order]
@@ -290,18 +300,41 @@ df <- data.frame(x = nodes_order, y = 0,
   mutate(max = pmax(Matern, FEM, bridge, hat))
 
 df_vertex <- data.frame(x = nodes[1:2], y = 0, z = 0)
+x_range <- range(df$x, na.rm = TRUE)*1.001
+y_range <- range(df$y, na.rm = TRUE)*1.001
+z_range <- range(df$max, na.rm = TRUE)*1.001
 ```
 
 
 ```{r}
 rv <- 2
+myeye <- list(x = 1*rv, y = -2*rv, z = 1*rv)
+mycenter <- list(x = 0, y = 0, z = 0)
+
+viewer_change <- 1  # >1 further, <1 closer
+
+neweye <- list(
+  x = mycenter$x + (myeye$x - mycenter$x) * viewer_change,
+  y = mycenter$y + (myeye$y - mycenter$y) * viewer_change,
+  z = mycenter$z + (myeye$z - mycenter$z) * viewer_change
+)
 ```
 
 
 ```{r}
 p_cov <- plot_ly() %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern*0, type = "scatter3d", mode = "lines", line = list(color = "black"), name = "graph") %>%
-  add_trace(data = df_vertex, x = ~x, y = ~y, z = ~z, type = "scatter3d", mode = "markers", marker = list(color = "black", size = 4), name = "vertex", showlegend = FALSE) %>%
+  add_trace(data = df, 
+            x = ~x, y = ~y, z = ~Matern*0, 
+            type = "scatter3d", 
+            mode = "lines", 
+            line = list(color = "black", width = 7), 
+            name = "graph", showlegend = FALSE) %>%
+  add_trace(data = df_vertex, 
+            x = ~x, y = ~y, z = ~z, 
+            type = "scatter3d", 
+            mode = "markers", 
+            marker = list(color = "black", size = 7), 
+            name = "vertex", showlegend = FALSE) %>%
   add_trace(x = rep(df$x, each = 3), 
             y = rep(df$y, each = 3),
             z = unlist(lapply(df$max, function(zj) c(0, zj, NA))),
@@ -310,14 +343,33 @@ p_cov <- plot_ly() %>%
             line = list(color = "gray", width = 0.5),
             name = "support", 
             showlegend = FALSE) %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 2), name = "Matern") %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 2), name = "FEM") %>%
-  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 2), name = "bridge") %>%
-  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 2), name = "hat") %>%
-  layout(scene = list(aspectratio = list(x = ell, y = 1, z = 1),
-                      camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
-                                    center = list(x = 0, y = 0, z = 0))))
+  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 7), name = "Matern") %>%
+  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 7), name = "FEM") %>%
+  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 7), name = "bridge") %>%
+  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 7), name = "hat") %>%
+  config(mathjax = 'cdn') %>%
+  layout(font = list(family = "Palatino Linotype"), # Palatino Linotype
+    margin = list(l = 0, r = 0, b = 0, t = 0),
+    legend = list(
+    x = 0.16,
+    y = 0.90, # default = 1
+    xanchor = "left",
+    yanchor = "top"
+  ),
+    scene = list(
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16)),
+    aspectratio = list(x = ell, y = 1, z = 1),
+                      camera = list(eye = neweye,
+                                    center = mycenter)))
+save(p_cov, file = here::here("data_files/p_cov.RData"))
 ```
+
+
 
 
 ```{r}
@@ -333,14 +385,32 @@ df <- data.frame(x = nodes_order, y = 0,
   mutate(max = pmax(Matern, FEM, bridge, hat))
 
 df_vertex <- data.frame(x = nodes[1:2], y = 0, z = 0)
+
+x_range <- range(df$x, na.rm = TRUE)*1.001
+y_range <- range(df$y, na.rm = TRUE)*1.001
+z_range <- range(df$max, na.rm = TRUE)*1.001
 ```
 
+
+```{r}
+rv <- 2
+```
 
 
 ```{r}
 p_diag <- plot_ly() %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern*0, type = "scatter3d", mode = "lines", line = list(color = "black"), name = "graph") %>%
-  add_trace(data = df_vertex, x = ~x, y = ~y, z = ~z, type = "scatter3d", mode = "markers", marker = list(color = "black", size = 4), name = "vertex", showlegend = FALSE) %>%
+  add_trace(data = df, 
+            x = ~x, y = ~y, z = ~Matern*0, 
+            type = "scatter3d", 
+            mode = "lines", 
+            line = list(color = "black", width = 7), 
+            name = "graph", showlegend = FALSE) %>%
+  add_trace(data = df_vertex, 
+            x = ~x, y = ~y, z = ~z, 
+            type = "scatter3d", 
+            mode = "markers", 
+            marker = list(color = "black", size = 7), 
+            name = "vertex", showlegend = FALSE) %>%
   add_trace(x = rep(df$x, each = 3), 
             y = rep(df$y, each = 3),
             z = unlist(lapply(df$max, function(zj) c(0, zj, NA))),
@@ -349,13 +419,30 @@ p_diag <- plot_ly() %>%
             line = list(color = "gray", width = 0.5),
             name = "support", 
             showlegend = FALSE) %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 2), name = "Matern") %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 2), name = "FEM") %>%
-  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 2), name = "bridge") %>%
-  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 2), name = "hat") %>%
-  layout(scene = list(aspectratio = list(x = ell, y = 1, z = 1),
+  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 7), name = "Matern", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 7), name = "FEM", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 7), name = "bridge", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 7), name = "hat", showlegend = TRUE) %>%
+  config(mathjax = 'cdn') %>%
+  layout(font = list(family = "Palatino Linotype"), # Palatino Linotype
+    margin = list(l = 0, r = 0, b = 0, t = 0),
+    legend = list(
+    x = 0.16,
+    y = 0.90, # default = 1
+    xanchor = "left",
+    yanchor = "top"
+  ),
+    scene = list(
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16)),
+    aspectratio = list(x = ell, y = 1, z = 1),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
+save(p_diag, file = here::here("data_files/p_diag.RData"))
 ```
 
 
@@ -406,14 +493,33 @@ df <- data.frame(x = nodes_order, y = 0,
   mutate(max = pmax(Matern, FEM, bridge, hat))
 
 df_vertex <- data.frame(x = nodes[1:2], y = 0, z = 0)
+
+x_range <- range(df$x, na.rm = TRUE)*1.001
+y_range <- range(df$y, na.rm = TRUE)*1.001
+z_range <- range(df$max, na.rm = TRUE)*1.001
+```
+
+
+```{r}
+rv <- 2
 ```
 
 
 
 ```{r}
 p_sample <- plot_ly() %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern*0, type = "scatter3d", mode = "lines", line = list(color = "black"), name = "graph") %>%
-  add_trace(data = df_vertex, x = ~x, y = ~y, z = ~z, type = "scatter3d", mode = "markers", marker = list(color = "black", size = 4), name = "vertex", showlegend = FALSE) %>%
+  add_trace(data = df, 
+            x = ~x, y = ~y, z = ~Matern*0, 
+            type = "scatter3d", 
+            mode = "lines", 
+            line = list(color = "black", width = 7), 
+            name = "graph", showlegend = FALSE) %>%
+  add_trace(data = df_vertex, 
+            x = ~x, y = ~y, z = ~z, 
+            type = "scatter3d", 
+            mode = "markers", 
+            marker = list(color = "black", size = 7), 
+            name = "vertex", showlegend = FALSE) %>%
   add_trace(x = rep(df$x, each = 3), 
             y = rep(df$y, each = 3),
             z = unlist(lapply(df$max, function(zj) c(0, zj, NA))),
@@ -422,27 +528,79 @@ p_sample <- plot_ly() %>%
             line = list(color = "gray", width = 0.5),
             name = "support", 
             showlegend = FALSE) %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 2), name = "Matern") %>%
-  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 2), name = "FEM") %>%
-  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 2), name = "bridge") %>%
-  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 2), name = "hat") %>%
-  layout(scene = list(aspectratio = list(x = ell, y = 1, z = 1),
+  add_trace(data = df, x = ~x, y = ~y, z = ~Matern, type = "scatter3d", mode = "lines", line = list(color = "blue", width = 7), name = "Matern", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z = ~FEM, type = "scatter3d", mode = "lines", line = list(color = "red", width = 7), name = "FEM", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z =~bridge, type = "scatter3d", mode = "lines", line = list(color = "green", width = 7), name = "bridge", showlegend = TRUE) %>%
+  add_trace(data = df, x = ~x, y = ~y, z= ~hat, type = "scatter3d", mode = "lines", line = list(color = "black", width = 7), name = "hat", showlegend = TRUE) %>%
+  config(mathjax = 'cdn') %>%
+  layout(font = list(family = "Palatino Linotype"), # Palatino Linotype
+    margin = list(l = 0, r = 0, b = 0, t = 0),
+    legend = list(
+    x = 0.16,
+    y = 0.90, # default = 1
+    xanchor = "left",
+    yanchor = "top"
+  ),
+    scene = list(
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 22)),  
+                           tickfont = list(color = "black", size = 16)),
+    aspectratio = list(x = ell, y = 1, z = 1),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
+save(p_sample, file = here::here("data_files/p_sample.RData"))
 ```
 
 
 ```{r}
-library(reticulate)
+save_plotly_figure_fixed(p_cov, dpi = 600, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_diag, dpi = 600, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_sample, dpi = 600, scale = 2, viewer_change = 0.65)
 
-reticulate::use_python(
-  "/home/rierasl/miniconda3/envs/phdenv/bin/python",
-  required = TRUE
-)
-save_plotly_figure_fixed(p_cov,
-                         dpi = 600,
-                         scale = 2,
-                         viewer_change = 1)
+png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov.png",
+               "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_diag.png",
+               "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_sample.png")
+output_file <- "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov_diag_sample.png"
+
+combine_pngs_with_gap(png_files, output_file, gap = 200)
+```
+
+```{r}
+# png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov.png", 
+#                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_diag.png",
+#                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_sample.png")
+# output_file <- "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov_diag_sample.png"
+# # cmd <- paste(
+# #   "convert",
+# #   paste(shQuote(png_files), collapse = " "),
+# #   "+append",
+# #   shQuote(output_file)
+# # )
+# # 
+# # system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+# 
+# gap <- 200  # pixels between images
+# 
+# # build sequence: img spacer img spacer img
+# parts <- c()
+# for (i in seq_along(png_files)) {
+#   parts <- c(parts, shQuote(png_files[i]))
+#   if (i < length(png_files)) {
+#     parts <- c(parts, sprintf("\\( -size %dx1 xc:white \\)", gap))
+#   }
+# }
+# 
+# cmd <- paste(
+#   "convert",
+#   paste(parts, collapse = " "),
+#   "+append",
+#   shQuote(output_file)
+# )
+# 
+# system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 ```
 
 
@@ -453,6 +611,7 @@ save_plotly_figure_fixed(p_cov,
 
 
 ```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Animation.")}
+load(here::here("data_files/p_cov.RData"))
 p_cov
 ```
 
@@ -462,6 +621,7 @@ p_cov
 ::: {}
 
 ```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Still.")}
+load(here::here("data_files/p_diag.RData"))
 p_diag
 ```
 
@@ -471,6 +631,7 @@ p_diag
 ::: {}
 
 ```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Still.")}
+load(here::here("data_files/p_sample.RData"))
 p_sample
 ```
 
@@ -481,4 +642,8 @@ p_sample
 
 ::::
 
+
+```{r, eval = TRUE}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
 
