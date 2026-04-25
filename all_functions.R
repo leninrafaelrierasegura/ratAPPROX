@@ -1,4 +1,4 @@
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # remotes::install_github("davidbolin/rspde", ref = "devel")
 # # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 # library(rSPDE)
@@ -10,7 +10,7 @@
 # library(plotly)
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # Function to build a tadpole graph and create a mesh
 # gets.graph.tadpole <- function(flip_edge = FALSE){
 #   if(flip_edge) {
@@ -27,7 +27,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # Eigenfunctions for the tadpole graph
 # tadpole.eig <- function(k,graph){
 #   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2])
@@ -76,7 +76,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 # 
 #   kappa <- theta[2]
@@ -155,7 +155,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # Typically, factor = 4, constant = 3
 # gives.indices <- function(graph, factor, constant){
 #   # Here, after doing graph$observation_to_vertex()
@@ -237,7 +237,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # 
 #     # r00 <- r00 + 1e-8*max(r00)*diag(nrow(r00))
 #     # r00_reg <- r00/min(diag(r00))
@@ -294,7 +294,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
 #     graph,
@@ -407,7 +407,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
 #     graph,
 #     kappa,
@@ -501,7 +501,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- function(
 #     graph,
@@ -607,7 +607,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function(
 #     graph,
@@ -714,7 +714,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- function(
 #     graph,
 #     kappa,
@@ -801,7 +801,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # rat_covariance <- function(graph,
 #                            kappa,
 #                            tau,
@@ -849,7 +849,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # # comment
 # lazy_likelihood_alpha_rat <- function(graph,
 #                                             kappa,
@@ -888,7 +888,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # rat_loglikelihood <- function(graph,
 #                               theta,
 #                               alpha,
@@ -919,7 +919,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
 #   m <- object$m
 # 
@@ -976,7 +976,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # gets_De_from_Uv <- function(graph, alpha){
 #   E  <- graph$E
 #   nV <- graph$nV
@@ -999,7 +999,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # gets_De_from_U <- function(graph, alpha){
 #   nE <- graph$nE
 # 
@@ -1021,7 +1021,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 #   edgeMatrix <- graph$E
 #   degrees <- graph$get_degrees()
@@ -1084,7 +1084,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 #   alpha <- 2
 #   n <- 2*alpha*graph$nE
@@ -1112,7 +1112,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 #   edgeMatrix <- graph$E
 #   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -1133,7 +1133,7 @@
 # 
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # getsSmallCovarianceMatrices <- function(D_matrix,
 #                                         kappa,
 #                                         tau,
@@ -1180,7 +1180,7 @@
 # }
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 #                                                     graph,
 #                                                     precomputeddata,
@@ -1334,7 +1334,7 @@
 # 
 
 
-## --------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------------
 # loglikelihoodForAlphaEqualTwoPrecompute <- function(theta,
 #                                                     precomputed_data,
 #                                                     BC = 1,
@@ -1564,4 +1564,201 @@
 #   return(as.numeric(loglik))
 # }
 # 
+
+
+## -----------------------------------------------------------------------------------
+# myggsave <- function(plot, width = 9.22, height = 7.05) {
+# 
+#   dir_to_save <- here::here("data_files/tikzpic")
+#   obj_name <- deparse(substitute(plot))
+#   tex_name <- file.path(dir_to_save, paste0(obj_name, ".tex"))
+# 
+#   # Create directory if it doesn't exist
+#   if (!dir.exists(dir_to_save)) dir.create(dir_to_save, recursive = TRUE)
+# 
+#   # FORCE LaTeX FONT HERE, comment the following if smth breaks
+#   library(tikzDevice)
+#   options(
+#   tikzDocumentDeclaration = "\\documentclass[tikz,border=0pt]{standalone}",
+#   tikzLatexPackages = c(
+#     "\\usepackage{tikz}",
+#     "\\usetikzlibrary{calc}",
+#     "\\usepackage[T1]{fontenc}",
+#     "\\usepackage[sc]{mathpazo}"
+#   ))
+#   # Comment until here if it fails
+#   # Save TikZ plot
+#   tikzDevice::tikz(tex_name, standAlone = TRUE, width = width, height = height)
+#   print(plot)
+#   dev.off()
+# 
+#   # Compile to PDF
+#   system(paste0("pdflatex -output-directory=", dir_to_save, " ", tex_name))
+# 
+#   # Remove auxiliary files
+#   aux_ext <- c(".aux", ".log", ".tex")
+#   for (ext in aux_ext) {
+#     f <- file.path(dir_to_save, paste0(obj_name, ext))
+#     if (file.exists(f)) file.remove(f)
+#   }
+# 
+#   # Remove any temporary raster images generated by tikzDevice
+#   ras_files <- list.files(
+#     dir_to_save,
+#     pattern = paste0(obj_name, "_ras[0-9]+\\.png$"),
+#     full.names = TRUE
+#   )
+#   if (length(ras_files) > 0) file.remove(ras_files)
+# 
+#   message("PDF saved at: ", file.path(dir_to_save, paste0(obj_name, ".pdf")))
+# }
+
+
+## -----------------------------------------------------------------------------------
+# save_dual_for_presentation <- function(obj) {
+#   obj_name <- deparse(substitute(obj))
+#   filename <- paste0(obj_name, ".RData")
+# 
+#   path1 <- here::here("data_files", filename)
+#   path2 <- file.path("~", "Desktop", "leninPresentations", "data_files", filename)
+# 
+#   e <- new.env()
+#   assign(obj_name, obj, envir = e)
+# 
+#   save(list = obj_name, file = path1, envir = e)
+#   save(list = obj_name, file = path2, envir = e)
+# 
+#   cat("Saved file in:\n",
+#       " -", path1, "\n",
+#       " -", path2, "\n")
+# }
+
+
+## -----------------------------------------------------------------------------------
+# save_plotly_figure_fixed <- function(fig,
+#                                      dpi = 600,
+#                                      scale = 2,
+#                                      viewer_change = 1) {
+# 
+#   folder <- here::here("data_files/plotlypdf")
+# 
+#   if (!dir.exists(folder)) {
+#     dir.create(folder, recursive = TRUE)
+#   }
+# 
+#   fig_name <- deparse(substitute(fig))
+# 
+#   file_name_pdf <- file.path(folder, paste0(fig_name, ".pdf"))
+#   file_name_png <- file.path(folder, paste0(fig_name, ".png"))
+# 
+# 
+#   # ---- CAMERA (correct Plotly location) ----
+#   cam <- fig$x$layoutAttrs[[1]]$scene$camera
+# 
+#   if (!is.null(cam)) {
+# 
+#   eye <- cam$eye
+#   center <- cam$center
+# 
+#   if (is.null(eye)) eye <- list(x = 1, y = 1, z = 1)
+#   if (is.null(center)) center <- list(x = 0, y = 0, z = 0)
+# 
+#   # vector center -> eye
+#   vx <- eye$x - center$x
+#   vy <- eye$y - center$y
+#   vz <- eye$z - center$z
+# 
+#   # norm (distance from center)
+#     norm_v <- sqrt(vx^2 + vy^2 + vz^2)
+# 
+#     if (norm_v > 0) {
+# 
+#     fig$x$layoutAttrs[[1]]$scene$camera$eye <- list(
+#       x = center$x + vx * viewer_change,
+#       y = center$y + vy * viewer_change,
+#       z = center$z + vz * viewer_change
+#     )
+#   }
+# }
+# 
+#   # Save PDF
+#   plotly::save_image(
+#     fig,
+#     file_name_pdf,
+#     width = NULL,
+#     height = NULL,
+#     scale = scale
+#   )
+# 
+#   # Convert PDF to PNG
+#   cmd <- paste(
+#     "convert -density", dpi,
+#     "-background white -trim +repage",
+#     "-bordercolor white -border 10",
+#     shQuote(file_name_pdf),
+#     shQuote(file_name_png)
+#   )
+# 
+#   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+# 
+#   # Copy to presentation folder
+#   pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+#   if (!dir.exists(pres_dir)) dir.create(pres_dir, recursive = TRUE)
+# 
+#   pres_png <- file.path(pres_dir, basename(file_name_png))
+#   pres_pdf <- file.path(pres_dir, basename(file_name_pdf))
+# 
+#   file.copy(file_name_png, pres_png, overwrite = TRUE)
+#   file.copy(file_name_pdf, pres_pdf, overwrite = TRUE)
+# 
+#   cat(
+#     "Files saved:\n",
+#     "  PDF:", file_name_pdf, "\n",
+#     "  PNG:", file_name_png, "\n",
+#     "  PDF copied to:", pres_pdf, "\n",
+#     "  PNG copied to:", pres_png, "\n",
+#     "  viewer change:", viewer_change, "\n"
+#   )
+# }
+# 
+
+
+## -----------------------------------------------------------------------------------
+# combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
+# 
+#   pres_dir <- path.expand("~/Desktop/leninPresentations/data_files")
+# 
+#   if (!dir.exists(pres_dir)) {
+#     dir.create(pres_dir, recursive = TRUE)
+#   }
+# 
+#   # build sequence: img spacer img spacer img
+#   parts <- c()
+# 
+#   for (i in seq_along(png_files)) {
+#     parts <- c(parts, shQuote(png_files[i]))
+# 
+#     if (i < length(png_files)) {
+#       parts <- c(parts, sprintf("\\( -size %dx1 xc:white \\)", gap))
+#     }
+#   }
+# 
+#   cmd <- paste(
+#     "convert",
+#     paste(parts, collapse = " "),
+#     "+append",
+#     shQuote(output_file)
+#   )
+# 
+#   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+# 
+#   # copy to presentation folder
+#   copied_file <- file.path(pres_dir, basename(output_file))
+#   file.copy(output_file, copied_file, overwrite = TRUE)
+# 
+#   cat(
+#     "Image created at:\n  ", output_file,
+#     "\nCopied to:\n  ", copied_file, "\n"
+#   )
+# }
 
