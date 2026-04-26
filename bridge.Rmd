@@ -481,8 +481,6 @@ p <- plot_ly() |>
   )
 )
 
-
-p
 ```
 
 
@@ -753,7 +751,7 @@ p_bridge <- plot_ly() |>
     mode = "lines",
     line = list(color = "green", width = 7),
     opacity = 1,
-    name = "$u(s)$",
+    name = sprintf("$\\mbox{Whittle-Matern }u(s).$"),
     legendgroup = "target",
     showlegend = TRUE
   ) |>
@@ -769,7 +767,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "blue", width = 7),
   opacity = 1,
-  name = "$\\sum_{e\\in\\mathcal{E}}\\widetilde{u}_{B_{\\ell_e}^{\\alpha}}(s)\\phantom{x}$",
+  name = sprintf("$\\mbox{bridge }\\sum_{e\\in\\mathcal{E}}\\widetilde{u}_{B_{\\ell_e}^{\\alpha}}(s).$"),
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
@@ -783,7 +781,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "rgb(230, 185, 80)", width = 7),
   opacity = 1,
-  name = "$\\sum_{e\\in\\mathcal{E}}\\mathbf{S}_e(s)\\mathbf{D}_e\\mathbf{U}\\phantom{x}$",
+  name = sprintf("$\\mbox{residual }\\sum_{e\\in\\mathcal{E}}\\mathbf{S}_e(s)\\mathbf{D}_e\\mathbf{U}.$"),
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
@@ -889,7 +887,8 @@ add_trace(
     y = 0.9, # default = 1
     xanchor = "left",
     yanchor = "top",
-    font = list(size = 26)
+    font = list(size = 26),
+    tracegroupgap = 0
   )
 )
 # |>

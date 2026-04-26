@@ -696,7 +696,7 @@ p_boundaryless <- plot_ly() |>
     mode = "lines",
     line = list(color = "green", width = 7),
     opacity = 1,
-    name = "$u(s)$",
+    name = "$\\mbox{Whittle-Matern }u(s).$",
     legendgroup = "target",
     showlegend = TRUE
   ) |>
@@ -712,7 +712,7 @@ p_boundaryless <- plot_ly() |>
   mode = "lines",
   line = list(color = "blue", width = 7),
   opacity = 1,
-  name = "$\\widetilde{u}(s)$",
+  name = "$\\mbox{boundaryless }\\widetilde{u}(s).$",
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
