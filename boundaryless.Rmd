@@ -809,7 +809,8 @@ add_trace(
     y = 0.9, # default = 1
     xanchor = "left",
     yanchor = "top",
-    font = list(size = 26)
+    font = list(size = 26),
+    tracegroupgap = 0
   )
 )
 # |>
