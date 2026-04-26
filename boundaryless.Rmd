@@ -1,5 +1,5 @@
 ---
-title: "Boundaryless"
+title: "Boundaryless representation"
 date: "Last modified: `r format(Sys.time(), '%d-%m-%Y.')`"
 output:
   html_document:
