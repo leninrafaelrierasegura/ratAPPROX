@@ -584,3 +584,12 @@ plot_ly() %>%
   )
 ```
 
+## References
+
+```{r, purl = FALSE}
+grateful::cite_packages(output = "paragraph", out.dir = ".")
+```
+
+
+
+

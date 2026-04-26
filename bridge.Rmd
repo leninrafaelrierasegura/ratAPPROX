@@ -62,7 +62,7 @@ knitr::opts_chunk$set(
   # Include both R code and its results in output
   include = TRUE,     
   # Evaluate R code chunks
-  eval = TRUE,       
+  eval = FALSE,       
   # Enable caching of R code chunks for faster rendering
   cache = FALSE,      
   # Align figures in the center of the output
@@ -726,7 +726,7 @@ y_asp <- y_range[2] - y_range[1]
 z_asp <- z_range[2] - z_range[1]
 
 colaxnn <- "black"
-eyer <- 1.5#2.7  # 1 for presentation
+eyer <- 2.7  # 1.5 for presentation
 
 
 
@@ -753,7 +753,7 @@ p_bridge <- plot_ly() |>
     mode = "lines",
     line = list(color = "green", width = 7),
     opacity = 1,
-    name = "$\\mbox{field }u(s)$",
+    name = "$u(s)$",
     legendgroup = "target",
     showlegend = TRUE
   ) |>
@@ -769,7 +769,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "blue", width = 7),
   opacity = 1,
-  name = "$\\mbox{bridges }\\sum_{e\\in\\mathcal{E}}u_e(s)$",
+  name = "$\\sum_{e\\in\\mathcal{E}}\\widetilde{u}_{B_{\\ell_e}^{\\alpha}}(s)\\phantom{x}$",
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
@@ -783,7 +783,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "rgb(230, 185, 80)", width = 7),
   opacity = 1,
-  name = "$\\mbox{residual }u_{\\Gamma}(s)$",
+  name = "$\\sum_{e\\in\\mathcal{E}}\\mathbf{S}_e(s)\\mathbf{D}_e\\mathbf{U}\\phantom{x}$",
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
@@ -888,7 +888,8 @@ add_trace(
     x = 0,
     y = 0.9, # default = 1
     xanchor = "left",
-    yanchor = "top"
+    yanchor = "top",
+    font = list(size = 26)
   )
 )
 # |>

@@ -372,7 +372,7 @@ p_cov <- plot_ly() %>%
                            tickfont = list(color = "black", size = 18), range = y_range),
               zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
                            tickfont = list(color = "black", size = 18)),
-    aspectratio = list(x = ell, y = 1, z = 1),
+    aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = neweye,
                                     center = mycenter)))
 save(p_cov, file = here::here("data_files/p_cov.RData"))
@@ -449,7 +449,7 @@ p_diag <- plot_ly() %>%
                            tickfont = list(color = "black", size = 18), range = y_range),
               zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
                            tickfont = list(color = "black", size = 18)),
-    aspectratio = list(x = ell, y = 1, z = 1),
+    aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
 save(p_diag, file = here::here("data_files/p_diag.RData"))
@@ -559,7 +559,7 @@ p_sample <- plot_ly() %>%
                            tickfont = list(color = "black", size = 18), range = y_range),
               zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
                            tickfont = list(color = "black", size = 18)),
-    aspectratio = list(x = ell, y = 1, z = 1),
+    aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
 save(p_sample, file = here::here("data_files/p_sample.RData"))
@@ -567,9 +567,9 @@ save(p_sample, file = here::here("data_files/p_sample.RData"))
 
 
 ```{r}
-save_plotly_figure_fixed(p_cov, dpi = 300, scale = 2, viewer_change = 0.65)
-save_plotly_figure_fixed(p_diag, dpi = 300, scale = 2, viewer_change = 0.65)
-save_plotly_figure_fixed(p_sample, dpi = 300, scale = 2, viewer_change = 0.65)
+save_plotly_figure_fixed(p_cov, dpi = 300, scale = 2, viewer_change = 0.72)
+save_plotly_figure_fixed(p_diag, dpi = 300, scale = 2, viewer_change = 0.72)
+save_plotly_figure_fixed(p_sample, dpi = 300, scale = 2, viewer_change = 0.72)
 
 png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov.png",
                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_diag.png",
