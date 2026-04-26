@@ -751,7 +751,7 @@ p_bridge <- plot_ly() |>
     mode = "lines",
     line = list(color = "green", width = 7),
     opacity = 1,
-    name = sprintf("$\\mbox{Whittle-Matern }u(s).$"),
+    name = sprintf("$\\mbox{Whittle-Matern }u(s)$"),
     legendgroup = "target",
     showlegend = TRUE
   ) |>
@@ -767,7 +767,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "blue", width = 7),
   opacity = 1,
-  name = sprintf("$\\mbox{bridge }\\sum_{e\\in\\mathcal{E}}\\widetilde{u}_{B_{\\ell_e}^{\\alpha}}(s).$"),
+  name = sprintf("$\\mbox{bridge }\\sum_{e\\in\\mathcal{E}}\\widetilde{u}_{B_{\\ell_e}^{\\alpha}}(s)$"),
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
@@ -781,7 +781,7 @@ p_bridge <- plot_ly() |>
   mode = "lines",
   line = list(color = "rgb(230, 185, 80)", width = 7),
   opacity = 1,
-  name = sprintf("$\\mbox{residual }\\sum_{e\\in\\mathcal{E}}\\mathbf{S}_e(s)\\mathbf{D}_e\\mathbf{U}.$"),
+  name = sprintf("$\\mbox{residual }\\sum_{e\\in\\mathcal{E}}\\mathbf{S}_e(s)\\mathbf{D}_e\\mathbf{U}\\;\\;.$"),
   legendgroup = "moving",
   showlegend = TRUE
 ) |>
