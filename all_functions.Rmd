@@ -2991,7 +2991,7 @@ p <- p %>%
     yaxis = list(title = list(text = "y", font = list(color = "gray", size = 30)),  
                            tickfont = list(color = "gray", size = 18), range = y_range),
     zaxis = list(
-      title = list(text = "z (log scale)", font = list(color = "gray", size = 30)),  
+      title = list(text = "z (log10 scale)", font = list(color = "gray", size = 30)),  
                            tickfont = list(color = "gray", size = 18),
       tickformat = ".0e",
       #range = z_range,
@@ -3025,7 +3025,7 @@ p <- p %>%
       xref = "paper",
       yref = "paper",
       showarrow = FALSE,
-      font = list(size = 26, color = "black"),
+      font = list(size = 40, color = "black"),
       textangle = -90
     ),
     list(
@@ -3035,7 +3035,7 @@ p <- p %>%
       xref = "paper",
       yref = "paper",
       showarrow = FALSE,
-      font = list(size = 26, color = "black"),
+      font = list(size = 40, color = "black"),
       textangle = -90
     )
   )
