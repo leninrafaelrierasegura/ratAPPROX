@@ -246,15 +246,15 @@ diff_true_FEM <- abs(cov_true - cov_FEM)
 
 
 ```{r}
-RAT_FEM_DIFF <- graph.plotter.3d.comparer(graph_initial, diff_true_rat, diff_true_FEM, alpha_vector, legend_title = "Alpha", true_text = "", approx_text = "", log_z = TRUE)
+RAT_FEM_DIFF <- graph.plotter.3d.comparer(graph_initial, diff_true_rat, diff_true_FEM, alpha_vector, legend_title =  "α", true_text = "$|\\varrho_{\\alpha}(v_2,\\cdot) - \\varrho(v_2,\\cdot)|$", approx_text = "$|\\varrho^{\\alpha}_{h,m}(v_2,\\cdot) - \\varrho(v_2,\\cdot)|$", log_z = TRUE)
 save(RAT_FEM_DIFF, file = here::here("data_files/RAT_FEM_DIFF.RData"))
-#save_plotly_figure_fixed(RAT_FEM_DIFF, dpi = 600, scale = 2, viewer_change = 0.5) 
+#save_plotly_figure_fixed(RAT_FEM_DIFF, dpi = 100, scale = 2, viewer_change = 1) 
 ```
 
 
 
 
-:::: {style="display: grid; grid-template-columns: 1400px 1000px 1000px; grid-column-gap: 0px;"}
+:::: {style="display: grid; grid-template-columns: 1370px 1000px 1000px; grid-column-gap: 0px;"}
 
 
 
@@ -265,6 +265,10 @@ load(here::here("data_files/RAT_FEM_DIFF.RData"))
 RAT_FEM_DIFF
 ```
 
+
+:::
+
+::: {}
 
 :::
 
