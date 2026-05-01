@@ -1135,9 +1135,9 @@ bridge_frame1 <- get_frame_plot(1,0)
 bridge_frame26 <- get_frame_plot(26,1)
 bridge_frame51 <- get_frame_plot(51,0)
 
-save_plotly_figure_fixed(bridge_frame1, dpi = 600, scale = 2, viewer_change = 1)
-save_plotly_figure_fixed(bridge_frame26, dpi = 600, scale = 2, viewer_change = 1)
-save_plotly_figure_fixed(bridge_frame51, dpi = 600, scale = 2, viewer_change = 1)
+save_plotly_figure_fixed(bridge_frame1, dpi = 300, scale = 2, viewer_change = 1)
+save_plotly_figure_fixed(bridge_frame26, dpi = 300, scale = 2, viewer_change = 1)
+save_plotly_figure_fixed(bridge_frame51, dpi = 300, scale = 2, viewer_change = 1)
 
 
 png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/bridge_frame1.png",
