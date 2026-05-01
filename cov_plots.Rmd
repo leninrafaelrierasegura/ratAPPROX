@@ -366,12 +366,12 @@ p_cov <- plot_ly() %>%
     font = list(size = 26)#, orientation = "h", itemwidth = 80
   ),
     scene = list(
-    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18),  range = x_range),
-              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18), range = y_range),
-              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18)),
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18)),
     aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = neweye,
                                     center = mycenter)))
@@ -443,12 +443,12 @@ p_diag <- plot_ly() %>%
     font = list(size = 26)#, orientation = "h", itemwidth = 80
   ),
     scene = list(
-    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18),  range = x_range),
-              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18), range = y_range),
-              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18)),
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18)),
     aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
@@ -553,12 +553,12 @@ p_sample <- plot_ly() %>%
     font = list(size = 26)#, orientation = "h", itemwidth = 80
   ),
     scene = list(
-    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18),  range = x_range),
-              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18), range = y_range),
-              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),  
-                           tickfont = list(color = "black", size = 18)),
+    xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18),  range = x_range),
+              yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18), range = y_range),
+              zaxis = list(title = list(text = latex2exp::TeX("z"), font = list(color = "gray", size = 26)),  
+                           tickfont = list(color = "gray", size = 18)),
     aspectratio = list(x = ell, y = 1, z = ell),
                       camera = list(eye = list(x = 1*rv, y = -2*rv, z =1*rv),
                                     center = list(x = 0, y = 0, z = 0))))
@@ -579,51 +579,15 @@ output_file <- "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov_diag_
 combine_pngs_with_gap(png_files, output_file, gap = 200)
 ```
 
-```{r}
-# png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov.png", 
-#                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_diag.png",
-#                "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_sample.png")
-# output_file <- "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/p_cov_diag_sample.png"
-# # cmd <- paste(
-# #   "convert",
-# #   paste(shQuote(png_files), collapse = " "),
-# #   "+append",
-# #   shQuote(output_file)
-# # )
-# # 
-# # system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-# 
-# gap <- 200  # pixels between images
-# 
-# # build sequence: img spacer img spacer img
-# parts <- c()
-# for (i in seq_along(png_files)) {
-#   parts <- c(parts, shQuote(png_files[i]))
-#   if (i < length(png_files)) {
-#     parts <- c(parts, sprintf("\\( -size %dx1 xc:white \\)", gap))
-#   }
-# }
-# 
-# cmd <- paste(
-#   "convert",
-#   paste(parts, collapse = " "),
-#   "+append",
-#   shQuote(output_file)
-# )
-# 
-# system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
-```
 
-
-:::: {style="display: grid; grid-template-columns: 580px 580px 580px; grid-column-gap: 0px;"}
+:::: {style="display: grid; grid-template-columns: 600px 600px 600px; grid-column-gap: 0px;"}
 
 
 ::: {}
 
 
-```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Animation.")}
-load(here::here("data_files/p_cov.RData"))
-p_cov
+```{r, eval =TRUE, fig.height = 7, out.width="70%", fig.cap = captioner("Animation.")}
+knitr::include_graphics(here::here("data_files/plotlypdf/p_cov.png"))
 ```
 
 
@@ -631,9 +595,8 @@ p_cov
 
 ::: {}
 
-```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Still.")}
-load(here::here("data_files/p_diag.RData"))
-p_diag
+```{r, eval =TRUE, fig.height = 7, out.width="70%", fig.cap = captioner("Still.")}
+knitr::include_graphics(here::here("data_files/plotlypdf/p_diag.png"))
 ```
 
 
@@ -641,9 +604,8 @@ p_diag
 
 ::: {}
 
-```{r, eval =TRUE, fig.height = 7, out.width="100%", fig.cap = captioner("Still.")}
-load(here::here("data_files/p_sample.RData"))
-p_sample
+```{r, eval =TRUE, fig.height = 7, out.width="70%", fig.cap = captioner("Still.")}
+knitr::include_graphics(here::here("data_files/plotlypdf/p_sample.png"))
 ```
 
 

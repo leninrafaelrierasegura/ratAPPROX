@@ -1,4 +1,4 @@
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # remotes::install_github("davidbolin/rspde", ref = "devel")
 # # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 # library(rSPDE)
@@ -10,7 +10,7 @@
 # library(plotly)
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Function to build a tadpole graph and create a mesh
 # gets.graph.tadpole <- function(flip_edge = FALSE){
 #   if(flip_edge) {
@@ -27,7 +27,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Eigenfunctions for the tadpole graph
 # tadpole.eig <- function(k,graph){
 #   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2])
@@ -76,7 +76,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 # 
 #   kappa <- theta[2]
@@ -155,7 +155,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Typically, factor = 4, constant = 3
 # gives.indices <- function(graph, factor, constant){
 #   # Here, after doing graph$observation_to_vertex()
@@ -237,7 +237,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # 
 #     # r00 <- r00 + 1e-8*max(r00)*diag(nrow(r00))
 #     # r00_reg <- r00/min(diag(r00))
@@ -294,7 +294,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
 #     graph,
@@ -407,7 +407,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
 #     graph,
 #     kappa,
@@ -501,7 +501,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- function(
 #     graph,
@@ -607,7 +607,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # This is the correct version, it is corrected the constants
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function(
 #     graph,
@@ -714,7 +714,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- function(
 #     graph,
 #     kappa,
@@ -801,7 +801,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # rat_covariance <- function(graph,
 #                            kappa,
 #                            tau,
@@ -849,7 +849,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # comment
 # lazy_likelihood_alpha_rat <- function(graph,
 #                                             kappa,
@@ -888,7 +888,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # rat_loglikelihood <- function(graph,
 #                               theta,
 #                               alpha,
@@ -919,7 +919,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
 #   m <- object$m
 # 
@@ -976,7 +976,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # gets_De_from_Uv <- function(graph, alpha){
 #   E  <- graph$E
 #   nV <- graph$nV
@@ -999,7 +999,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # gets_De_from_U <- function(graph, alpha){
 #   nE <- graph$nE
 # 
@@ -1021,7 +1021,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 #   edgeMatrix <- graph$E
 #   degrees <- graph$get_degrees()
@@ -1084,7 +1084,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 #   alpha <- 2
 #   n <- 2*alpha*graph$nE
@@ -1112,7 +1112,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 #   edgeMatrix <- graph$E
 #   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -1133,7 +1133,7 @@
 # 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # getsSmallCovarianceMatrices <- function(D_matrix,
 #                                         kappa,
 #                                         tau,
@@ -1180,7 +1180,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 #                                                     graph,
 #                                                     precomputeddata,
@@ -1334,7 +1334,7 @@
 # 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # loglikelihoodForAlphaEqualTwoPrecompute <- function(theta,
 #                                                     precomputed_data,
 #                                                     BC = 1,
@@ -1566,7 +1566,7 @@
 # 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # myggsave <- function(plot, width = 9.22, height = 7.05) {
 # 
 #   dir_to_save <- here::here("data_files/tikzpic")
@@ -1614,7 +1614,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # save_dual_for_presentation <- function(obj) {
 #   obj_name <- deparse(substitute(obj))
 #   filename <- paste0(obj_name, ".RData")
@@ -1634,7 +1634,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # save_plotly_figure_fixed <- function(fig,
 #                                      dpi = 600,
 #                                      scale = 2,
@@ -1723,7 +1723,7 @@
 # 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # function to combine
 # combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
 # 
@@ -1764,7 +1764,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Function to order the vertices for plotting
 # plotting.order <- function(v, graph){
 #   edge_number <- graph$mesh$VtE[, 1]
@@ -1773,7 +1773,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Function to set the scene for 3D plots
 # global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 # 
@@ -1792,7 +1792,7 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Function to plot a single 3D line for
 # graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 #   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -1866,12 +1866,13 @@
 # }
 
 
-## ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## -------------------------------------------------------------------------------------------
 # # Function to plot the 3D comparison of U_true and U_approx
 # 
 # # some
 # graph.plotter.3d.comparer <- function(graph, U_true, U_approx, time_seq, legend_title, true_text, approx_text, log_z = FALSE) {
 #   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
+#   vertexxx <- data.frame(x = x[1:2], y = y[1:2])
 #   x <- plotting.order(x, graph); y <- plotting.order(y, graph)
 # 
 #   U_true <- apply(U_true, 2, plotting.order, graph = graph)
@@ -1891,8 +1892,9 @@
 #   colorscale_greens <- Map(function(t, col) list(t, col), time_normalized, blues)
 #   colorscale_reds <- Map(function(t, col) list(t, col), time_normalized, reds)
 # 
+# 
 #   z_aspectratio <- 4
-#   p <- plot_ly()
+#   p <- plot_ly() %>% config(mathjax = 'cdn')
 # 
 #   # # Static black graph structure
 #   # p <- p %>%
@@ -1929,6 +1931,35 @@
 #     )
 #   }
 # 
+# 
+# # Dummy red colorbar (Approx) – no ticks
+#   p <- add_trace(
+#     p,
+#     type = "heatmap",
+#     z = matrix(time_seq, nrow = 1),
+#     showscale = TRUE,
+#     colorscale = colorscale_reds,
+#     colorbar = list(
+#       title = list(font = list(size = 30, color = "black"), text = legend_title, side = "top"),
+#       len = 0.9,
+#       thickness = 30,
+#       tickfont = list(size = 26),   # <-- THIS controls tick numbers
+#       tickvals = time_seq,
+#       ticktext = round(time_seq, 2),
+# 
+#       ticklen = 10,        # ← increase length of the little lines
+# 
+#       x = 1.05,
+#       xanchor = "left",
+#       y = 0.5,
+#       yanchor = "middle"
+#     ),
+#     x = matrix(time_seq, nrow = 1),
+#     y = matrix(1, nrow = 1),
+#     hoverinfo = "skip",
+#     opacity = 0
+#   )
+# 
 #   # Dummy green colorbar (True) – with ticks
 #   p <- add_trace(
 #     p,
@@ -1937,7 +1968,7 @@
 #     showscale = TRUE,
 #     colorscale = colorscale_greens,
 #     colorbar = list(
-#       title = list(font = list(size = 26, color = "black"), text = legend_title, side = "top"),
+#       title = list(font = list(size = 30, color = "white"), text = legend_title, side = "top"),
 #       len = 0.9,
 #       thickness = 30,
 #       x = 1.02,
@@ -1954,30 +1985,6 @@
 #     opacity = 0
 #   )
 # 
-# # Dummy red colorbar (Approx) – no ticks
-#   p <- add_trace(
-#     p,
-#     type = "heatmap",
-#     z = matrix(time_seq, nrow = 1),
-#     showscale = TRUE,
-#     colorscale = colorscale_reds,
-#     colorbar = list(
-#       title = list(font = list(size = 26, color = "black"), text = ".", side = "top"),
-#       len = 0.9,
-#       thickness = 30,
-#       tickfont = list(size = 26),   # <-- THIS controls tick numbers
-#       tickvals = time_seq,
-#       ticktext = round(time_seq, 2),
-#       x = 1.05,
-#       xanchor = "left",
-#       y = 0.5,
-#       yanchor = "middle"
-#     ),
-#     x = matrix(time_seq, nrow = 1),
-#     y = matrix(1, nrow = 1),
-#     hoverinfo = "skip",
-#     opacity = 0
-#   )
 #   # p <- p %>%
 #   #   add_trace(x = x, y = y, z = rep(0, length(x)),
 #   #             type = "scatter3d", mode = "lines",
@@ -1985,7 +1992,9 @@
 #   #             name = "Graph", showlegend = FALSE)
 #   #
 #   #
-# z_graph <- if (log_z) min(z_range[z_range > 0]) * 1 else 0#min(z_range)
+# z_graph <- if (log_z) min(z_range[z_range > 0]) * 0.5 else 0#min(z_range)
+# 
+# vertexxx <- vertexxx %>% mutate(z = rep(z_graph, 2))
 # 
 # p <- p %>%
 #   add_trace(
@@ -1996,6 +2005,12 @@
 #     name = "Graph",
 #     showlegend = FALSE
 #   ) %>%
+#   add_trace(data = vertexxx,
+#             x = ~x, y = ~y, z = ~z,
+#             type = "scatter3d",
+#             mode = "markers",
+#             marker = list(color = "black", size = 7),
+#             name = "vertex", showlegend = FALSE) %>%
 # add_trace(x = rep(x, each = 3),
 #             y = rep(y, each = 3),
 #             z = unlist(lapply(row_max, function(zj) c(z_graph, zj, NA))),
@@ -2006,18 +2021,17 @@
 #             showlegend = FALSE)
 # 
 # p <- p %>%
-#   config(mathjax = 'cdn') %>%
 #   layout(
-#   font = list(family = "Palatino Linotype"),
+#   font = list(family = "URW Palladio L"),
 #   scene = list(
-#     xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "black", size = 26)),
-#                            tickfont = list(color = "black", size = 16),  range = x_range),
-#     yaxis = list(title = list(text = latex2exp::TeX("y"), font = list(color = "black", size = 26)),
-#                            tickfont = list(color = "black", size = 16), range = y_range),
+#     xaxis = list(title = list(text = latex2exp::TeX("x"), font = list(color = "gray", size = 30)),
+#                            tickfont = list(color = "gray", size = 18),  range = x_range),
+#     yaxis = list(title = list(text = "y", font = list(color = "gray", size = 30)),
+#                            tickfont = list(color = "gray", size = 18), range = y_range),
 #     zaxis = list(
-#       title = list(text = latex2exp::TeX("z"), font = list(color = "black", size = 26)),
-#                            tickfont = list(color = "black", size = 16),
-#       tickformat = ".2e",
+#       title = list(text = "z (log10 scale)", font = list(color = "gray", size = 30)),
+#                            tickfont = list(color = "gray", size = 18),
+#       tickformat = ".0e",
 #       #range = z_range,
 #       type = if (log_z) "log" else "linear"   # <-- THIS is the fix
 #     ),
@@ -2044,22 +2058,22 @@
 #   annotations = list(
 #     list(
 #       text = true_text,
-#       x = 1.045,
+#       x = 1.052,
 #       y = 0.5,
 #       xref = "paper",
 #       yref = "paper",
 #       showarrow = FALSE,
-#       font = list(size = 26, color = "black"),
+#       font = list(size = 40, color = "black"),
 #       textangle = -90
 #     ),
 #     list(
 #       text = approx_text,
-#       x = 1.075,
+#       x = 1.085,
 #       y = 0.5,
 #       xref = "paper",
 #       yref = "paper",
 #       showarrow = FALSE,
-#       font = list(size = 26, color = "black"),
+#       font = list(size = 40, color = "black"),
 #       textangle = -90
 #     )
 #   )
