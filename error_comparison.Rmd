@@ -110,18 +110,60 @@ source("keys.R")
 slackr_setup(token = token) # token comes from keys.R
 ```
 
+```{r}
+source_if_updated <- function(name) {
+  rmd_file  <- here::here(paste0(name, ".Rmd"))
+  hash_file <- here::here(paste0(name, ".hash"))
+  r_file    <- here::here(paste0(name, ".R"))
+  purl_file <- here::here("old/purl_log.txt")
+  
+  new_hash <- digest::digest(file = rmd_file, algo = "md5")
+  
+  old_hash <- if (file.exists(hash_file)) {
+    readLines(hash_file, warn = FALSE)
+  } else {
+    ""
+  }
+  
+  if (!identical(new_hash, old_hash)) {
+    capture.output(
+      knitr::purl(rmd_file, output = r_file),
+      file = purl_file
+    )
+    writeLines(new_hash, hash_file)
+  }
+  
+  source(r_file)
+}
+```
 
 
 ```{r}
 # get the functions from the Rmd files
-knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
-knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
+# knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
+# knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
+# 
+# # load the functions
+# source(here::here("all_functions.R"))
+# source(here::here("matern_functions.R"))
 
-# load the functions
-source(here::here("all_functions.R"))
-source(here::here("matern_functions.R"))
+
+source_if_updated("all_functions")
+source_if_updated("matern_functions")
 
 ```
+
+
+```{r}
+reticulate::use_python(
+  "/home/rierasl/miniconda3/envs/phdenv/bin/python",
+  required = TRUE
+)
+
+reticulate::py_config()
+```
+
+
 
 ```{r}
 alphaVector <- c(seq(0.51,0.59,by=0.01),
@@ -479,12 +521,12 @@ myggsave(errorFEMalone, width = 8, height = 4)
 
 
 ```{r, eval = TRUE, out.width="800px", out.height="400px", fig.cap = captioner("Covariance error for the tadpole graph.")}
-knitr::include_graphics(here::here("data_files/tikzpic/errorRatFEMcomparison.pdf"))
+knitr::include_graphics(here::here("data_files/tikzpic/errorRatFEMcomparison_with_mathpazo.pdf"))
 ```
 
 
 ```{r, eval = TRUE, out.width="800px", out.height="400px", fig.cap = captioner("Covariance error for the tadpole graph.")}
-knitr::include_graphics(here::here("data_files/tikzpic/errorFEMalone.pdf"))
+knitr::include_graphics(here::here("data_files/tikzpic/errorFEMalone_with_mathpazo.pdf"))
 ```
 
 
