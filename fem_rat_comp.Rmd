@@ -248,6 +248,7 @@ diff_true_FEM <- abs(cov_true - cov_FEM)
 ```{r}
 RAT_FEM_DIFF <- graph.plotter.3d.comparer(graph_initial, diff_true_rat, diff_true_FEM, alpha_vector, legend_title =  "α", true_text = "$|\\varrho_{\\alpha}(v_2,\\cdot) - \\varrho(v_2,\\cdot)|$", approx_text = "$|\\varrho^{\\alpha}_{h,m}(v_2,\\cdot) - \\varrho(v_2,\\cdot)|$", log_z = TRUE)
 save(RAT_FEM_DIFF, file = here::here("data_files/RAT_FEM_DIFF.RData"))
+save_dual_for_presentation(RAT_FEM_DIFF)
 #save_plotly_figure_fixed(RAT_FEM_DIFF, dpi = 100, scale = 2, viewer_change = 1) 
 ```
 
