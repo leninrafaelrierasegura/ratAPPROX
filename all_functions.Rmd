@@ -3088,6 +3088,138 @@ p <- p %>%
 ```
 
 
+```{r}
+plotting.order <- function(v, graph){
+  edge_number <- graph$mesh$VtE[, 1]
+  pos <- sum(edge_number == 1)+1
+  return(c(v[1], v[3:pos], v[2], v[(pos+1):length(v)], v[2]))
+}
+
+
+graph.plotter.3d <- function(graph, time_seq, frame_val_to_display, U_list, log_z = FALSE) {
+  U_names <- names(U_list) 
+  # Spatial coordinates
+  x <- plotting.order(graph$mesh$V[, 1], graph)
+  y <- plotting.order(graph$mesh$V[, 2], graph)
+  weights <- graph$mesh$weights
+
+  # Apply plotting.order to each U
+  U_list <- lapply(U_list, function(U) apply(U, 2, plotting.order, graph = graph))
+  n_vars <- length(U_list)
+  
+  # Set axis ranges
+  z_range <- range(unlist(U_list)) #; z_range <- c(-0.0001, z_range[2])
+  x_range <- range(x)
+  y_range <- range(y)
+  
+  z_graph <- if (log_z) min(z_range[z_range > 0]) * 0.5 else 0#min(z_range)
+
+  z_aspectratio = 4
+  
+  # Create plot_data frame with time and position replicated
+  n_time <- ncol(U_list[[1]])
+  base_data <- data.frame(
+    x = rep(x, times = n_time),
+    y = rep(y, times = n_time),
+    the_graph = z_graph,
+    frame = rep(time_seq, each = length(x))
+  )
+
+  # Add U columns to plot_data
+  for (i in seq_along(U_list)) {
+    base_data[[paste0("u", i)]] <- as.vector(U_list[[i]])
+  }
+  
+
+  plot_data <- base_data
+
+  # Generate vertical lines
+  vertical_lines_list <- lapply(seq_along(U_list), function(i) {
+    do.call(rbind, lapply(time_seq, function(t) {
+      idx <- which(plot_data$frame == t)
+      z_vals <- plot_data[[paste0("u", i)]][idx]
+      data.frame(
+        x = rep(plot_data$x[idx], each = 3),
+        y = rep(plot_data$y[idx], each = 3),
+        z = as.vector(t(cbind(z_graph, z_vals, NA))),
+        frame = rep(t, each = length(idx) * 3)
+      )
+    }))
+  })
+
+
+  # Create plot
+  p <- plot_ly(plot_data, frame = ~frame) %>%
+    add_trace(x = ~x, y = ~y, z = ~the_graph, type = "scatter3d", mode = "lines",
+              name = "", showlegend = FALSE,
+              line = list(color = "black", width = 3))
+
+  if (n_vars == 2) {
+    colors <- RColorBrewer::brewer.pal(min(n_vars, 8), "Set1") 
+    } else {
+    colors <- rev(viridisLite::viridis(n_vars)) 
+  }
+  # RColorBrewer::brewer.pal(min(n_vars, 8), "Set1")
+  for (i in seq_along(U_list)) {
+    p <- add_trace(p,
+      x = ~x, y = ~y, z = as.formula(paste0("~u", i)),
+      type = "scatter3d", mode = "lines", name = U_names[i],
+      line = list(color = colors[i], width = 3))
+  }
+
+  # Add vertical lines
+  for (i in seq_along(vertical_lines_list)) {
+    p <- add_trace(p,
+      data = vertical_lines_list[[i]],
+      x = ~x, y = ~y, z = ~z, frame = ~frame,
+      type = "scatter3d", mode = "lines",
+      line = list(color = "gray", width = 0.5),
+      name = "Vertical lines",
+      showlegend = FALSE)
+  }
+  frame_name <- deparse(substitute(frame_val_to_display))
+  # Layout and animation controls
+  p <- p %>%
+    layout(
+      scene = list(
+        xaxis = list(title = "x", range = x_range),
+              yaxis = list(title = "y", range = y_range),
+              zaxis = list(title = "z (log10 scale)", 
+                           #range = z_range,
+                           tickformat = ".0e",
+                           type = if (log_z) "log" else "linear"   # <-- THIS is the fix
+      ),
+              aspectratio = list(x = 2*(1+2/pi), 
+                                 y = 2*(2/pi), 
+                                 z = z_aspectratio*(2/pi)),
+              camera = list(eye = list(x = (1+2/pi)/2, 
+                                       y = 4, 
+                                       z = 2),
+                            center = list(x = (1+2/pi)/2, 
+                                          y = 0, 
+                                          z = 0))
+      ),
+      updatemenus = list(list(type = "buttons", showactive = FALSE,
+                              buttons = list(
+                                list(label = "Play", method = "animate",
+                                     args = list(NULL, list(frame = list(duration = 2000 / length(time_seq), redraw = TRUE), fromcurrent = TRUE))),
+                                list(label = "Pause", method = "animate",
+                                     args = list(NULL, list(mode = "immediate", frame = list(duration = 0), redraw = FALSE)))
+                              )
+      )),
+      title = paste0(frame_name,": ", formatC(frame_val_to_display[1], format = "f", digits = 8))
+    ) %>%
+    plotly_build()
+
+  for (i in seq_along(p$x$frames)) {
+    p$x$frames[[i]]$layout <- list(title = paste0(frame_name,": ", formatC(frame_val_to_display[i], format = "f", digits = 8)))
+  }
+
+  return(p)
+}
+```
+
+
 ## References
 
 ```{r, purl = FALSE}
