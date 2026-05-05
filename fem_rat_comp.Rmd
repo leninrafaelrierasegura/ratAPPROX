@@ -154,7 +154,7 @@ source_if_updated("matern_functions")
 
 ```{r}
 # parameters
-h <- 0.01
+h <- 0.05
 kappa <- 10
 sigma <- 0.8
 
