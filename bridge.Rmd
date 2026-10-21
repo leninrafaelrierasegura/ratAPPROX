@@ -47,6 +47,18 @@ Let us set some global options for all code chunks in this document.
 
 
 ```{r}
+# get the functions from the Rmd files
+knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
+knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
+
+# load the functions
+source(here::here("all_functions.R"))
+source(here::here("matern_functions.R"))
+
+```
+
+
+```{r}
 # Create a clipboard button on the rendered HTML page
 source(here::here("clipboard.R")); clipboard
 # Set seed for reproducibility
@@ -113,16 +125,6 @@ slackr_setup(token = token) # token comes from keys.R
 
 
 
-```{r}
-# get the functions from the Rmd files
-knitr::purl(here::here("all_functions.Rmd"), output = here::here("all_functions.R"))
-knitr::purl(here::here("matern_functions.Rmd"), output = here::here("matern_functions.R"))
-
-# load the functions
-source(here::here("all_functions.R"))
-source(here::here("matern_functions.R"))
-
-```
 
 
 ```{r}
