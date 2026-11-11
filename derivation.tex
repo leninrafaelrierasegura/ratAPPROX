@@ -220,15 +220,15 @@ $$\mathcal{C}_0 = \kappa^{-2\alpha}\tau^{-2}kB^{-\lfloor\alpha\rfloor}= \kappa^{
 \begin{align}
     u_\alpha = u_0+\sum_{i=1}^mu_i
 \end{align}
-where $u_0\sim N(0,\mathcal{C}_0)$ and $u_i\sim N(0,\mathcal{C}_i)$. Moreover, they satisfy
+where $u_0\sim N(0,\mathcal{C}_0)$ and $u_i\sim N(0,\mathcal{C}_i)$, $i=1,\ldots,m$, are mutually independent. They satisfy the following SPDEs driven by mutually independent Gaussian white noises $\mathcal{W}_0,\ldots,\mathcal{W}_m$:
 \begin{align}
 \label{eq:WM_process}
-   \mathcal{C}_0^{-\sfrac{1}{2}}u_0= B^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}\kappa^{\alpha}u_0) = L^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}\kappa^{\alpha-\lfloor\alpha\rfloor}u_0) = \mathcal{W}, \qquad \text{on $\Gamma$},
+   \mathcal{C}_0^{-\sfrac{1}{2}}u_0= B^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}\kappa^{\alpha}u_0) = L^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}\kappa^{\alpha-\lfloor\alpha\rfloor}u_0) = \mathcal{W}_0, \qquad \text{on $\Gamma$},
 \end{align}
 and
 \begin{align}
 \label{eq:shifted_WM_process}
-   \mathcal{C}_i^{-\sfrac{1}{2}}u_i =  (B^{\lfloor\alpha\rfloor}(B-p_iI))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}\kappa^{\alpha}u_i) = (L^{\lfloor\alpha\rfloor}(L-\kappa^2p_iI))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}\kappa^{\alpha-\lfloor\alpha\rfloor-1}u_i) = \mathcal{W}, \qquad \text{on $\Gamma$}
+   \mathcal{C}_i^{-\sfrac{1}{2}}u_i =  (B^{\lfloor\alpha\rfloor}(B-p_iI))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}\kappa^{\alpha}u_i) = (L^{\lfloor\alpha\rfloor}(L-\kappa^2p_iI))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}\kappa^{\alpha-\lfloor\alpha\rfloor-1}u_i) = \mathcal{W}_i, \qquad \text{on $\Gamma$}
 \end{align}
 \begin{definition}
     $u_i$ in \eqref{eq:shifted_WM_process} is called a shifted Whittle-Matérn process on $\Gamma$.
@@ -246,7 +246,7 @@ which can be also written as
 \end{align}
 By \eqref{eq:rat_approx}, we can approximate $f$ by $f_\alpha$ given by
 \begin{align}
-    f_\alpha(\omega) = A\sigma^2\kappa^{-2\alpha}\dfrac{1}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor} }\dfrac{p_m(1+\kappa^{-2}\omega^2)}{q_m(1+\kappa^{-2}\omega^2)}
+    f_\alpha(\omega) = A\sigma^2\kappa^{-2\alpha}\dfrac{1}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor} }\dfrac{P_m(1+\kappa^{-2}\omega^2)}{Q_m(1+\kappa^{-2}\omega^2)}
 \end{align}
 By \eqref{eq:partial_frac_dec}, we have that 
 \begin{align}

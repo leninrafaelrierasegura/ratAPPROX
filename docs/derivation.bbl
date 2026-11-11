@@ -1,0 +1,15 @@
+\begin{thebibliography}{1}
+
+\bibitem{Bolin2025Linear}
+David Bolin, Vaibhav Mehandiratta, and Alexandre~B. Simas.
+\newblock Linear cost and exponentially convergent approximation of {G}aussian {M}at\'ern processes on intervals.
+\newblock {\em J. Mach. Learn. Res.}, 26(96):1--34, 2025.
+\newblock \url{http://jmlr.org/papers/v26/24-1779.html}.
+
+\bibitem{Rasmussen2006Gaussian}
+Carl~Edward Rasmussen and Christopher K.~I. Williams.
+\newblock {\em Gaussian processes for machine learning}.
+\newblock Adaptive Computation and Machine Learning. MIT Press, Cambridge, MA, 2006.
+\newblock \url{https://doi.org/10.7551/mitpress/3206.001.0001}.
+
+\end{thebibliography}
