@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.14)  11 NOV 2026 22:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.14)  11 NOV 2026 23:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -275,42 +275,43 @@ LaTeX template Info: Declaring instance 'cmtt' of type xfrac on line 392.
 )
 \c@theorem=\count311
 \c@remark=\count312
+\c@proposition=\count313
  (/home/rierasl/texlive/2026/texmf-dist/tex/latex/l3kernel/l3backend-pdftex.def
 File: l3backend-pdftex.def 2026-09-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count313
+\l__color_backend_stack_int=\count314
 ) (./derivation.aux)
 \openout1 = `derivation.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 26.
+LaTeX Font Info:    ... okay on input line 26.
  (/home/rierasl/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count314
+\scratchcounter=\count315
 \scratchdimen=\dimen179
 \scratchbox=\box57
-\nofMPsegments=\count315
-\nofMParguments=\count316
+\nofMPsegments=\count316
+\nofMParguments=\count317
 \everyMPshowfont=\toks32
-\MPscratchCnt=\count317
+\MPscratchCnt=\count318
 \MPscratchDim=\dimen180
-\MPnumerator=\count318
-\makeMPintoPDFobject=\count319
+\MPnumerator=\count319
+\makeMPintoPDFobject=\count320
 \everyMPtoPDFconversion=\toks33
 ) (/home/rierasl/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -318,7 +319,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/home/rierasl/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring OFF on input line 25.
+Package hyperref Info: Link coloring OFF on input line 26.
  (./derivation.out) (./derivation.out)
 \@outlinefile=\write3
 \openout3 = `derivation.out'.
@@ -358,110 +359,110 @@ Package hyperref Info: Link coloring OFF on input line 25.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 34.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 35.
 (/home/rierasl/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 34.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 35.
  (/home/rierasl/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <7.665> on input line 41.
+LaTeX Font Info:    Calculating math sizes for size <7.665> on input line 42.
 
 
 LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <3.83249> not available
-(Font)              size <5> substituted on input line 41.
+(Font)              size <5> substituted on input line 42.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <3.83249> not available
-(Font)              size <5> substituted on input line 41.
+(Font)              size <5> substituted on input line 42.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <3.83249> not available
-(Font)              size <5> substituted on input line 41.
+(Font)              size <5> substituted on input line 42.
 
-LaTeX Font Info:    Trying to load font information for U+euf on input line 59.
+LaTeX Font Info:    Trying to load font information for U+euf on input line 60.
 (/home/rierasl/texlive/2026/texmf-dist/tex/latex/amsfonts/ueuf.fd
 File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
 ) [1
 
 {/home/rierasl/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/home/rierasl/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}] [2] [3]
-Overfull \hbox (25.48013pt too wide) detected at line 221
+Overfull \hbox (25.48013pt too wide) detected at line 222
 []
  []
 
 [4]
-Overfull \hbox (17.496pt too wide) detected at line 239
+Overfull \hbox (17.496pt too wide) detected at line 240
 []
  []
 
 [5] [6]
-Overfull \hbox (10.02104pt too wide) detected at line 319
+Overfull \hbox (10.02104pt too wide) detected at line 320
 []
  []
 
 
-Overfull \hbox (5.72519pt too wide) detected at line 327
+Overfull \hbox (5.72519pt too wide) detected at line 328
 []
  []
 
 
 LaTeX Font Warning: Font shape `T1/cmr/m/n' in size <3.83249> not available
-(Font)              size <5> substituted on input line 341.
+(Font)              size <5> substituted on input line 342.
 
 [7] [8] [9]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 488.
+(hyperref)                removing `math shift' on input line 500.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 488.
+(hyperref)                removing `\alpha' on input line 500.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\in' on input line 488.
+(hyperref)                removing `\in' on input line 500.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 488.
+(hyperref)                removing `math shift' on input line 500.
 
 
 LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <3.83249> not available
-(Font)              size <5> substituted on input line 501.
+(Font)              size <5> substituted on input line 513.
 
 
-Overfull \hbox (30.38983pt too wide) detected at line 501
+Overfull \hbox (30.38983pt too wide) detected at line 513
 []
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 502.
+(hyperref)                removing `math shift' on input line 514.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 502.
+(hyperref)                removing `\alpha' on input line 514.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\in' on input line 502.
+(hyperref)                removing `\in' on input line 514.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 502.
+(hyperref)                removing `math shift' on input line 514.
 
 
-Overfull \hbox (3.52545pt too wide) detected at line 514
+Overfull \hbox (3.52545pt too wide) detected at line 526
 []
  []
 
 [10]
-Overfull \hbox (85.2366pt too wide) in paragraph at lines 547--549
+Overfull \hbox (85.2366pt too wide) in paragraph at lines 558--560
 \T1/cmr/m/n/10.95 Before in-tro-duc-ing the Whittle-Matérn bridge pro-cess, we set the no-ta-tion. Let $[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 t\OT1/cmr/m/n/10.95 ) = [\OML/cmm/m/it/10.95 x\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 t\OT1/cmr/m/n/10.95 )\OML/cmm/m/it/10.95 ; x[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 t\OT1/cmr/m/n/10.95 )\OML/cmm/m/it/10.95 ; [] ; x[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 t\OT1/cmr/m/n/10.95 )][]$
  []
 
-(./derivation.bbl) [11] (./derivation.aux)
+(./derivation.bbl [11]) [12] (./derivation.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-09-09>
@@ -472,21 +473,21 @@ LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 3.95001pt have occurred.
 
 Package rerunfilecheck Info: File `derivation.out' has not changed.
-(rerunfilecheck)             Checksum: 861421553401EE91135FCD02943E4275;3062.
+(rerunfilecheck)             Checksum: 9E8BCA89186039FD9F1906106D3F7AC3;2964.
  ) 
 Here is how much of TeX's memory you used:
- 11035 strings out of 467050
- 169910 string characters out of 5404725
- 623964 words of memory out of 5000000
- 40150 multiletter control sequences out of 15000+600000
- 667719 words of font info for 181 fonts, out of 8000000 for 9000
+ 11062 strings out of 467050
+ 170370 string characters out of 5404725
+ 624361 words of memory out of 5000000
+ 40169 multiletter control sequences out of 15000+600000
+ 668624 words of font info for 184 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,27n,81p,579b,477s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on derivation.pdf (11 pages, 375542 bytes).
+ 74i,27n,81p,626b,558s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
+Output written on derivation.pdf (12 pages, 393321 bytes).
 PDF statistics:
- 386 PDF objects out of 1000 (max. 8388607)
- 315 compressed objects within 4 object streams
- 117 named destinations out of 1000 (max. 500000)
- 121 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 402 PDF objects out of 1000 (max. 8388607)
+ 328 compressed objects within 4 object streams
+ 123 named destinations out of 1000 (max. 500000)
+ 113 words of extra memory for PDF output out of 10000 (max. 10000000)
 
