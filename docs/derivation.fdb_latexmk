@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex derivation"] 1794425776.73002 "derivation.aux" "derivation.bbl" "derivation" 1794426131.35479 0
+["bibtex derivation"] 1794427150.17275 "derivation.aux" "derivation.bbl" "derivation" 1794427198.81788 0
   "./references.bib" 1794403528.16967 3851 5953604a03842393a036343f28797c14 ""
   "/home/rierasl/texlive/2026/texmf-dist/bibtex/bst/base/plain.bst" 1292289607 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "derivation.aux" 1794426131.14074 3430 2a1edf6f2a8ccd7823759cd1ea6b4f58 "pdflatex"
+  "derivation.aux" 1794427198.60099 4134 eda7c31a5096ac20315d4debb37d1a52 "pdflatex"
   (generated)
   "derivation.bbl"
   "derivation.blg"
   (rewritten before read)
-["pdflatex"] 1794426130.0842 "/home/rierasl/Desktop/ratAPPROX/derivation.tex" "derivation.pdf" "derivation" 1794426131.35492 0
-  "/home/rierasl/Desktop/ratAPPROX/derivation.tex" 1794426058.66467 28370 1b82ad41dc579db648aae6fced60a24d ""
+["pdflatex"] 1794427197.50837 "/home/rierasl/Desktop/ratAPPROX/derivation.tex" "derivation.pdf" "derivation" 1794427198.81801 0
+  "/home/rierasl/Desktop/ratAPPROX/derivation.tex" 1794427197.33597 30661 749b9dfdf488ba675ecb3116cf495661 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecbx1095.tfm" 1136768653 3584 21b378cca2e40816b0e6d74a4dc98f04 ""
@@ -24,8 +24,12 @@
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecti1095.tfm" 1136768653 3072 b73d2778cc3af44970de4de5e032d7f6 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ectt0800.tfm" 1136768653 1536 0b0b8ca286de6a006b681926403f35cd ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ectt1095.tfm" 1136768653 1536 a988bfe554c1f79514bd46d13c3c64ce ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy8.tfm" 1246382020 1120 200be8b775682cdf80acad4be5ef57e4 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmmib6.tfm" 1246382020 1516 a3bf6a5e7ec4401b1f52092dfaaed242 ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmmib8.tfm" 1246382020 1528 dab402b9d3774ca98baa037071cee7ae ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/euler/eufm10.tfm" 1246382020 1040 b84415f97d114011685943ade933dc71 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/euler/eufm5.tfm" 1246382020 1040 a9d2074f3fa062d4d9046b92e2334d8c ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/euler/eufm7.tfm" 1246382020 1040 82eb6630b094bff824fccca83ff507f9 ""
@@ -35,6 +39,7 @@
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm" 1246382020 908 2921f8a10601f252058503cc6570e581 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm" 1246382020 940 75ac932a52f80982a9f8ea75d03a34cf ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm" 1246382020 940 228d6584342e91276bf566bcf9716b83 ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbsy10.tfm" 1136768653 1116 4e6ba9d7914baa6482fd69f67d126380 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm" 1136768653 1324 c910af8c371558dc20f2d7822f66fe64 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbx5.tfm" 1136768653 1332 f817c21a1ba54560425663374f1b651a ""
@@ -45,6 +50,7 @@
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1136768653 1512 f21f83efb36853c0b70002322c1ab3ad ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm" 1136768653 1520 eccf95517727cb11801f4f1aee3a21b4 ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmib10.tfm" 1136768653 1524 554068197b70979a55370e6c6495f441 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1136768653 1288 655e228510b4c2a1abe905c368440826 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr6.tfm" 1136768653 1300 b62933e007d01cfd073f79b963c01526 ""
@@ -59,6 +65,7 @@
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb" 1248133631 37912 77d683123f92148345f3fc36a38d9ab1 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb" 1248133631 37166 8ab3487cbe3ab49ebce74c29ea2418db ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1248133631 35469 70d41d2b9ea31d5d813066df7c99281c ""
+  "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb" 1248133631 36912 b448ef9ad9d7228ec3c6e71005136d55 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1248133631 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "/home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb" 1248133631 32734 69e00a6b65cedb993666e42eedb3d48f ""
@@ -134,10 +141,10 @@
   "/home/rierasl/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1791985348 5609359 72df66b87f0588f516db68ccfe7286da ""
   "/home/rierasl/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1791985374 3668536 a991147a0316470574dd5610f6354ffe ""
   "/home/rierasl/texlive/2026/texmf.cnf" 1789065773.16007 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
-  "derivation.aux" 1794426131.14074 3430 2a1edf6f2a8ccd7823759cd1ea6b4f58 "pdflatex"
-  "derivation.bbl" 1794425776.84704 658 8d4fe41eaf851bf3f0024ad77a77dd00 "bibtex derivation"
-  "derivation.out" 1794426131.14174 2799 61d907f295ed78c46fa27d8f5eee20c9 "pdflatex"
-  "derivation.tex" 1794426058.66467 28370 1b82ad41dc579db648aae6fced60a24d ""
+  "derivation.aux" 1794427198.60099 4134 eda7c31a5096ac20315d4debb37d1a52 "pdflatex"
+  "derivation.bbl" 1794427150.26112 831 3f4a1aa3bb5b5b3578490462a324f97c "bibtex derivation"
+  "derivation.out" 1794427198.60099 3062 861421553401ee91135fcd02943e4275 "pdflatex"
+  "derivation.tex" 1794427197.33597 30661 749b9dfdf488ba675ecb3116cf495661 ""
   (generated)
   "derivation.aux"
   "derivation.log"

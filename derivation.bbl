@@ -6,6 +6,10 @@ David Bolin, Vaibhav Mehandiratta, and Alexandre~B. Simas.
 \newblock {\em J. Mach. Learn. Res.}, 26(96):1--34, 2025.
 \newblock \url{http://jmlr.org/papers/v26/24-1779.html}.
 
+\bibitem{Bolin2023Statistical}
+David Bolin, Alexandre Simas, and Jonas Wallin.
+\newblock Statistical inference for gaussian whittle-mat\'ern fields on metric graphs, 2023.
+
 \bibitem{Rasmussen2006Gaussian}
 Carl~Edward Rasmussen and Christopher K.~I. Williams.
 \newblock {\em Gaussian processes for machine learning}.
