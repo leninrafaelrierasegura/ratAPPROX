@@ -1,0 +1,404 @@
+
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xfrac}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}{Remark}
+
+
+% Document information
+\title{Document Title}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\subsection{Matérn covariance function and its parametrizations}
+
+From \cite{Rasmussen2006Gaussian}, the Matérn covariance function is defined as 
+\begin{align}
+    r(h) = \dfrac{\sigma^2}{2^{\nu-1}\Gamma(\nu)}\left(\dfrac{\sqrt{2\nu}h}{\rho}\right)^\nu K_\nu\left(\dfrac{\sqrt{2\nu}h}{\rho}\right)
+\end{align}
+and its corresponding spectral density is 
+\begin{align}
+\label{eq:spectral_density_2pi}
+    \hat{f}(\omega) = \dfrac{\sigma^2\sqrt{4\pi}\Gamma(\nu+\sfrac{1}{2})}{\Gamma(\nu)}\left(\dfrac{2\nu}{\rho^2}\right)^\nu \left(\dfrac{2\nu}{\rho^2}+4\pi^2\omega^2\right)^{-(\nu+\sfrac{1}{2})}
+\end{align}
+computed by using the Fourier transform pair parametrization 
+\begin{align}
+    \hat{f}(\omega) = \int_{\mathbb{R}}e^{-i2\pi\omega h}r(h)dh \iff r(h)=\int_{\mathbb{R}}e^{i2\pi\omega h}\hat{f}(\omega)d\omega
+\end{align}
+But actually we want the pair parametrization
+\begin{align}
+    \tilde{f}(\omega) = \int_{\mathbb{R}}e^{-i\omega h}r(h)dh \iff r(h)=\dfrac{1}{2\pi}\int_{\mathbb{R}}e^{i\omega h}\tilde{f}(\omega)d\omega
+\end{align}
+For that, we simply do
+\begin{align}
+\label{eq:spectral_density}
+    \tilde{f}(\omega) = \hat{f}\left(\dfrac{\omega}{2\pi}\right) = \dfrac{\sigma^2\sqrt{4\pi}\Gamma(\nu+\sfrac{1}{2})}{\Gamma(\nu)}\left(\dfrac{2\nu}{\rho^2}\right)^\nu \left(\dfrac{2\nu}{\rho^2}+\omega^2\right)^{-(\nu+\sfrac{1}{2})}
+\end{align}
+But actually we apparently want this Fourier pair parametrization
+\begin{align}
+\label{eq:this_is_THE_Fourier_conv_used}
+    \overline{f}(\omega) = \mathfrak{F}[r(h)](\omega) =  \dfrac{1}{\sqrt{2\pi}} \int_{\mathbb{R}}e^{-i\omega h}r(h)dh \iff r(h)= \mathfrak{F}^{-1}[\overline{f}(\omega)](h)= \dfrac{1}{\sqrt{2\pi}}\int_{\mathbb{R}}e^{i\omega h}\overline{f}(\omega)d\omega
+\end{align}
+For that, we simply do
+\begin{align}
+   \overline{f}(\omega) = \dfrac{1}{\sqrt{2\pi}} \tilde{f}(\omega)  = \dfrac{\sigma^2\sqrt{2}\Gamma(\nu+\sfrac{1}{2})}{\Gamma(\nu)}\left(\dfrac{2\nu}{\rho^2}\right)^\nu \left(\dfrac{2\nu}{\rho^2}+\omega^2\right)^{-(\nu+\sfrac{1}{2})}
+\end{align}
+Recall the scaling property of the Fourier transform given by 
+\begin{align}
+    r(ah)\iff \dfrac{1}{|a|}\overline{f}\left(\dfrac{\omega}{a}\right)
+\end{align}
+Now let $\varrho(h) = r(2h)$ and $\kappa = \sqrt{8\nu}/\rho$, then
+\begin{align}
+    \varrho(h) & = \dfrac{\sigma^2}{2^{\nu-1}\Gamma(\nu)}\left(\dfrac{\sqrt{8\nu}h}{\rho}\right)^\nu K_\nu\left(\dfrac{\sqrt{8\nu}h}{\rho}\right)\\
+    & = \dfrac{\sigma^2}{2^{\nu-1}\Gamma(\nu)}(\kappa h)^\nu K_\nu(\kappa h)
+\end{align}
+which is the familiar form of the Matérn covariance function.
+Just for the record, if we have it in terms of $\tau$, then 
+\begin{align}
+    \varrho(h) & = \dfrac{1}{2^{\nu-1}\Gamma(\nu)} \dfrac{\Gamma(\nu)}{\Gamma(\nu+\sfrac{1}{2})\sqrt{4\pi}\kappa^{2\nu}\tau^2}(\kappa h)^\nu K_\nu(\kappa h)\\
+    & = \dfrac{1}{2^{\nu-1}\Gamma(\nu+\sfrac{1}{2})\sqrt{4\pi}\kappa^{2\nu}\tau^2}(\kappa h)^\nu K_\nu(\kappa h)
+\end{align}
+Setting $\nu = \tfrac{1}{2}$, we obtain
+\begin{align}
+\varrho(h)
+&=
+\dfrac{1}{2^{-1/2}\Gamma(1)\sqrt{4\pi}\kappa^{1}\tau^2}
+(\kappa h)^{1/2} K_{1/2}(\kappa h).
+\end{align}
+
+Using the identities
+\begin{align}
+\Gamma(1) &= 1, \\
+K_{1/2}(x) &= \sqrt{\frac{\pi}{2x}} e^{-x},
+\end{align}
+we get
+\begin{align}
+(\kappa h)^{1/2} K_{1/2}(\kappa h)
+&=
+(\kappa h)^{1/2}
+\sqrt{\frac{\pi}{2\kappa h}}
+e^{-\kappa h}
+=
+\sqrt{\frac{\pi}{2}}\, e^{-\kappa h}.
+\end{align}
+
+Substituting back,
+\begin{align}
+\varrho(h)
+&=
+\dfrac{1}{2^{-1/2}\sqrt{4\pi}\kappa\tau^2}
+\sqrt{\frac{\pi}{2}}\, e^{-\kappa h}.
+\end{align}
+
+Now simplify the constants:
+\begin{align}
+2^{-1/2}\sqrt{4\pi}
+&=
+\frac{1}{\sqrt{2}} \cdot 2\sqrt{\pi}
+=
+\sqrt{2\pi},
+\end{align}
+so that
+\begin{align}
+\varrho(h)
+&=
+\frac{1}{\sqrt{2\pi}\,\kappa\tau^2}
+\sqrt{\frac{\pi}{2}}\, e^{-\kappa h}
+=
+\frac{1}{2\kappa \tau^2} e^{-\kappa h}.
+\end{align}
+
+By the scaling property, the corresponding spectral density to $\varrho(h)$ is $f(\omega) = \dfrac{1}{2}\overline{f}\left(\dfrac{\omega}{2}\right)$ given by
+\begin{align}
+    f(\omega) & = \dfrac{\sigma^2\sqrt{2}\Gamma(\nu+\sfrac{1}{2})}{2\Gamma(\nu)}\left(\dfrac{2\nu}{\rho^2}\right)^\nu \left(\dfrac{2\nu}{\rho^2}+\dfrac{\omega^2}{4}\right)^{-(\nu+\sfrac{1}{2})}\\
+   & = \dfrac{\sigma^2\sqrt{2}\Gamma(\nu+\sfrac{1}{2})}{2\Gamma(\nu)}\left(\dfrac{2\nu}{\rho^2}\right)^\nu \left(\dfrac{1}{4}\right)^{-(\nu+\sfrac{1}{2})}\left(\dfrac{8\nu}{\rho^2}+\omega^2\right)^{-(\nu+\sfrac{1}{2})}
+\end{align}
+Since $\left(\dfrac{1}{4}\right)^{-(\nu+\sfrac{1}{2})} = 2\cdot 4^\nu$ and $\kappa^2 = 8\nu/\rho^2$ we have that
+\begin{align}
+    f(\omega) &= \dfrac{\sigma^2\sqrt{2}\Gamma(\nu+\sfrac{1}{2})}{\Gamma(\nu)}\left(\dfrac{8\nu}{\rho^2}\right)^\nu \left(\dfrac{8\nu}{\rho^2}+\omega^2\right)^{-(\nu+\sfrac{1}{2})}\\
+    &= \dfrac{\sigma^2\sqrt{2}\Gamma(\nu+\sfrac{1}{2})\kappa^{2\nu}}{\Gamma(\nu)}\left(\kappa^2+\omega^2\right)^{-(\nu+\sfrac{1}{2})}
+\end{align}
+Let $A = A_{(\nu,\kappa)} = \dfrac{\sqrt{2}\Gamma(\nu+\sfrac{1}{2})\kappa^{2\nu}}{\Gamma(\nu)}$ so this matches with \cite{Bolin2025Linear}. If $\sigma^2 =  \dfrac{\Gamma(\nu)}{\Gamma(\nu+\sfrac{1}{2})\sqrt{4\pi}\kappa^{2\nu}\tau^2}$, then $A\sigma^2 = (2\pi)^{-\sfrac{1}{2}}\tau^{-2}$. The moral of the story is that 
+\begin{align}
+    f(\omega) = A\sigma^2\left(\kappa^2+\omega^2\right)^{-(\nu+\sfrac{1}{2})}\iff \varrho(h) = \dfrac{\sigma^2}{2^{\nu-1}\Gamma(\nu)}(\kappa h)^\nu K_\nu(\kappa h), 
+\end{align}
+Putting in terms of $\alpha$, we instead have
+\begin{align}
+    f(\omega) = A\sigma^2\left(\kappa^2+\omega^2\right)^{-\alpha}\iff \varrho(h) = \dfrac{\sigma^2}{2^{\alpha-\sfrac{1}{2}-1}\Gamma(\alpha-\sfrac{1}{2})}(\kappa h)^{\alpha-\sfrac{1}{2}} K_{\alpha-\sfrac{1}{2}}(\kappa h), 
+\end{align}
+
+If we drop $\sigma^2$, we still have the Fourier pair
+\begin{align}
+    f_\star(\omega) = A\left(\kappa^2+\omega^2\right)^{-(\nu+\sfrac{1}{2})}\iff \varrho_\star(h) = \dfrac{1}{2^{\nu-1}\Gamma(\nu)}(\kappa h)^\nu K_\nu(\kappa h), 
+\end{align}
+
+
+\newpage
+\subsection{Computational quirks}
+The \texttt{MetricGraph} package actually codifies
+\begin{align}
+\overline{\varrho}(h; \kappa, \nu, \texttt{cte})=\dfrac{\texttt{cte}^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|)
+\end{align}
+So if you want something like 
+\begin{align}
+    \dfrac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}\varrho(h; \kappa, \nu, \sigma) = \dfrac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}} \dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|)
+\end{align}
+computationally you should actually do
+\begin{align}
+    \sigma^2 \overline{\varrho}\left(h; \kappa, \nu, \sqrt{ \dfrac{c_\alpha \sqrt{\pi}}{\sqrt{1-p_i}}}\right)
+\end{align}
+
+
+\subsection{Preliminaries}
+
+We consider the Matérn covariance function
+\begin{align}
+\label{eq:Matern_cov_fun}
+\varrho(h; \kappa, \nu, \sigma)=\dfrac{\sigma^{2}}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|),\quad \sigma^2 = A^{-1}(2\pi)^{-\sfrac{1}{2}}\tau^{-2},
+\end{align}
+where $\rho = \sqrt{8\nu}/\kappa$ and $\nu = \alpha-\sfrac{1}{2}$
+and the SPDE
+\begin{equation}
+\label{eq:Matern_spde}
+	(\kappa^2 - \Delta_\Gamma)^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \qquad \text{on $\Gamma$},
+\end{equation}
+
+
+\subsection{Computing spectral density from SPDE}
+
+We take the Fourier transform \eqref{eq:this_is_THE_Fourier_conv_used} to \eqref{eq:Matern_spde} to get
+\begin{align}
+    (\kappa^2+\omega^2)^{\sfrac{\alpha}{2}}\tau\hat{u}(\omega) = \widehat{\mathcal{W}}(\omega)\implies
+    f(\omega) = \dfrac{1}{\tau^2\sqrt{2\pi}}(\kappa^2+\omega^2)^{-\alpha}
+\end{align}
+
+Let $L = (\kappa^2 - \Delta_\Gamma)^{\sfrac{\alpha}{2}}$. The solution $u$ is a centered Gaussian random field with covariance operator $\mathcal{C} = \tau^{-2}L^{-\alpha}$. We consider the approximation
+\begin{align}
+    \mathcal{C}_\alpha = \tau^{-2}L^{-\lfloor\alpha\rfloor}P_m(L^{-1})Q_m(L^{-1})^{-1}
+\end{align}
+where 
+\begin{align}
+    x^{\{\alpha\}}\approx \dfrac{P_m(x)}{Q_m(x)} = \dfrac{\sum_{i=0}^m a_ix^{i}}{\sum_{j=0}^m b_jx^{j}} = \dfrac{p_m(x^{-1})}{q_m(x^{-1})} 
+\end{align}
+or
+\begin{align}
+\label{eq:rat_approx}
+    x^{-\{\alpha\}}\approx \dfrac{P_m(x^{-1})}{Q_m(x^{-1})} = \dfrac{\sum_{i=0}^m a_ix^{m-i}}{\sum_{j=0}^m b_jx^{m-j}} = \dfrac{p_m(x)}{q_m(x)} 
+\end{align}
+We further have that
+\begin{align}
+\label{eq:partial_frac_dec}
+    \dfrac{p_m(x)}{q_m(x)} = \dfrac{P_m(x^{-1})}{Q_m(x^{-1})} =k + \sum_{i=1}^mr_i(x-p_i)^{-1}.
+\end{align}
+Therefore
+\begin{align}
+    \mathcal{C}_\alpha = \tau^{-2}L^{-\lfloor\alpha\rfloor}\left(kI + \sum_{i=1}^mr_i(L-p_iI)^{-1}\right) = \tau^{-2}kL^{-\lfloor\alpha\rfloor} + \sum_{i=1}^m\tau^{-2}r_iL^{-\lfloor\alpha\rfloor}(L-p_iI)^{-1}
+\end{align}
+Since $k,r_i>0$ and $p_i<0$, $\mathcal{C}_0 = \tau^{-2}kL^{-\lfloor\alpha\rfloor}$ and $\mathcal{C}_i = \tau^{-2}r_iL^{-\lfloor\alpha\rfloor}(L-p_iI)^{-1}$ are valid covariance operators so that $\mathcal{C}_\alpha = \mathcal{C}_0+\sum_{i=1}^m\mathcal{C}_i$. Then the approximation $u_\alpha$ has decomposition
+\begin{align}
+    u_\alpha = u_0+\sum_{i=1}^mu_i
+\end{align}
+where $u_0\sim N(0,\mathcal{C}_0)$ and $u_i\sim N(0,\mathcal{C}_i)$. Moreover, they satisfy
+\begin{align}
+\label{eq:WM_process}
+   \mathcal{C}_0^{-\sfrac{1}{2}}u_0= L^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}u_0) = \mathcal{W}, \qquad \text{on $\Gamma$},
+\end{align}
+and
+\begin{align}
+\label{eq:shifted_WM_process}
+   \mathcal{C}_i^{-\sfrac{1}{2}}u_i =  (L^{\lfloor\alpha\rfloor}(L-p_iI))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}u_i) = \mathcal{W}, \qquad \text{on $\Gamma$}
+\end{align}
+\begin{definition}
+    $u_i$ in \eqref{eq:shifted_WM_process} is called a shifted Whittle-Matérn process on $\Gamma$.
+\end{definition}
+\begin{remark}
+    Observe that \eqref{eq:WM_process} are Whittle-Matérn process where the power $\lfloor\alpha\rfloor$ is integer.
+\end{remark}
+Observe now that \eqref{eq:Matern_cov_fun} has spectral density 
+\begin{align}
+f(\omega) = A\sigma^2(\kappa^2+\omega^2)^{-(\nu+\sfrac{1}{2})},\quad A = \sigma^{-2}(2\pi)^{-\sfrac{1}{2}}\tau^{-2}
+\end{align}
+which can be also written as 
+\begin{align}
+    f(\omega) = A\sigma^2\kappa^{-2\alpha}(1+\kappa^{-2}\omega^2)^{-\alpha} = A\sigma^2\kappa^{-2\alpha}(1+\kappa^{-2}\omega^2)^{-\lfloor\alpha\rfloor} (1+\kappa^{-2}\omega^2)^{-\{\alpha\}}
+\end{align}
+By \eqref{eq:rat_approx}, we can approximate $f$ by $f_\alpha$ given by
+\begin{align}
+    f_\alpha(\omega) = A\sigma^2\kappa^{-2\alpha}\dfrac{1}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor} }\dfrac{p_m(1+\kappa^{-2}\omega^2)}{q_m(1+\kappa^{-2}\omega^2)}
+\end{align}
+By \eqref{eq:partial_frac_dec}, we have that 
+\begin{align}
+    f_\alpha(\omega)& = A\sigma^2\kappa^{-2\alpha}\dfrac{1}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor} }\left(k + \sum_{i=1}^mr_i(1+\kappa^{-2}\omega^2-p_i)^{-1}\right)\\
+    & = \dfrac{A\sigma^2\kappa^{-2\alpha}k}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor}}+ \sum_{i=1}^m\dfrac{A\sigma^2\kappa^{-2\alpha}r_i}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor}(1+\kappa^{-2}\omega^2-p_i)}
+\end{align}
+Let 
+\begin{align}
+    f_0(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}k}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor}}\quad\text{ and }\quad f_i(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}r_i}{(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor}(1+\kappa^{-2}\omega^2-p_i)}
+\end{align}
+then we can write
+\begin{align}
+    f_\alpha(\omega) = f_0(\omega) + \sum_{i=1}^mf_i(\omega),
+\end{align}
+which is a valid decomposition of spectral densities.
+We now can equivalently write 
+\begin{align}
+    f_0(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{(\kappa^2+\omega^2)^{\lfloor\alpha\rfloor}}\quad \text{ and }\quad f_i(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}+\omega^2)^{\lfloor\alpha\rfloor}(\kappa^{2}(1-p_i)+\omega^2)}
+\end{align}
+Now for $k\in\mathbb{N}$ and $p\in\mathbb{R}$, we have that
+\begin{align}
+    \dfrac{1}{(\kappa^{2}+\omega^2)^{k}(\kappa^{2}(1-p)+\omega^2)}& = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^{2}(1-p)+\omega^2)} - \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j}
+\end{align}
+Indeed, let $r = \dfrac{\kappa^2p}{\kappa^{2}+\omega^2}$, then $1-r = \dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}$. Hence
+\begin{align*}
+    \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j} & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \sum_{j=1}^k  \left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^j\\
+    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{r(1-r^k)}{1-r}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\left(1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k\right)}{\dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}}\\
+    & = \dfrac{1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)} - \dfrac{1}{(\kappa^2+\omega^2)^k(\kappa^2(1-p)+\omega^2)}
+\end{align*}
+Therefore
+\begin{align}
+    f_i(\omega) &= \dfrac{A\sigma^2\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor}(\kappa^{2}(1-p_i)+\omega^2)}\\
+    &- \sum_{j=1}^{\lfloor\alpha\rfloor} \dfrac{A\sigma^2\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor+1-j}(\kappa^{2}+\omega^2)^j}\\
+    &= \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor}}\sigma^2(\kappa^{2}(1-p_i)+\omega^2)^{-1}\\
+    &- \sum_{j=1}^{\lfloor\alpha\rfloor} \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor+1-j}}\sigma^2(\kappa^{2}+\omega^2)^{-j}\\
+    %
+    &= \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor}A_{(\sfrac{1}{2},\kappa\sqrt{1-p_i})}}A_{(\sfrac{1}{2},\kappa\sqrt{1-p_i})}\sigma^2(\kappa^{2}(1-p_i)+\omega^2)^{-(\sfrac{1}{2}+\sfrac{1}{2})}\\
+    &- \sum_{j=1}^{\lfloor\alpha\rfloor} \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor+1-j}A_{(j-\sfrac{1}{2},\kappa)}}A_{(j-\sfrac{1}{2},\kappa)}\sigma^2(\kappa^{2}+\omega^2)^{-(j-\sfrac{1}{2}+\sfrac{1}{2})}\\
+    %
+    & = f_{i0}(\omega)- \sum_{j=1}^{\lfloor\alpha\rfloor} f_{ij}(\omega)
+\end{align}
+
+\begin{align}
+\begin{cases}
+    \varrho(h) &= \mathfrak{F}^{-1}[f(\omega)](h)= \dfrac{\sigma^2}{2^{\nu-1}\Gamma(\nu)}(\kappa h)^\nu K_\nu(\kappa h) \\
+    f(\omega)& = A_{(\nu,\kappa)}\sigma^2\left(\kappa^2+\omega^2\right)^{-(\nu+\sfrac{1}{2})}\\
+    A_{(\nu,\kappa)} & = \dfrac{\sqrt{2}\Gamma(\nu+\sfrac{1}{2})\kappa^{2\nu}}{\Gamma(\nu)} = \dfrac{\sqrt{2}\Gamma(\alpha)\kappa^{2\nu}}{\Gamma(\alpha-\sfrac{1}{2})}\\
+    \sigma^2 &= A_{(\nu,\kappa)}^{-1}(2\pi)^{-\sfrac{1}{2}}\tau^{-2}\\
+    \rho & = \sqrt{8\nu}/\kappa\\
+    \nu &= \alpha-\sfrac{1}{2}
+\end{cases}
+\end{align}
+
+Similarly for $f_0$
+\begin{align}
+    f_0(\omega) = A_{(\nu,\kappa)}\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}\sigma^2(\kappa^2+\omega^2)^{-\lfloor\alpha\rfloor} = \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}}A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}\sigma^2(\kappa^2+\omega^2)^{-(\lfloor\alpha\rfloor-\sfrac{1}{2}+\sfrac{1}{2})}
+\end{align}
+By taking the inverse Fourier transform, we arrive at
+\begin{align}
+    \varrho_0(h) = \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sigma)
+\end{align}
+and
+\begin{align}
+    \varrho_i(h)  &= \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor}A_{(\sfrac{1}{2},\kappa\sqrt{1-p_i})}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sigma)- \sum_{j=1}^{\lfloor\alpha\rfloor} \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor+1-j}A_{(j-\sfrac{1}{2},\kappa)}}\varrho(h;\kappa, j-\sfrac{1}{2}, \sigma)
+\end{align}
+Let us simplify the expressions above. We first simplify $\varrho_0$.
+\begin{align*}
+    \varrho_0(h) &= k\sigma^2\kappa^{-2\alpha}\kappa^{2\lfloor\alpha\rfloor}\dfrac{A_{(\nu,\kappa)}}{A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, 1)\\
+    &= k\sigma^2\kappa^{-2\alpha}\kappa^{2\lfloor\alpha\rfloor}\dfrac{\dfrac{\sqrt{2}\Gamma(\nu+\sfrac{1}{2})\kappa^{2\nu}}{\Gamma(\nu)}}{\dfrac{\sqrt{2}\Gamma(\lfloor\alpha\rfloor-\sfrac{1}{2}+\sfrac{1}{2})\kappa^{2(\lfloor\alpha\rfloor-\sfrac{1}{2})}}{\Gamma(\lfloor\alpha\rfloor-\sfrac{1}{2})}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, 1)\\
+    %
+    &= k\sigma^2\kappa^{-2\alpha}\kappa^{2\lfloor\alpha\rfloor}\kappa^{2\nu}\kappa^{-2(\lfloor\alpha\rfloor-\sfrac{1}{2})}\dfrac{\dfrac{\Gamma(\alpha)}{\Gamma(\alpha-\sfrac{1}{2})}}{\dfrac{\Gamma(\lfloor\alpha\rfloor)}{\Gamma(\lfloor\alpha\rfloor-\sfrac{1}{2})}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, 1)\\
+    %
+    &= k\sigma^2\kappa^{2(-\alpha+\lfloor\alpha\rfloor+\nu-\lfloor\alpha\rfloor+\sfrac{1}{2})}\dfrac{\dfrac{\Gamma(\alpha)}{\Gamma(\alpha-\sfrac{1}{2})}}{\dfrac{\Gamma(\lfloor\alpha\rfloor)}{\Gamma(\lfloor\alpha\rfloor-\sfrac{1}{2})}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, 1)\\
+    %
+    &= k\sigma^2\dfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, 1)\\
+    %
+    &= k\sigma^2\varrho\left(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}}\right)
+\end{align*}
+where $c_a = \sfrac{\Gamma(a)}{\Gamma(a-\sfrac{1}{2})}$. 
+For simplicity, let
+\begin{align}
+    \varrho_{i0}(h) = \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor}A_{(\sfrac{1}{2},\kappa\sqrt{1-p_i})}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sigma)
+\end{align}
+and 
+\begin{align}
+    \varrho_{ij}(h) = \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}p_i)^{\lfloor\alpha\rfloor+1-j}A_{(j-\sfrac{1}{2},\kappa)}}\varrho(h;\kappa, j-\sfrac{1}{2}, \sigma)
+\end{align}
+Let us now simplify $\varrho_{i0}$.
+\begin{align*}
+    \varrho_{i0}(h) & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \kappa^{-2\alpha}\kappa^{2\lfloor\alpha\rfloor+2}\kappa^{-2\lfloor\alpha\rfloor}\dfrac{A_{(\nu,\kappa)}}{A_{(\sfrac{1}{2},\kappa\sqrt{1-p_i})}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \kappa^{-2\alpha}\kappa^{2\lfloor\alpha\rfloor+2}\kappa^{-2\lfloor\alpha\rfloor}\dfrac{\dfrac{\sqrt{2}\Gamma(\alpha)\kappa^{2\nu}}{\Gamma(\alpha-\sfrac{1}{2})}}{\dfrac{\sqrt{2}\Gamma(\sfrac{1}{2}+\sfrac{1}{2})(\kappa\sqrt{1-p_i})^{2\cdot\sfrac{1}{2}}}{\Gamma(\sfrac{1}{2})}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \kappa^{2(-\alpha+\lfloor\alpha\rfloor+1-\lfloor\alpha\rfloor+\nu-\sfrac{1}{2})}\dfrac{\dfrac{\Gamma(\alpha)}{\Gamma(\alpha-\sfrac{1}{2})}}{\dfrac{\Gamma(\sfrac{1}{2}+\sfrac{1}{2})\sqrt{1-p_i}}{\Gamma(\sfrac{1}{2})}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \dfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sqrt{\sfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}}\right)
+\end{align*}
+since $\Gamma(1)=1$ and $\Gamma(\sfrac{1}{2}) = \sqrt{\pi}$. Now we simplify $\varrho_{ij}$.
+\begin{align*}
+    \varrho_{ij}(h) & = r_i\sigma^2\kappa^{2(-\alpha+\lfloor\alpha\rfloor+1-\lfloor\alpha\rfloor-1+j)}\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\dfrac{A_{(\nu,\kappa)}}{A_{(j-\sfrac{1}{2},\kappa)}}\varrho(h;\kappa, j-\sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\kappa^{2(-\alpha+\lfloor\alpha\rfloor+1-\lfloor\alpha\rfloor-1+j)}\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\dfrac{\dfrac{\sqrt{2}\Gamma(\alpha)\kappa^{2\nu}}{\Gamma(\alpha-\sfrac{1}{2})}}{\dfrac{\sqrt{2}\Gamma(j)\kappa^{2(j-\sfrac{1}{2})}}{\Gamma(j-\sfrac{1}{2})}}\varrho(h;\kappa, j-\sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\kappa^{2(-\alpha+\lfloor\alpha\rfloor+1-\lfloor\alpha\rfloor-1+j+\nu-j+\sfrac{1}{2})}\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\dfrac{c_\alpha}{c_j}\varrho(h;\kappa, j-\sfrac{1}{2}, 1)\\
+    %
+    & = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\varrho\left(h;\kappa, j-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_j}}\right)
+\end{align*}
+To sum up, we have arrived at
+\begin{align}
+   \varrho_\alpha(h) = \varrho_0(h) + \sum_{i=1}^m  \varrho_i(h)
+\end{align}
+where 
+\begin{align}
+   \varrho_0(h) =  k\sigma^2\varrho\left(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}}\right)
+\end{align}
+and 
+\begin{align}
+    \varrho_i(h) = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sqrt{\sfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}}\right) -  \sum_{j=1}^{\lfloor\alpha\rfloor} r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\varrho\left(h;\kappa, j-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_j}}\right)
+\end{align}
+
+\section{Comparison to rat int paper}
+
+\section{Implementation}
+
+\subsection{Case $\alpha\in(0,1)$}
+
+\begin{align}
+    \varrho_0(h) = k\sigma^2\dfrac{c_\alpha\sqrt{4\pi}}{\kappa}1_{[h=0]}\implies \mathbf{Q}_0 = \mathbf{I}\cdot \dfrac{1}{(k\sigma^2c_\alpha\sqrt{4\pi})/\kappa}
+\end{align}
+
+\begin{align}
+    \varrho_i(h) = r_i \dfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sigma) \implies \mathbf{Q}_i = \dfrac{1}{(r_i c_\alpha\sqrt{\pi})/\sqrt{1-p_i}}\begin{cases}
+        \overline{\nu} = \sfrac{1}{2}\\
+        \overline{\kappa} = \kappa\sqrt{1-p_i}\\
+        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
+        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
+    \end{cases}
+\end{align}
+\subsection{Case $\alpha\in(1,2)$}
+
+\begin{align}
+   \varrho_0(h)= k\dfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sigma)\implies\mathbf{Q}_0 = \dfrac{1}{kc_\alpha/c_{\lfloor\alpha\rfloor}} \begin{cases}
+        \overline{\nu} = \sfrac{1}{2}\\
+        \overline{\kappa} = \kappa\\
+        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
+        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
+    \end{cases}
+\end{align}
+\begin{align}
+    \varrho_i(h) =  \varrho_i(h) \implies \mathbf{Q}_i= \dfrac{1}{r_i\sigma^2}\left(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e) - f(\texttt{matern.p.joint}(\kappa,p_i,\alpha))\right)
+\end{align}
+
+\bibliographystyle{plain}
+\bibliography{references} 
+\end{document}
