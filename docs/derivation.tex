@@ -190,7 +190,14 @@ We take the Fourier transform \eqref{eq:this_is_THE_Fourier_conv_used} to \eqref
     f(\omega) = \dfrac{1}{\tau^2\sqrt{2\pi}}(\kappa^2+\omega^2)^{-\alpha}
 \end{align}
 
-Let $L = \kappa^2 - \Delta_\Gamma$ and $B =\kappa^{-2}L$. The solution $u$ is a centered Gaussian random field with covariance operator $\mathcal{C} = \kappa^{-2\alpha}\tau^{-2}B^{-\alpha}$. We consider the approximation
+Let $L = \kappa^2 - \Delta_\Gamma$ and $B =\kappa^{-2}L$, with
+$\kappa,\tau>0$ and $\alpha>1/2$. The solution $u$ is a centered
+Gaussian random field with covariance operator
+$\mathcal{C} = \kappa^{-2\alpha}\tau^{-2}B^{-\alpha}$.
+For integer $\alpha\geq1$, the fractional factor is exactly one:
+set $k=1$ and omit all residue components, giving the exact covariance
+$\mathcal C=\tau^{-2}L^{-\alpha}$.
+For noninteger $\alpha$, we consider the approximation
 \begin{align}
     \mathcal{C}_\alpha = \kappa^{-2\alpha}\tau^{-2}B^{-\lfloor\alpha\rfloor}P_m(B)Q_m(B)^{-1}
 \end{align}
@@ -266,17 +273,18 @@ We now can equivalently write
 \begin{align}
     f_0(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{(\kappa^2+\omega^2)^{\lfloor\alpha\rfloor}}\quad \text{ and }\quad f_i(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}+\omega^2)^{\lfloor\alpha\rfloor}(\kappa^{2}(1-p_i)+\omega^2)}
 \end{align}
-Now for $k\in\mathbb{N}$ and $p\in\mathbb{R}$, we have that
+For an integer $q\geq0$ and $p<0$, we have the following identity,
+with sums understood as zero when $q=0$:
 \begin{align}
-    \dfrac{1}{(\kappa^{2}+\omega^2)^{k}(\kappa^{2}(1-p)+\omega^2)}& = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^{2}(1-p)+\omega^2)} - \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j}
+    \dfrac{1}{(\kappa^{2}+\omega^2)^{q}(\kappa^{2}(1-p)+\omega^2)}& = \dfrac{1}{(\kappa^{2}p)^{q}(\kappa^{2}(1-p)+\omega^2)} - \sum_{j=1}^q  \dfrac{1}{(\kappa^{2}p)^{q+1-j}(\kappa^{2}+\omega^2)^j}
 \end{align}
 Indeed, let $r = \dfrac{\kappa^2p}{\kappa^{2}+\omega^2}$, then $1-r = \dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}$. Hence
 \begin{align*}
-    \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j} & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \sum_{j=1}^k  \left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^j\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{r(1-r^k)}{1-r}\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\left(1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k\right)}{\dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}}\\
-    & = \dfrac{1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)}\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)} - \dfrac{1}{(\kappa^2+\omega^2)^k(\kappa^2(1-p)+\omega^2)}
+    \sum_{j=1}^q  \dfrac{1}{(\kappa^{2}p)^{q+1-j}(\kappa^{2}+\omega^2)^j} & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \sum_{j=1}^q  \left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^j\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \dfrac{r(1-r^q)}{1-r}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \dfrac{\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\left(1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^q\right)}{\dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}}\\
+    & = \dfrac{1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^q}{(\kappa^{2}p)^{q}(\kappa^2(1-p)+\omega^2)}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q}(\kappa^2(1-p)+\omega^2)} - \dfrac{1}{(\kappa^2+\omega^2)^q(\kappa^2(1-p)+\omega^2)}
 \end{align*}
 Therefore
 \begin{align}
@@ -302,7 +310,10 @@ Therefore
 \end{cases}
 \end{align}
 
-Similarly for $f_0$
+To express $f_0$ as a Mat\'ern spectrum, we require
+$\alpha\geq1$, so that $\lfloor\alpha\rfloor\geq1$.
+The case $1/2<\alpha<1$ is treated separately in
+Subsection~\ref{sec:white_noise_component}. For $\alpha\geq1$,
 \begin{align}
     f_0(\omega) = A_{(\nu,\kappa)}\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}\sigma^2(\kappa^2+\omega^2)^{-\lfloor\alpha\rfloor} = \dfrac{A_{(\nu,\kappa)}\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}}A_{(\lfloor\alpha\rfloor-\sfrac{1}{2},\kappa)}\sigma^2(\kappa^2+\omega^2)^{-(\lfloor\alpha\rfloor-\sfrac{1}{2}+\sfrac{1}{2})}
 \end{align}
@@ -362,7 +373,7 @@ To sum up, we have arrived at
 \begin{align}
    \varrho_\alpha(h) = \varrho_0(h) + \sum_{i=1}^m  \varrho_i(h)
 \end{align}
-where 
+where, for $\alpha\geq1$,
 \begin{align}
    \varrho_0(h) =  k\sigma^2\varrho\left(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}}\right)
 \end{align}
@@ -423,6 +434,7 @@ This is exactly the convention used in
 is no Fourier normalization difference between the two derivations.
 
 \subsection{The range \texorpdfstring{$1/2<\alpha<1$}{1/2 < alpha < 1} and the white-noise component}
+\label{sec:white_noise_component}
 
 For $1/2<\alpha<1$, we have $q=\lfloor\alpha\rfloor=0$. Hence the
 zeroth term of the spectral decomposition becomes
@@ -473,7 +485,7 @@ where the dimensionless coefficients map to
 
 \section{Implementation}
 
-\subsection{Case $\alpha\in(0,1)$}
+\subsection{Case $\alpha\in(1/2,1)$}
 
 \begin{align}
     \varrho_0(h) = k\sigma^2\dfrac{c_\alpha\sqrt{4\pi}}{\kappa}1_{[h=0]}\implies \mathbf{Q}_0 = \mathbf{I}\cdot \dfrac{1}{(k\sigma^2c_\alpha\sqrt{4\pi})/\kappa}
