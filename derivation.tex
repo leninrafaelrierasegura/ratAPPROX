@@ -273,17 +273,18 @@ We now can equivalently write
 \begin{align}
     f_0(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}k\kappa^{2\lfloor\alpha\rfloor}}{(\kappa^2+\omega^2)^{\lfloor\alpha\rfloor}}\quad \text{ and }\quad f_i(\omega) = \dfrac{A\sigma^2\kappa^{-2\alpha}r_i\kappa^{2\lfloor\alpha\rfloor+2}}{(\kappa^{2}+\omega^2)^{\lfloor\alpha\rfloor}(\kappa^{2}(1-p_i)+\omega^2)}
 \end{align}
-Now for $k\in\mathbb{N}$ and $p\in\mathbb{R}$, we have that
+For an integer $q\geq0$ and $p<0$, we have the following identity,
+with sums understood as zero when $q=0$:
 \begin{align}
-    \dfrac{1}{(\kappa^{2}+\omega^2)^{k}(\kappa^{2}(1-p)+\omega^2)}& = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^{2}(1-p)+\omega^2)} - \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j}
+    \dfrac{1}{(\kappa^{2}+\omega^2)^{q}(\kappa^{2}(1-p)+\omega^2)}& = \dfrac{1}{(\kappa^{2}p)^{q}(\kappa^{2}(1-p)+\omega^2)} - \sum_{j=1}^q  \dfrac{1}{(\kappa^{2}p)^{q+1-j}(\kappa^{2}+\omega^2)^j}
 \end{align}
 Indeed, let $r = \dfrac{\kappa^2p}{\kappa^{2}+\omega^2}$, then $1-r = \dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}$. Hence
 \begin{align*}
-    \sum_{j=1}^k  \dfrac{1}{(\kappa^{2}p)^{k+1-j}(\kappa^{2}+\omega^2)^j} & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \sum_{j=1}^k  \left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^j\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{r(1-r^k)}{1-r}\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k+1}} \dfrac{\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\left(1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k\right)}{\dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}}\\
-    & = \dfrac{1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^k}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)}\\
-    & = \dfrac{1}{(\kappa^{2}p)^{k}(\kappa^2(1-p)+\omega^2)} - \dfrac{1}{(\kappa^2+\omega^2)^k(\kappa^2(1-p)+\omega^2)}
+    \sum_{j=1}^q  \dfrac{1}{(\kappa^{2}p)^{q+1-j}(\kappa^{2}+\omega^2)^j} & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \sum_{j=1}^q  \left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^j\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \dfrac{r(1-r^q)}{1-r}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q+1}} \dfrac{\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\left(1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^q\right)}{\dfrac{\kappa^2(1-p)+\omega^2}{\kappa^2+\omega^2}}\\
+    & = \dfrac{1-\left(\dfrac{\kappa^2p}{\kappa^{2}+\omega^2}\right)^q}{(\kappa^{2}p)^{q}(\kappa^2(1-p)+\omega^2)}\\
+    & = \dfrac{1}{(\kappa^{2}p)^{q}(\kappa^2(1-p)+\omega^2)} - \dfrac{1}{(\kappa^2+\omega^2)^q(\kappa^2(1-p)+\omega^2)}
 \end{align*}
 Therefore
 \begin{align}
