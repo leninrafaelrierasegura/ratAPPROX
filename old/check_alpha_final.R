@@ -16,12 +16,14 @@ source(here::here("matern_functions.R"))
 h <- 0.1
 kappa <- 10
 sigma <- 0.8
-alpha <- 3
-m <- 4
+alpha <-1.3
+m <- 1
 nu <- alpha - 0.5
 tau <- sqrt(gamma(nu) / (sigma^2 * kappa^(2*nu) * (4*pi)^(1/2) * gamma(nu + 1/2)))
 n.overkill <- 1000
 
+type_rational_approx = "brasil"
+type_interp = "spline"
 
 FLIPPED <- FALSE
 
@@ -33,7 +35,7 @@ graph <- graph_initial$clone()
 
 graph_initial$build_mesh(h = h)
 
-mesh_XY <- graph_initial$mesh$V %>% as.data.frame()
+# mesh_XY <- graph_initial$mesh$V %>% as.data.frame()
 
 mesh_locations <- graph_initial$get_mesh_locations() %>% 
   as.data.frame() %>% 
@@ -63,10 +65,29 @@ Approx_Sigma <- rat_covariance(
   tau = tau, 
   alpha = alpha, 
   m = m,
-  type_rational_approx = "chebfun",
-  type_interp = "spline",
+  type_rational_approx = type_rational_approx,
+  type_interp = type_interp,
   build_cov = TRUE)
 
+# digits <- 10
+
+# idx <- match(
+#   paste(round(mesh_XY$X, digits), round(mesh_XY$Y, digits)),
+#   paste(round(order$X, digits), round(order$Y, digits))
+# )
+
+
+# Approx_Sigma <- Approx_Sigma[idx, idx]
+
+# graph_true <- gets.graph.tadpole(flip_edge = FALSE)
+# graph_true$build_mesh(h = h)
+# graph_true$compute_fem()
+
+graph_true <- gets.graph.tadpole(flip_edge = FALSE)
+graph_true$build_mesh(h = h)
+graph_true$compute_fem()
+
+mesh_XY <- as.data.frame(graph_true$mesh$V)
 digits <- 10
 
 idx <- match(
@@ -74,12 +95,9 @@ idx <- match(
   paste(round(order$X, digits), round(order$Y, digits))
 )
 
+stopifnot(!anyNA(idx), anyDuplicated(idx) == 0L)
 
 Approx_Sigma <- Approx_Sigma[idx, idx]
-
-graph_true <- gets.graph.tadpole(flip_edge = FALSE)
-graph_true$build_mesh(h = h)
-graph_true$compute_fem()
 
 True_Sigma <- gets_true_cov_mat(
   graph = graph_true, 

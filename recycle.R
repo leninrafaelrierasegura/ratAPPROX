@@ -90,3 +90,10 @@ save_plotly_figure_fixed <- function(fig,
     "  viewer change:", viewer_change, "\n"
   )
 }
+
+png_files <- c("/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/bridge_frame1.png",
+               "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/boundaryless_frame1.png")
+output_file <- "/home/rierasl/Desktop/ratAPPROX/data_files/plotlypdf/bridge_frame1_boundaryless_frame1.png"
+
+combine_pngs_with_gap(png_files, output_file, gap = 200)
+
