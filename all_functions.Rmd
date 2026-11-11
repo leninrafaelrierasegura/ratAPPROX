@@ -1024,7 +1024,9 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
                                          build = TRUE)
     graph$buildC(alpha = alpha, edge_constraint = TRUE) # should always be TRUE
     COND <- graph$CoB
-    Tc <- COND$T[-c(1:length(COND$S)), ]
+    # Tc <- COND$T[-c(1:length(COND$S)), ]
+    keep <- setdiff(seq_len(nrow(COND$T)), seq_along(COND$S))
+    Tc <- COND$T[keep, , drop = FALSE]
 
     Q_U <-  Tc %*% Q_unconstraint %*% t(Tc)
 
@@ -1089,7 +1091,9 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
   # build conditioning matrix
   graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
   COND_i <- graph$CoB
-  Tc <- COND_i$T[-c(1:length(COND_i$S)), ]
+  # Tc <- COND_i$T[-c(1:length(COND_i$S)), ]
+  keep <- setdiff(seq_len(nrow(COND_i$T)), seq_along(COND_i$S))
+  Tc <- COND_i$T[keep, , drop = FALSE]
   
   inv_factor_i <- 1/(r*sigma^2)
 
@@ -1242,7 +1246,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
     K <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
     CoB <- MetricGraph:::c_basis2(K)
     CoB$T <- t(CoB$T)
-    Tc <- CoB$T[-c(1:length(CoB$S)), ]
+    # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+    keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+    Tc <- CoB$T[keep, , drop = FALSE]
     Q <- 1/sigma^2 * Tc %*% Qtilde %*% t(Tc) 
     indices <- indicesForOrderedVertices(graph, alpha = alpha)
     A <- t(Tc)[indices, ]
@@ -1280,7 +1286,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
 
   graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
   CoB <- graph$CoB
-  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+  Tc <- CoB$T[keep, , drop = FALSE]
 
   inv_factor_0 <- 1/(k*c_alpha*sigma^2/c_1)
 
@@ -1302,8 +1310,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
   K <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
   CoB <- MetricGraph:::c_basis2(K)
   CoB$T <- t(CoB$T)
-  Tc <- CoB$T[-c(1:length(CoB$S)), ]
-  
+  # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+  Tc <- CoB$T[keep, , drop = FALSE]
   inv_factor_i <- 1/(r*sigma^2)
 
   Qtilde_i_star_UU <- purrr::map2(
@@ -1343,7 +1352,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function
     graph$buildC(alpha = alpha, 
                  edge_constraint = TRUE) # should always be TRUE
     CoB <- graph$CoB
-    Tc <- CoB$T[-seq_along(CoB$S), ]
+    # Tc <- CoB$T[-seq_along(CoB$S), ]
+    keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+    Tc <- CoB$T[keep, , drop = FALSE]
     Q <-  Tc %*% Qtilde %*% t(Tc)
     indices <- indicesForOrderedVertices(graph, alpha)
     A <- t(Tc)[indices, ] 
@@ -1385,7 +1396,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function
   K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
   CoB <- MetricGraph:::c_basis2(K)
   CoB$T <- t(CoB$T)
-  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+  Tc <- CoB$T[keep, , drop = FALSE]
 
   inv_factor_0 <- 1/(k*c_alpha*sigma^2/c_1)
 
@@ -1406,7 +1419,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function
   # build conditioning matrix
   graph$buildC(alpha = 2, edge_constraint = TRUE) # should always be TRUE
   CoB <- graph$CoB
-  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+  Tc <- CoB$T[keep, , drop = FALSE]
   
   inv_factor_i <- 1/(r*sigma^2)
 
@@ -1497,7 +1512,9 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- functio
   K <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
   CoB <- MetricGraph:::c_basis2(K)
   CoB$T <- t(CoB$T)
-  Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  # Tc <- CoB$T[-c(1:length(CoB$S)), ]
+  keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+  Tc <- CoB$T[keep, , drop = FALSE]
   
   inv_factor_i <- 1/(r*sigma^2)
 
