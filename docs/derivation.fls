@@ -1,8 +1,8 @@
-PWD /home/rierasl/Desktop/ratAPPROX
+PWD /home/rierasl/Desktop/ratAPPROX/docs
 INPUT /home/rierasl/texlive/2026/texmf.cnf
 INPUT /home/rierasl/texlive/2026/texmf-dist/web2c/texmf.cnf
 INPUT /home/rierasl/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /home/rierasl/Desktop/ratAPPROX/derivation.tex
+INPUT /home/rierasl/Desktop/ratAPPROX/docs/derivation.tex
 OUTPUT derivation.log
 INPUT /home/rierasl/texlive/2026/texmf-dist/tex/latex/base/article.cls
 INPUT /home/rierasl/texlive/2026/texmf-dist/tex/latex/base/article.cls
