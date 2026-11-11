@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.14)  11 NOV 2026 16:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.10.14)  11 NOV 2026 18:09
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -399,55 +399,54 @@ Overfull \hbox (5.72519pt too wide) detected at line 312
 LaTeX Font Warning: Font shape `T1/cmr/m/n' in size <3.83249> not available
 (Font)              size <5> substituted on input line 326.
 
-[7]
+[7] [8] [9] [10]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 374.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 374.
+(hyperref)                removing `math shift' on input line 571.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\in' on input line 374.
+(hyperref)                removing `\alpha' on input line 571.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 374.
+(hyperref)                removing `\in' on input line 571.
 
-[8]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 571.
+
 
 LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <3.83249> not available
-(Font)              size <5> substituted on input line 387.
+(Font)              size <5> substituted on input line 584.
 
 
-Overfull \hbox (30.38983pt too wide) detected at line 387
+Overfull \hbox (30.38983pt too wide) detected at line 584
 []
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 388.
+(hyperref)                removing `math shift' on input line 585.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\alpha' on input line 388.
+(hyperref)                removing `\alpha' on input line 585.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\in' on input line 388.
+(hyperref)                removing `\in' on input line 585.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 388.
+(hyperref)                removing `math shift' on input line 585.
 
 
-Overfull \hbox (3.52545pt too wide) detected at line 400
+Overfull \hbox (3.52545pt too wide) detected at line 597
 []
  []
 
-(./derivation.bbl) [9] (./derivation.aux)
+(./derivation.bbl) [11] [12] (./derivation.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-09-09>
@@ -458,21 +457,21 @@ LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 3.95001pt have occurred.
 
 Package rerunfilecheck Info: File `derivation.out' has not changed.
-(rerunfilecheck)             Checksum: 8D2B06EC7730AB4F204B490BADD41E6C;1499.
+(rerunfilecheck)             Checksum: CA37B27B059FE82E1A77F3E7CA6E6DB2;3592.
  ) 
 Here is how much of TeX's memory you used:
- 10983 strings out of 467050
- 169113 string characters out of 5404725
- 625433 words of memory out of 5000000
- 40128 multiletter control sequences out of 15000+600000
+ 11020 strings out of 467050
+ 169591 string characters out of 5404725
+ 625670 words of memory out of 5000000
+ 40137 multiletter control sequences out of 15000+600000
  665878 words of font info for 175 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  74i,27n,81p,579b,475s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb></home/rierasl/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on derivation.pdf (9 pages, 349515 bytes).
+Output written on derivation.pdf (12 pages, 371719 bytes).
 PDF statistics:
- 321 PDF objects out of 1000 (max. 8388607)
- 255 compressed objects within 3 object streams
- 93 named destinations out of 1000 (max. 500000)
- 73 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 392 PDF objects out of 1000 (max. 8388607)
+ 322 compressed objects within 4 object streams
+ 121 named destinations out of 1000 (max. 500000)
+ 121 words of extra memory for PDF output out of 10000 (max. 10000000)
 

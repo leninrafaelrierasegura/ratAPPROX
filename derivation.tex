@@ -190,23 +190,23 @@ We take the Fourier transform \eqref{eq:this_is_THE_Fourier_conv_used} to \eqref
     f(\omega) = \dfrac{1}{\tau^2\sqrt{2\pi}}(\kappa^2+\omega^2)^{-\alpha}
 \end{align}
 
-Let $L = (\kappa^2 - \Delta_\Gamma)^{\sfrac{\alpha}{2}}$. The solution $u$ is a centered Gaussian random field with covariance operator $\mathcal{C} = \tau^{-2}L^{-\alpha}$. We consider the approximation
+Let $L = (\kappa^2 - \Delta_\Gamma)$. The solution $u$ is a centered Gaussian random field with covariance operator $\mathcal{C} = \tau^{-2}L^{-\alpha}$. We consider the approximation
 \begin{align}
-    \mathcal{C}_\alpha = \tau^{-2}L^{-\lfloor\alpha\rfloor}P_m(L^{-1})Q_m(L^{-1})^{-1}
+    \mathcal{C}_\alpha = \tau^{-2}L^{-\lfloor\alpha\rfloor}P_m(L)Q_m(L)^{-1}
 \end{align}
 where 
 \begin{align}
-    x^{\{\alpha\}}\approx \dfrac{P_m(x)}{Q_m(x)} = \dfrac{\sum_{i=0}^m a_ix^{i}}{\sum_{j=0}^m b_jx^{j}} = \dfrac{p_m(x^{-1})}{q_m(x^{-1})} 
+    x^{\{\alpha\}}\approx \dfrac{p_m(x)}{q_m(x)} = \dfrac{\sum_{i=0}^m a_ix^{i}}{\sum_{j=0}^m b_jx^{j}} = \dfrac{P_m(x^{-1})}{Q_m(x^{-1})} =r_m(x)
 \end{align}
 or
 \begin{align}
 \label{eq:rat_approx}
-    x^{-\{\alpha\}}\approx \dfrac{P_m(x^{-1})}{Q_m(x^{-1})} = \dfrac{\sum_{i=0}^m a_ix^{m-i}}{\sum_{j=0}^m b_jx^{m-j}} = \dfrac{p_m(x)}{q_m(x)} 
+    x^{-\{\alpha\}}\approx \dfrac{p_m(x^{-1})}{q_m(x^{-1})} = \dfrac{\sum_{i=0}^m a_ix^{m-i}}{\sum_{j=0}^m b_jx^{m-j}} = \dfrac{P_m(x)}{Q_m(x)} = R_m(x)
 \end{align}
 We further have that
 \begin{align}
 \label{eq:partial_frac_dec}
-    \dfrac{p_m(x)}{q_m(x)} = \dfrac{P_m(x^{-1})}{Q_m(x^{-1})} =k + \sum_{i=1}^mr_i(x-p_i)^{-1}.
+    \dfrac{P_m(x)}{Q_m(x)} = \dfrac{p_m(x^{-1})}{q_m(x^{-1})} =k + \sum_{i=1}^mr_i(x-p_i)^{-1}.
 \end{align}
 Therefore
 \begin{align}
@@ -368,6 +368,203 @@ and
 \end{align}
 
 \section{Comparison to rat int paper}
+
+The calculation above is a detailed derivation of the partial-fraction
+identity and inverse Fourier transforms underlying Proposition~5 of
+\cite{Bolin2025Linear}, equation~(9) on page~7 of
+\texttt{rat\_int\_paper.pdf}; its proof appears on pages~28--29.
+The final component formulas agree after translating the notation, but
+some conventions, qualifications, and inconsistencies must be separated.
+The comparison below refers to the supplied PDF, including its printed
+formulas, rather than to a potentially revised version of the paper.
+
+\subsection{Notation and agreement of the component formulas}
+
+The component covariance formulas coincide with Proposition~5 after
+identifying our residues $r_i$ with the paper's $c_i$ and translating
+the Mat\'ern parametrization:
+\begin{equation}
+\varrho(h;\kappa,\nu,s)
+=\varrho^{\mathrm{paper}}(h;\nu,\kappa,s^2).
+\end{equation}
+Our last argument is a standard deviation, whereas the paper's is a
+variance; this explains the square roots in our final arguments.
+For later reference, let $q=\lfloor\alpha\rfloor$,
+$\kappa_i=\kappa\sqrt{1-p_i}$, and
+$M_{\nu,\lambda}(h)=\varrho(h;\lambda,\nu,1)$. For $q\geq1$, the
+common formulas are
+\begin{align}
+\varrho_0(h)
+&=k\sigma^2\frac{c_\alpha}{c_q}M_{q-1/2,\kappa}(h),
+\label{eq:comparison_rho0}\\
+\varrho_i(h)
+&=r_i\sigma^2c_\alpha\left[
+ \frac{\sqrt{\pi}}{p_i^q\sqrt{1-p_i}}M_{1/2,\kappa_i}(h)
+ -\sum_{j=1}^q\frac{M_{j-1/2,\kappa}(h)}{p_i^{q+1-j}c_j}
+ \right].
+\label{eq:comparison_rhoi}
+\end{align}
+\subsection{Fourier normalization: an inconsistency in the supplied paper}
+
+Equation~(4) in the paper is wrong: its factor $1/(2\pi)$ must be
+$1/\sqrt{2\pi}$ to agree with the printed
+$A=\sqrt{2}\,c_\alpha\kappa^{2\alpha-1}$ and Proposition~5.
+The corrected formula is
+\begin{equation}
+r_{m,\alpha}(h)=\frac{1}{\sqrt{2\pi}}
+\int_{\mathbb R}e^{i\omega h}f_{m,\alpha}(\omega)\,d\omega.
+\end{equation}
+This is exactly the convention used in
+\eqref{eq:this_is_THE_Fourier_conv_used}; after this correction, there
+is no Fourier normalization difference between the two derivations.
+
+\subsection{The range \texorpdfstring{$1/2<\alpha<1$}{1/2 < alpha < 1} and the white-noise component}
+
+For $1/2<\alpha<1$, we have $q=\lfloor\alpha\rfloor=0$. Hence the
+zeroth term of the spectral decomposition becomes
+\begin{equation}
+f_0(\omega)
+=\frac{A\sigma^2\kappa^{-2\alpha}k}
+ {(1+\kappa^{-2}\omega^2)^{\lfloor\alpha\rfloor}}
+=A\sigma^2\kappa^{-2\alpha}k.
+\end{equation}
+Under the symmetric Fourier convention,
+$\mathfrak F^{-1}[1](h)=\sqrt{2\pi}\,\delta_0(h)$, since
+$\int_{\mathbb R}e^{i\omega h}\,d\omega=2\pi\delta_0(h)$.
+Therefore,
+\begin{align}
+\varrho_0(h)
+&=\frac{1}{\sqrt{2\pi}}\int_{\mathbb R}
+ e^{i\omega h}A\sigma^2\kappa^{-2\alpha}k\,d\omega\\
+&=\sqrt{2\pi}A\sigma^2\kappa^{-2\alpha}k\,\delta_0(h).
+\end{align}
+Using $A=\sqrt{2}\,c_\alpha\kappa^{2\alpha-1}$ and
+$A\sigma^2=(2\pi)^{-1/2}\tau^{-2}$ gives
+\begin{equation}
+\varrho_0(h)=b\,\delta_0(h),\qquad
+b=\sqrt{2\pi}A\sigma^2\kappa^{-2\alpha}k
+ =\frac{k\sigma^2c_\alpha\sqrt{4\pi}}{\kappa}
+ =\frac{k}{\tau^2\kappa^{2\alpha}}.
+\end{equation}
+
+\subsection{Operator definition and scaling in the present derivation}
+
+There is an inconsistency in the operator paragraph preceding
+\eqref{eq:rat_approx}: defining
+$L=(\kappa^2-\Delta_\Gamma)^{\alpha/2}$ and then writing
+$\mathcal C=\tau^{-2}L^{-\alpha}$ applies the exponent twice. Instead
+define the positive self-adjoint base operator, with its graph domain
+and vertex conditions specified, by
+\begin{equation}
+L_0=\kappa^2-\Delta_\Gamma,\qquad
+\mathcal C=\tau^{-2}L_0^{-\alpha}.
+\end{equation}
+Equivalently, retaining the original powered $L$ would require
+$\mathcal C=\tau^{-2}L^{-2}$. The paper's Section~5 uses an unpowered
+base operator in $L^\beta(\tau u)=\mathcal W$; the correspondence here
+is $L=L_0$ and $\beta=\alpha/2$. The covariance of $u$ includes
+$\tau^{-2}$ (the paper's displayed $L^{-2\beta}$ suppresses this scale).
+
+A second distinction is that equation~(8) and our spectral calculation
+apply the rational approximation to the dimensionless variable
+$1+\kappa^{-2}\omega^2$. To use the same coefficients $k,r_i,p_i$ at
+operator level, define
+\begin{equation}
+B=\kappa^{-2}L_0=I-\kappa^{-2}\Delta_\Gamma,\qquad
+R_m(x)=k+\sum_{i=1}^m\frac{r_i}{x-p_i}.
+\end{equation}
+Then the consistent operator approximation and its components are
+\begin{align}
+\mathcal C_m
+&=\tau^{-2}\kappa^{-2\alpha}B^{-q}R_m(B)
+ =\mathcal C_0+\sum_{i=1}^m\mathcal C_i,
+\label{eq:comparison_cov_operator}\\
+\mathcal C_0
+&=\tau^{-2}k\kappa^{2q-2\alpha}L_0^{-q},\\
+\mathcal C_i
+&=\tau^{-2}r_i\kappa^{2q+2-2\alpha}
+ L_0^{-q}(L_0-\kappa^2p_iI)^{-1}.
+\end{align}
+In particular, the shifted operator is
+$L_0-\kappa^2p_iI=\kappa_i^2-\Delta_\Gamma$, consistent with the
+$\kappa_i$ in Proposition~5. The unscaled operator expressions above
+\eqref{eq:WM_process} do not use these same dimensionless coefficients
+unless $\kappa=1$ or the coefficients have been rescaled. In the
+unscaled variable the equivalent coefficients are
+\begin{equation}
+\widetilde k=k\kappa^{2q-2\alpha},\qquad
+\widetilde r_i=r_i\kappa^{2q+2-2\alpha},\qquad
+\widetilde p_i=\kappa^2p_i.
+\end{equation}
+For example, the component SPDEs consistent with
+\eqref{eq:comparison_cov_operator} are
+\begin{align}
+L_0^{q/2}\bigl(\tau k^{-1/2}\kappa^{\alpha-q}u_0\bigr)
+&=\mathcal W_0,\\
+\bigl[L_0^q(L_0-\kappa^2p_iI)\bigr]^{1/2}
+\bigl(\tau r_i^{-1/2}\kappa^{\alpha-q-1}u_i\bigr)
+&=\mathcal W_i.
+\end{align}
+These scaling issues occur in the earlier operator formulation; the
+later spectral derivation already contains the required powers of
+$\kappa$ and leads to the matching formulas
+\eqref{eq:comparison_rho0}--\eqref{eq:comparison_rhoi}.
+
+\subsection{Stationary interval covariances versus metric-graph covariances}
+
+Proposition~5 concerns stationary processes on $\mathbb R$ restricted
+to an interval, so their covariances depend on the lag $h=s-t$.
+An ordinary Fourier transform diagonalizes $\kappa^2-\Delta$ on
+$\mathbb R$; it does not in general diagonalize a metric-graph
+Laplacian with vertex conditions. Consequently, the Fourier step
+applied to \eqref{eq:Matern_spde} must be understood as the
+whole-line calculation, not as a proof that a graph covariance has
+the same stationary lag formula.
+
+For a compact metric graph with orthonormal eigenfunctions $\phi_n$
+of $-\Delta_\Gamma$ and eigenvalues $\lambda_n\geq0$, the corresponding covariance
+is instead
+\begin{equation}
+C_\Gamma(s,t)=\tau^{-2}\sum_n
+(\kappa^2+\lambda_n)^{-\alpha}\phi_n(s)\phi_n(t),
+\end{equation}
+with the rational approximation obtained by replacing each spectral
+multiplier according to \eqref{eq:comparison_cov_operator}.
+This generally depends on both $s$ and $t$ and includes topology and
+vertex conditions. Even on an interval, imposing Neumann conditions
+defines a different model from restricting a stationary whole-line
+Mat\'ern process. The paper discusses operator extensions in
+Section~5, but Proposition~5 alone does not establish the graph
+construction or the required endpoint precision corrections and
+conditioning. Those are additional steps beyond the inverse Fourier
+calculation reproduced here.
+
+\subsection{Typographical issues in the paper's proof}
+
+The geometric-sum identity used here is the same one used on page~28.
+It requires $p\ne0$; the earlier wording ``$p\in\mathbb R$'' should
+include that qualification, which is automatic for the actual poles
+$p_i<0$. Using $q$ for the integer order also avoids confusing the
+identity's integer $k$ with the partial-fraction constant $k$.
+
+In the final displayed spectral decomposition on page~28 of the paper,
+the first resolvent term is printed inside the sum over $j$, and some
+denominators use $p$ rather than $p_i$. Read literally, that display
+does not follow from equation~(8). The consistent expression is
+\begin{align}
+f_{m,\alpha}(\omega)
+&=A\sigma^2\kappa^{-2\alpha}\left[
+ \frac{k\kappa^{2q}}{(\kappa^2+\omega^2)^q}
+ +\sum_{i=1}^m r_i\kappa^{2q+2}H_i(\omega)\right],\\
+H_i(\omega)
+&=\frac{1}{(\kappa^2p_i)^q(\kappa_i^2+\omega^2)}
+ -\sum_{j=1}^q
+ \frac{1}{(\kappa^2p_i)^{q+1-j}(\kappa^2+\omega^2)^j}.
+\end{align}
+Thus the first term occurs once for each $i$, outside the inner
+$j$-sum. The detailed derivation above already uses this placement
+and the indexed poles correctly. The discrepancy is in that printed
+proof display, not in the final component formulas of Proposition~5.
 
 \section{Implementation}
 
