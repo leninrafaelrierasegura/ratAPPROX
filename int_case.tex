@@ -1,0 +1,456 @@
+
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xfrac}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+
+
+% Document information
+\title{Document Title}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+
+% Chapter 7 File
+
+\chapter{Overview of Project 4}
+\label{chapter7}
+\thispagestyle{empty}
+
+This chapter introduces the main ideas underlying Project 4, which can be viewed as a synthesis of the approaches developed in \cite{Bolin2023Statistical} and \cite{Bolin2025Linear}.
+
+\section{Integer smoothness case}
+\label{sec:integer_smoothness_case}
+As in the previous projects, we consider the SPDE \eqref{eq:spde_on_gamma_fem}, but now posed on a single edge represented by the interval $[0,\ell]$. Specifically, we study
+\begin{align}
+\label{eq:spde_on_interval}
+L^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \quad \text{on } [0,\ell],
+\end{align}
+where $u$ satisfies the Kirchhoff vertex conditions \eqref{eq:kirchhoff_cond}, $\alpha > \sfrac{1}{2}$, the operator is defined by $L = \kappa^2 - \Delta_{\Gamma}$, and $\kappa$ and $\tau$ are constant coefficients. On the interval $[0,\ell]$, the Kirchhoff--Laplacian $\Delta_{\Gamma}$ reduces to the Neumann Laplacian $\Delta$.
+
+As discussed in Section~\ref{sec:spde_Rd}, if \eqref{eq:spde_on_interval} is posed on $\mathbb{R}$ instead of a bounded interval $[0,\ell]$, then its solution $u$ is a centered Gaussian random field with Matérn covariance function \eqref{eq:matern_def}. For $\alpha \in \mathbb{N}$, it is convenient for our purposes to consider the associated vector-valued process
+\begin{align}
+\label{eq:u_vector_value_process_on_R}
+    \boldsymbol{u}(t) = [u(t), u^{(1)}(t),\dots, u^{(\alpha-1)}(t)]^\top,\quad t\in\mathbb{R}.
+\end{align}
+This process is again Gaussian, and its covariance structure is obtained by differentiating the Matérn covariance function. More precisely, $\boldsymbol{u}$ has matrix-valued covariance function \cite{Bolin2023Statistical}
+\begin{align}
+\label{eq:multivariate_matern_function}
+	\boldsymbol{\varrho} : \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\alpha \times \alpha}, 
+	\quad \boldsymbol{\varrho}(t_1,t_2) = \left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
+\end{align}
+\begin{remark}
+\label{rem:about_centered_process_on_int}
+ Let $u_{\ell}$ be a centered Gaussian process on $[0,\ell]$ with covariance function given by the Matérn covariance \eqref{eq:matern_def}. Equivalently, $u_{\ell}$ can be understood as the restriction to $[0,\ell]$ of a stationary Matérn field on $\mathbb{R}$. For $\alpha \in \mathbb{N}$, consider the vector-valued process
+\begin{align}
+\label{eq:u_vector_value_process_on_int}
+    \boldsymbol{u}_{\ell}(t) = [u_{\ell}(t), u_{\ell}^{(1)}(t), \dots, u_{\ell}^{(\alpha-1)}(t)]^\top, \quad t \in [0,\ell].
+\end{align}
+Then the covariance structure of $\boldsymbol{u}_{\ell}$ is given by $\boldsymbol{\varrho}_{\ell} = \boldsymbol{\varrho}|_{[0,\ell] \times [0,\ell]}$, that is,
+\begin{align}
+\label{eq:covariance_matrix_of_process_restricted_to_interval}
+	\boldsymbol{\varrho}_{\ell} : [0,\ell] \times [0,\ell] \mapsto \mathbb{R}^{\alpha \times \alpha}, 
+	\quad \boldsymbol{\varrho}_{\ell}(t_1,t_2) = \boldsymbol{\varrho}(t_1,t_2). %\left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
+\end{align}   
+\end{remark}
+Before introducing the Whittle-Matérn bridge process, we set the notation. Let $\boldsymbol{x}(t) = [x(t), x^{(1)}(t), \dots, x^{(\alpha-1)}(t)]^\top$ denote a vector-valued process in $\mathbb{R}^\alpha$, such as \eqref{eq:u_vector_value_process_on_R} or \eqref{eq:u_vector_value_process_on_int}. We introduce the boundary evaluation operator
+\begin{align*}
+    B_{\ell}^\alpha x = [\boldsymbol{x}(0)^\top, \boldsymbol{x}(\ell)^\top]^\top,
+\end{align*}
+that is,
+\begin{align*}
+    B_{\ell}^\alpha x
+    =
+    [x(0), x^{(1)}(0), \dots, x^{(\alpha-1)}(0),
+    x(\ell), x^{(1)}(\ell), \dots, x^{(\alpha-1)}(\ell)]^\top.
+\end{align*}
+
+\subsection{Whittle--Matérn bridge and boundaryless Whittle--Matérn processes}
+\label{sec:bridge_and_boundaryless_process_def}
+\subsubsection{Whittle--Matérn bridge process}
+Following~\cite[Section 4]{Bolin2023Statistical}, we now define the Whittle--Matérn bridge process.
+\begin{definition}
+\label{def_whittle_matern_bridge_process}
+\textnormal{(see \cite[Definition~1]{Bolin2023Statistical})}
+    Let $u_{\ell}$ be a centered Gaussian process on $[0,\ell]$ with covariance function given by the Matérn covariance \eqref{eq:matern_def} (see also Remark~\ref{rem:about_centered_process_on_int}). The \emph{Whittle--Matérn bridge process} $u_{B_{\ell}^\alpha}$ associated with $u_{\ell}$ is defined as the conditional process
+    \begin{align*}
+        u_{B_{\ell}^\alpha}(t)
+        =
+        u_{\ell}(t) \,\big|\, \{B_{\ell}^\alpha u_{\ell} = \mathbf{0}\},
+        \quad t \in [0,\ell].
+    \end{align*}
+\end{definition}
+
+To derive its covariance structure, let $\mathbf{X}_t = u_{\ell}(t)$ and $\mathbf{Y} = [\mathbf{Y}_0^\top, \mathbf{Y}_{\ell}^\top]^\top = B_{\ell}^\alpha u_{\ell}$. Then the bridge process can be written compactly as $u_{B_{\ell}^\alpha}(t) = \mathbf{X}_t|\{\mathbf{Y} =\mathbf{0}\}$. To simplify the notation,  we define the matrix-valued function $\mathbf{S}_e : [0,\ell] \mapsto \mathbb{R}^{1 \times 2\alpha}$ given by
+\begin{align}
+\label{eq:def_ofSe}
+    \mathbf{S}_e(t) = \operatorname{Cov}(\mathbf{X}_{t},\mathbf{Y})\operatorname{Cov}(\mathbf{Y},\mathbf{Y})^{-1} = 
+    \begin{bmatrix}
+			\boldsymbol{\varrho}_{1\star}(t,0) & \boldsymbol{\varrho}_{1\star}(t,\ell) 
+		\end{bmatrix}
+		\begin{bmatrix}
+			\boldsymbol{\varrho}(0,0) & \boldsymbol{\varrho}(0,\ell) \\
+			\boldsymbol{\varrho}(\ell,0) & \boldsymbol{\varrho}(\ell,\ell)
+		\end{bmatrix}^{-1},
+\end{align}
+where $\boldsymbol{\varrho}$ is given in \eqref{eq:multivariate_matern_function} and $\boldsymbol{\varrho}_{1\star}$ denotes the first row in $\boldsymbol{\varrho}$ (do not confused with $\boldsymbol{\varrho}_1$ when $\ell=1$). Applying the standard Gaussian conditioning formula yields
+\begin{align}
+\label{eq:der_cov_func_bridge_process}
+    \operatorname{Cov}(u_{B_{\ell}^\alpha}(t_1), u_{B_{\ell}^\alpha}(t_2)) =   \operatorname{Cov}(\mathbf{X}_{t_1},\mathbf{X}_{t_2}) - \mathbf{S}_e(t_1)\operatorname{Cov}(\mathbf{Y},\mathbf{X}_{t_2}).
+\end{align}
+Let $r_{B_{\ell}^\alpha}(t_1,t_2) = \operatorname{Cov}(u_{B_{\ell}^\alpha}(t_1), u_{B_{\ell}^\alpha}(t_2))$ denote the covariance function of the Whittle--Matérn bridge process. Using \eqref{eq:def_ofSe} and \eqref{eq:der_cov_func_bridge_process}, we obtain
+\begin{align}
+\label{eq:covariance_for_bridge_processes}
+	r_{B_{\ell}^\alpha}(t_1,t_2)  = \varrho(t_1-t_2) - \mathbf{S}_e(t_1)
+		\begin{bmatrix}
+			\boldsymbol{\varrho}_{1\star}(0,t_2) &
+			\boldsymbol{\varrho}_{1\star}(\ell,t_2) 
+		\end{bmatrix}^\top,\quad t_1,t_2\in[0,\ell].
+\end{align} 		
+
+
+\subsubsection{Boundaryless Whittle--Matérn process}
+Let 
+    \begin{align}
+    \label{eq:vector_valued_u_tilde_ell}
+        \widetilde{\boldsymbol{u}}_\ell(t) =  [\widetilde{u}_\ell(t),\widetilde{u}_\ell^{(1)}(t),\dots, \widetilde{u}^{(\alpha-1)}(t)]^\top,\quad t\in[0,\ell]
+    \end{align}
+    be a centered vector-valued Gaussian process with matrix-valued covariance function $\widetilde{\boldsymbol{\varrho}}_{\ell} : [0,\ell] \times [0,\ell] \mapsto \mathbb{R}^{\alpha \times \alpha}$ given by
+    \begin{align}
+    \label{eq:matrix_valued_cov_function_ofboundaryless_process}
+	\widetilde{\boldsymbol{\varrho}}_{\ell}\left(t_1,t_2\right) = \boldsymbol{\varrho}(t_1,t_2) +
+	\begin{bmatrix}\boldsymbol{\varrho}(t_1, 0) & \boldsymbol{\varrho}(t_1,\ell)\end{bmatrix} 
+	\begin{bmatrix}
+		\boldsymbol{\varrho}(0,0)  & 	-\boldsymbol{\varrho}(0,\ell) \\
+		-\boldsymbol{\varrho}(\ell,0)  & 	\boldsymbol{\varrho}(0,0)
+	\end{bmatrix}^{-1} 
+	\begin{bmatrix}\boldsymbol{\varrho}(t_2,0)\\
+		\boldsymbol{\varrho}(t_2,\ell)
+	\end{bmatrix}.
+\end{align}
+\begin{definition}
+\label{def:def_bondaryless_whittle_matern_process}
+\textnormal{(see \cite[Definition~2]{Bolin2023Statistical})}
+The \emph{boundaryless Whittle--Matérn process} is defined as the centered Gaussian process given by the first component of $\widetilde{\boldsymbol{u}}_\ell$, that is,
+\begin{align*}
+    \widetilde{u}_\ell(t) = [\widetilde{\boldsymbol{u}}_\ell(t)]_1, 
+    \quad t \in [0,\ell],
+\end{align*}
+with covariance function
+\begin{align}
+\label{eq:univariate_covariance_function_of_boundaryless_process}
+    \widetilde{\varrho}_{\ell}(t_1,t_2) 
+    = [\widetilde{\boldsymbol{\varrho}}_{\ell}(t_1,t_2)]_{1,1}, 
+    \quad t_1,t_2 \in [0,\ell].
+\end{align}
+\end{definition}
+The next result show that the vector-valued process $\boldsymbol{u}_\ell$ defined in Remark~\ref{rem:about_centered_process_on_int} with matrix-valued covariance function $\boldsymbol{\varrho}_\ell$ given in \eqref{eq:covariance_matrix_of_process_restricted_to_interval}, and the vector-valued process $\widetilde{\boldsymbol{u}}_\ell$ defined in \eqref{eq:vector_valued_u_tilde_ell} with matrix-valued covariance function $\widetilde{\boldsymbol{\varrho}}_{\ell}$ given in \eqref{eq:matrix_valued_cov_function_ofboundaryless_process} are related as follows.
+
+\begin{proposition}
+\label{prop:proposition_where_Q_edge}
+    \textnormal{(see \cite[Proposition~7]{Bolin2023Statistical})}
+    The precision matrix of $\left[\widetilde{\boldsymbol{u}}_\ell(0)^\top,\widetilde{\boldsymbol{u}}_\ell(\ell)^\top\right]^\top$ is given by
+\begin{equation}
+\label{eq:Qedge}
+	\widetilde{\mathbf{Q}}_\ell  = \mathbf{Q}_\ell - \frac{1}{2}\begin{bmatrix}
+		\boldsymbol{\varrho}_\ell(0,0)^{-1} & \mathbf{0} \\
+		\mathbf{0} & \boldsymbol{\varrho}_\ell(0,0)^{-1} 
+	\end{bmatrix},
+\end{equation}
+where $\mathbf{Q}_\ell$ is the precision matrix of $\left[\boldsymbol{u}_\ell(0)^\top,\boldsymbol{u}_\ell(\ell)^\top\right]^\top$.
+\end{proposition}
+
+\subsubsection{Visual comparison of Whittle--Matérn-type processes}
+
+To conclude this section, we illustrate how the processes introduced above behave in practice. We consider the interval $[0,2]$ with parameters $\alpha = 2$, $\rho = 0.5$, and $\sigma = 1$, and use \eqref{eq:relation_param_spde_matern} to transform these into the corresponding parameters in \eqref{eq:matern_def}.  With these parameters, we compute $\varrho_2 = [\boldsymbol{\varrho}_2]_{1,1}$ (where $\boldsymbol{\varrho}_2$ is given in \eqref{eq:covariance_matrix_of_process_restricted_to_interval}), which is the covariance function of the centered Gaussian process $u_2$ defined in Remark~\ref{rem:about_centered_process_on_int}. Similarly, we compute the covariance function $r_{B_{2}^2}$ in \eqref{eq:covariance_for_bridge_processes} associated with the Whittle--Matérn bridge process $u_{B_{2}^2}$ defined in Definition~\ref{def_whittle_matern_bridge_process}, as well as the covariance function $\widetilde{\varrho}_{2}$ in \eqref{eq:univariate_covariance_function_of_boundaryless_process} corresponding to the boundaryless Whittle--Matérn process $\widetilde{u}_2$ given in Definition~\ref{def:def_bondaryless_whittle_matern_process}. For comparison, we also compute the finite element covariance function $\varrho_h^2$ introduced in Chapter~\ref{chapter4}.
+
+These covariance functions are compared visually in Figure~\ref{p_cov_diag_sample}. The left panel displays the covariance between a fixed point $t_0$ (shown in violet) and all other points in the interval $[0,2]$. In this panel, ``Matérn'' (blue) corresponds to $\varrho_2(t_0,\cdot)$, ``FEM'' (red) to $\varrho_h^2(t_0,\cdot)$, ``bridge'' (green) to $r_{B_{2}^2}(t_0,\cdot)$, and ``boundaryless'' (black) to $\widetilde{\varrho}_{2}(t_0,\cdot)$. The middle panel shows the corresponding diagonal values, that is, the marginal standard deviations. Finally, the right panel presents a realization of the field obtained using the same Gaussian white noise sample across all models, allowing for a direct visual comparison of their behavior.
+
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.99\textwidth]{Fig/p_cov_diag_sample.png}
+\caption{Comparison of covariance functions (left), marginal standard deviations (middle), and sample paths (right) for the ``Matérn'', ``FEM'', ``bridge'', and ``boundaryless'' processes on $[0,2]$.}
+\label{p_cov_diag_sample}
+\end{figure}
+
+Across all panels, the ``FEM'' and boundaryless processes exhibit very similar behavior and are nearly indistinguishable. In contrast, the ``bridge'' process enforces zero values at the boundaries, which is clearly visible in the covariance function, the marginal standard deviation, and the sample path. From the middle panel, we observe that the marginal standard deviation of the ``Matérn'' process is constant across the domain, reflecting its stationarity. By comparison, both the ``bridge'' and the ``boundaryless'' processes are approximately constant in the interior of the domain, but differ near the boundaries. In particular, the marginal standard deviation of the ``bridge'' process decreases toward zero, while that of the ``boundaryless'' process increases near the endpoints.
+
+\subsection{Two representations of Whittle--Matérn on metric graphs}
+
+Using the processes introduced in Section~\ref{sec:bridge_and_boundaryless_process_def}, we present two representations of Whittle--Matérn fields on metric graphs.
+
+\subsubsection{Bridge representation of Whittle--Matérn on metric graphs}
+
+
+Before introducing the bridge representation of the Whittle–Matérn process on metric graphs, we recall some notation. Let $\Gamma = (\mathcal{V}, \mathcal{E})$ be a compact metric graph. As in Section~\ref{metricgraphssection}, we denote by $\underline{e}$ and $\overline{e}$ the initial and terminal vertices of an edge $e \in \mathcal{E}$. Recall also from Section~\ref{sec:function_def_on_metric_graphs} that a function $u = \{u_e\}_{e\in\mathcal{E}}$ on $\Gamma$ can be written in the unified form $u(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)u_e(s)$, $s\in\Gamma$. In the same spirit, the associated vector-valued function $ \boldsymbol{u}(s) = [u(s),u^{(1)}(s),\dots,u^{(\alpha-1)}(s)]^\top$, $s\in\Gamma$ can be written compactly as
+\begin{align}
+\label{eq:notation_for_vector_valued_function}
+    \boldsymbol{u}(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\boldsymbol{u}_e(s),\quad s\in\Gamma,
+\end{align}
+where $\boldsymbol{u}_e(s) = [u_e(s),u_e^{(1)}(s),\dots,u_e^{(\alpha-1)}(s)]^\top$, $s\in e$. Using the notation in \eqref{eq:notation_for_vector_valued_function}, we define the vector collecting the boundary values of $\boldsymbol{u}$ across all edges as
+\begin{align}
+\label{eq:dens_u2}
+   \mathbf{U} =  [\boldsymbol{u}(\underline{e}_1)^\top,
+   \boldsymbol{u}(\bar{e}_1)^\top,
+   \boldsymbol{u}(\underline{e}_2)^\top,
+   \boldsymbol{u}(\bar{e}_2)^\top,
+   \ldots,
+	\boldsymbol{u}(\underline{e}_{|\mathcal{E}|})^\top,
+   \boldsymbol{u}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
+\end{align}
+Since $\boldsymbol{u}(s)  = \boldsymbol{u}_e(s)$, $s\in e$, we might as well write 
+\begin{align}
+\label{eq:dens_u2version2}
+   \mathbf{U} =  [\boldsymbol{u}_1(\underline{e}_1)^\top,
+   \boldsymbol{u}_1(\bar{e}_1)^\top,
+   \boldsymbol{u}_2(\underline{e}_2)^\top,
+   \boldsymbol{u}_2(\bar{e}_2)^\top,
+   \ldots,
+	\boldsymbol{u}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^\top,
+   \boldsymbol{u}_{|\mathcal{E}|}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
+\end{align}
+Next, let $\mathbf{D}_e \in \mathbb{R}^{2\alpha \times 2\alpha|\mathcal{E}|}$ denote the selection matrix that extracts the boundary values corresponding to edge $e$, so that
+$\mathbf{D}_e \mathbf{U} = [\boldsymbol{u}(\underline{e})^\top, \boldsymbol{u}(\overline{e})^\top]^\top \in \mathbb{R}^{2\alpha \times 1}$. With this notation in place, we are now ready to formulate the bridge representation of the Whittle–Matérn model on metric graphs. To this end, we first restate the SPDE in \eqref{eq:spde_on_interval} in the graph setting as
+\begin{align}
+\label{eq:spde_on_metric_graph_for_4_Project}
+L^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \quad \text{on } \Gamma,
+\end{align}
+where $L = \kappa^2 - \Delta_{\Gamma}$.
+\begin{proposition}\textnormal{(see \cite[Corollary~1]{Bolin2023Statistical})}
+Let $u$ be a solution to \eqref{eq:spde_on_metric_graph_for_4_Project}. Then $u$ has the representation
+\begin{align*}
+    u(s) = \sum_{e\in\mathcal{E}}\mathbf{S}_e(s)\mathbf{D}_e \mathbf{U} + \sum_{e\in\mathcal{E}}\widetilde{u}_{B_{\ell_e}^\alpha}(s), \quad s\in\Gamma,
+\end{align*}
+where $\widetilde{u}_{B_{\ell_e}^\alpha}$ are independent Whittle--Matérn bridge process defined on each edge and extended by zero outside the edge.
+\end{proposition}
+
+
+In Figure~\ref{bridge_representation_frames}, we illustrate the bridge representation through an example. We fix $\alpha = 1$. In all panels, we display in green a sample path of a Whittle--Matérn process. In the right panel, the green curve is not visible, as it is entirely overlapped by the blue curve. The left panel shows three separate components. The green curve corresponds to the sample path of the Whittle--Matérn process. The blue curves represent the associated independent Whittle--Matérn bridge processes $\sum_{e\in\mathcal{E}} \widetilde{u}_{B_{\ell_e}^\alpha}(s)$, $s \in \Gamma$, constructed using the same Gaussian white noise on each corresponding edge. These bridge processes are not shown as extended by zero outside their respective edges. The yellow curve represents the residual term, given by $\sum_{e\in\mathcal{E}} \mathbf{S}_e(s)\mathbf{D}_e \mathbf{U}$, $s \in \Gamma$. The middle panel displays the same three components, but superimposed. Finally, the right panel shows the sum of the blue and yellow components, which coincides with the original process. For a complete animation, we refer to
+\url{https://leninrafaelrierasegura.github.io/ratAPPROX/bridge.html}.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.99\textwidth]{Fig/bridge_frame1_bridge_frame26_bridge_frame51.png}
+\caption{Decomposition of a Whittle--Matérn process with $\alpha=1$ into independent bridge components and a residual term, with components shown separately (left), superimposed (middle), and their sum recovering the original process (right).}
+\label{bridge_representation_frames}
+\end{figure}
+
+
+
+\subsubsection{Conditional representation of Whittle--Matérn on metric graphs}
+
+Recall from Section~\ref{metricgraphssection} that the notation $s \in v$ indicates that $s$ is a coordinate representation of the vertex $v$. Let $u \colon \Gamma \times \Omega \to \mathbb{R}$ be a Gaussian random field that is $(\alpha - 1)$-times differentiable. We define the subset of $\Omega$ consisting of those realizations of $u$ that satisfy the vertex conditions associated with a Whittle--Matérn field of smoothness $\alpha$ as
+\begin{align*}
+    \mathcal{K}_\alpha(u) = \mathcal{K}^C_\alpha(u)\cap \mathcal{K}^K_\alpha(u),
+\end{align*}
+where 
+\begin{align*}
+\mathcal{K}^C_\alpha(u) 
+= \Big\{ \omega \in \Omega \;\Big|\;
+&\forall v \in \mathcal{V}, \;\forall s, \widetilde{s} \in v:\;
+u^{(2k)}(s,\omega) = u^{(2k)}(\widetilde{s},\omega),\notag \\
+&\text{for all } k \in \mathbb{N}_0 \text{ such that } 
+2k \leq \left\lceil \alpha - \sfrac{1}{2} \right\rceil - 1
+\Big\}.
+\end{align*}
+and
+\begin{align*}
+\mathcal{K}^K_\alpha(u) 
+= \Big\{ \omega \in \Omega \;\Big|\;
+&\forall v \in \mathcal{V}:\;
+\sum_{s\in v}\partial^{2k+1}u(s,\omega) = 0,\notag \\
+&\text{for all } k \in \mathbb{N}_0 \text{ such that } 
+2k \leq \left\lceil \alpha - \sfrac{1}{2} \right\rceil - 2
+\Big\}.
+\end{align*}
+The following result shows how a Whittle--Matérn field on a metric graph can be constructed by conditioning independent edgewise processes on the vertex conditions encoded in $\mathcal{K}_\alpha$.
+
+\begin{proposition}\textnormal{(see \cite[Theorem~4]{Bolin2023Statistical})}
+\label{pro:boundaryless_representation_of_whittle_matern}
+Using the notation in \eqref{eq:notation_for_vector_valued_function}, define
+\begin{align*}
+    \widetilde{\boldsymbol{u}}(s) 
+    = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\,\widetilde{\boldsymbol{u}}_e(s), 
+    \quad s \in \Gamma,
+\end{align*}
+where, for each $e \in \mathcal{E}$, the processes $\widetilde{u}_e(s) = [\widetilde{\boldsymbol{u}}_e(s)]_1$, $s \in e$, are independent boundaryless Whittle--Matérn processes. Define the conditioned process
+\begin{align}
+\label{eq:process_u_defined_as_conditioned}
+    \boldsymbol{u}(s) = \widetilde{\boldsymbol{u}}(s)\, \big| \, \mathcal{K}_\alpha(\widetilde{u}), 
+    \quad s \in \Gamma.
+\end{align}
+Then the scalar process $u(s) = [\boldsymbol{u}(s)]_1$, $s \in \Gamma$, is a solution to \eqref{eq:spde_on_metric_graph_for_4_Project}.
+\end{proposition}
+
+See Figure~\ref{boundaryless_representation_frames} for an illustration of the boundaryless construction. We fix $\alpha = 1$. In all panels, the green curve represents a sample path of a Whittle--Matérn process, identical to that shown in Figure~\ref{bridge_representation_frames}. In the right panel, the green curve is not visible, as it is completely overlapped by the blue curve. The left panel shows two separate components. The green curve corresponds to the Whittle--Matérn sample path, while the blue curves represent the associated independent boundaryless Whittle--Matérn processes, $\widetilde{u}(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\,\widetilde{u}_e(s)$, $s\in \Gamma$, constructed using the same Gaussian white noise on each corresponding edge. The middle panel shows these two components superimposed. Finally, the right panel is supposed to illustrate the effect of conditioning on $\mathcal{K}_\alpha(\widetilde{u})$, whereby the blue curve coincides with the green curve. For a complete animation, we refer to
+\url{https://leninrafaelrierasegura.github.io/ratAPPROX/boundaryless.html}.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.99\textwidth]{Fig/boundaryless_frame1_boundaryless_frame26_boundaryless_frame51.png}
+\caption{Boundaryless construction of a Whittle--Matérn process with $\alpha=1$, with the original process and independent boundaryless components shown separately (left), superimposed (middle), and the conditioned result recovering the original process (right).}
+\label{boundaryless_representation_frames}
+\end{figure}
+
+\subsection{Sparse precision matrices}
+
+A key advantage of the boundaryless representation introduced in Proposition~\ref{pro:boundaryless_representation_of_whittle_matern} is that it leads to a block-diagonal, hence sparse, precision structure at the level of edgewise processes. We now make this structure explicit and show how it can be exploited computationally.
+
+We consider again the process
+\begin{align*}
+    \widetilde{\boldsymbol{u}}(s) 
+    = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\,\widetilde{\boldsymbol{u}}_e(s), 
+    \quad s \in \Gamma,
+\end{align*}
+defined in Proposition~\ref{pro:boundaryless_representation_of_whittle_matern}, where each of the vector-valued edgewise components $\widetilde{\boldsymbol{u}}_e$ is a centered Gaussian process with matrix-valued covariance function given by \eqref{eq:matrix_valued_cov_function_ofboundaryless_process} and are mutually independent. In the same spirit as $\mathbf{U}$ in \eqref{eq:dens_u2version2}, we define the vector collecting the boundary values of $\widetilde{\boldsymbol{u}}$ across all edges as
+\begin{align*}
+	\widetilde{\mathbf{U}} = [\widetilde{\boldsymbol{u}}_1(\underline{e}_1)^\top,\widetilde{\boldsymbol{u}}_1(\bar{e}_1)^\top,\widetilde{\boldsymbol{u}}_2(\underline{e}_2)^\top,\widetilde{\boldsymbol{u}}_2(\bar{e}_2)^\top,\ldots, \widetilde{\boldsymbol{u}}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^\top,\widetilde{\boldsymbol{u}}_{|\mathcal{E}|}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
+\end{align*}
+Since the processes $\widetilde{\boldsymbol{u}}_e$, $e \in \mathcal{E}$, are mutually independent, centered, and Gaussian, it follows that
+\begin{align}
+\label{eq:distribution_ofU_tilde}
+    \widetilde{\mathbf{U}}\sim\mathsf{N}(\mathbf{0}, \widetilde{\mathbf{Q}}^{-1}), \quad \widetilde{\mathbf{Q}} = \operatorname{diag}(\{\widetilde{\mathbf{Q}}_e\}_{e\in\mathcal{E}}),
+\end{align}
+where $\widetilde{\mathbf{Q}}_e$ denotes the precision matrix given in \eqref{eq:Qedge}. In \eqref{eq:Qedge}, the notation $\widetilde{\mathbf{Q}}_\ell$ emphasizes the dependence on the underlying interval $[0,\ell]$. In the present setting, each edge $e$ is identified with the interval $[\underline{e}, \overline{e}]$, which motivates the notation $\widetilde{\mathbf{Q}}_e$. The sparsity of $\widetilde{\mathbf{Q}}$ reflects the complete decoupling of edges in the boundaryless formulation.
+
+Next, the conditioning event $\mathcal{K}_\alpha(\widetilde{u})$ in \eqref{eq:process_u_defined_as_conditioned} is characterized by linear constraints acting on the process at the boundary points. These constraints can be written in matrix form as
+\begin{align*}
+\mathbf{K}\widetilde{\mathbf{U}} = \mathbf{0},
+\end{align*}
+where $\mathbf{K} \in \mathbb{R}^{k \times 2\alpha|\mathcal{E}|}$ and $k \in \mathbb{N}$ is the number of constraints. Consequently, the vector $\mathbf{U}$ in \eqref{eq:dens_u2version2} can be expressed as
+\begin{align}
+\label{eq:U_as_conditioned_onKU}
+\mathbf{U} = \widetilde{\mathbf{U}} | \{\mathbf{K}\widetilde{\mathbf{U}} = \mathbf{0}\},
+\end{align}
+showing that $\mathbf{U}$ is a Gaussian Markov random field (GMRF) subject to linear constraints.
+
+
+Although $\widetilde{\mathbf{U}}$ in \eqref{eq:distribution_ofU_tilde} has a sparse precision matrix $\widetilde{\mathbf{Q}}$, conditioning destroys the sparsity for $\mathbf{U}$ in \eqref{eq:U_as_conditioned_onKU}. To recover a sparse representation, we follow \cite{Bolin2021Efficient} and apply an invertible change of basis $\widetilde{\mathbf{U}}^* = \mathbf{T}\widetilde{\mathbf{U}}$ chosen such that the constraints are decoupled, namely
+\begin{align*}
+\mathbf{K}\widetilde{\mathbf{U}} = \mathbf{0}
+\quad \Longleftrightarrow \quad
+\widetilde{\mathbf{U}}^*_{\mathcal{C}} = \mathbf{0},
+\end{align*}
+where $\mathcal{C} = \{1,\ldots,k\}$ indexes the constrained components. In this representation, the precision matrix becomes
+\begin{align}
+\label{eq:Q_star_tilde}
+\widetilde{\mathbf{Q}}^* = \mathbf{T}\widetilde{\mathbf{Q}}\mathbf{T}^\top,
+\end{align}
+which preserves sparsity while separating constrained and unconstrained components.
+
+
+Finally, let $\mathbf{A}\in\mathbb{R}^{|\mathcal{V}| \times 2\alpha|\mathcal{E}|}$ be the matrix that extracts the components of the solution to \eqref{eq:spde_on_metric_graph_for_4_Project} evaluated at the vertices. That is,
+\begin{equation}\label{eq:Uv}
+	\mathbf{U}_v  = [u(v_1), u(v_2), \ldots, u(v_{|\mathcal{V}|})]^\top = \mathbf{A}\mathbf{U}.
+\end{equation}
+
+We can now express the distribution of the vertex field in terms of sparse precision matrices.
+
+\begin{proposition}\textnormal{(see \cite[Corollary~4]{Bolin2023Statistical})}
+\label{cor:sample_Uv}
+Let $\widetilde{\mathbf{Q}}^*$ be defined in \eqref{eq:Q_star_tilde}. Let $\mathbf{T}_{\mathcal{U}}$ denote the matrix obtained by removing the first $k$ rows of $\mathbf{T}$, and let $\widetilde{\mathbf{Q}}^*_{\mathcal{U}\mathcal{U}}$ be the corresponding principal submatrix. Then the distribution of the process at the vertices is given by
+\begin{equation}
+\label{eq:Uv_sparse}
+\mathbf{U}_v \sim \mathsf{N}\!\left(
+\mathbf{0},\,
+\mathbf{A}\mathbf{T}_{\mathcal{U}}^\top
+\left(\widetilde{\mathbf{Q}}^*_{\mathcal{U}\mathcal{U}}\right)^{-1}
+\mathbf{T}_{\mathcal{U}}\mathbf{A}^\top
+\right).
+\end{equation}
+\end{proposition}
+
+All matrices appearing in \eqref{eq:Uv_sparse} are sparse. This structure can be directly exploited for efficient efficient likelihood-based inference and simulation by first sampling $\mathbf{v} \sim \mathsf{N}(\mathbf{0}, (\widetilde{\mathbf{Q}}^*_{\mathcal{U}\mathcal{U}})^{-1})$ via sparse Cholesky factorization of $\widetilde{\mathbf{Q}}^*_{\mathcal{U}\mathcal{U}}$, and then computing $\mathbf{U}_v = \mathbf{A}\mathbf{T}_{\mathcal{U}}^\top \mathbf{v}$, which only involves sparse matrix vector multiplications.
+
+\section{Fractional smoothness case}
+
+In the previous section, we showed how the conditional representation can be used to construct solutions to
+\begin{align}
+\label{eq:last_spde_i_consider}
+L^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \quad \text{on } \Gamma, 
+\end{align}
+where $L = \kappa^2 - \Delta_{\Gamma}$ and $\alpha \in \mathbb{N}$. This construction leads to sparse precision matrices and enables efficient likelihood-based inference. However, it relies crucially on the assumption that $\alpha$ is an integer. In this section, we extend the framework to fractional values of $\alpha$ by exploiting the rational approximation introduced in Section~\ref{sec:the_rational_approximation}. This allows us to remain within the class of models covered by the results of the previous section.
+
+For general $\alpha$, the solution $u$ of \eqref{eq:last_spde_i_consider} is a centered Gaussian process with covariance operator $\mathcal{C} = \tau^{-2}L^{-\alpha}$, which we denote by $u \sim \mathsf{N}(0,\mathcal{C})$. Using the rational approximation in \eqref{eq:rat_approx_neg} together with the partial fraction expansion in \eqref{eq:partial_frac_approx_der}, we approximate $\mathcal{C}$ as
+\begin{align*}
+    \mathcal{C}_\alpha = \tau^{-2}L^{-\lfloor\alpha\rfloor}P_m(L^{-1})Q_m(L^{-1})^{-1} = \tau^{-2}kL^{-\lfloor\alpha\rfloor} + \sum_{i=1}^m\tau^{-2}r_iL^{-\lfloor\alpha\rfloor}(L-p_iI)^{-1}.
+\end{align*}
+Since $k, r_i > 0$ and $p_i < 0$, the operators $\mathcal{C}_0 = \tau^{-2}kL^{-\lfloor\alpha\rfloor}$ and $\mathcal{C}_i = \tau^{-2}r_iL^{-\lfloor\alpha\rfloor}(L - p_i I)^{-1}$ are valid covariance operators. Consequently, $\mathcal{C}_\alpha$ admits the decomposition $\mathcal{C}_\alpha = \mathcal{C}_0 + \sum_{i=1}^m \mathcal{C}_i$.
+
+Let $u_\alpha$ be a centered Gaussian process with covariance operator $\mathcal{C}_\alpha$. It can then be represented as a sum of independent Gaussian processes,
+\begin{align*}
+    u_\alpha = u_0 + \sum_{i=1}^m u_i,
+\end{align*}
+where $u_0 \sim \mathsf{N}(0,\mathcal{C}_0)$ and $u_i \sim \mathsf{N}(0,\mathcal{C}_i)$ for $i = 1, \dots, m$. Moreover, these processes satisfy the SPDEs
+\begin{align}
+\label{eq:WM_process}
+   \mathcal{C}_0^{-\sfrac{1}{2}}u_0 = L^{\sfrac{\lfloor\alpha\rfloor}{2}}(\tau k^{-\sfrac{1}{2}}u_0) = \mathcal{W}, \quad \text{on } \Gamma, 
+\end{align}
+and
+\begin{align}
+\label{eq:shifted_WM_process}
+   \mathcal{C}_i^{-\sfrac{1}{2}}u_i = (L^{\lfloor\alpha\rfloor}(L - p_i I))^{\sfrac{1}{2}}(\tau r_i^{-\sfrac{1}{2}}u_i) = \mathcal{W}, \quad \text{on } \Gamma.
+\end{align}
+
+Observe that \eqref{eq:WM_process} has the same form as \eqref{eq:last_spde_i_consider}. In particular, the exponent involves $\lfloor \alpha \rfloor$, which is an integer, so this case falls within the framework developed in the previous section. Hence, $u_0$ is a Whittle--Matérn process of the type studied earlier.
+
+The SPDE in \eqref{eq:shifted_WM_process} is also of Whittle--Matérn type, but with a shifted operator, and thus defines a new class of processes.
+
+\begin{definition}
+    A solution $u_i$ to \eqref{eq:shifted_WM_process} is called a shifted Whittle--Matérn process.
+\end{definition}
+Actually, \cite{Bolin2025Linear} showed that if we consider the SPDE \eqref{eq:shifted_WM_process} on $\mathbb{R}$, then the solution $u_i$ admits a stationary covariance function given by
+\begin{align*}
+    \varrho_i(h) &= r_i\sigma^2 \frac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sqrt{\sfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}}\right)\\
+    &\quad - \sum_{j=1}^{\lfloor\alpha\rfloor} r_i\sigma^2 \frac{1}{p_i^{\lfloor\alpha\rfloor+1-j}} \varrho\left(h;\kappa, j-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_j}}\right),
+\end{align*}
+where $c_a = \Gamma(a)/\Gamma(a-\sfrac{1}{2})$. The parameters $\tau$ and $\sigma$ are related through \eqref{eq:relation_param_spde_matern}, and $\varrho(\cdot;\cdot,\cdot,\cdot)$ denotes the Matérn covariance function defined in \eqref{eq:matern_def}, with parameters written explicitly for clarity.
+
+With this characterization at hand, we can proceed exactly as in Section~\ref{sec:integer_smoothness_case}, now working with either $\varrho_0$ or $\varrho_i$ in place of $\varrho$. Repeating the same constructions yields an equivalent formulation of the boundaryless Whittle--Matérn process, as well as a fractional-order analogue of Proposition~\ref{cor:sample_Uv}. Importantly, this extension accommodates arbitrary fractional $\alpha$ while preserving the underlying sparsity structure. 
+
+Using the same parameter settings as in the tadpole example with the FEM-based covariance approximation discussed in Chapter~\ref{chapter4} (see Figure~\ref{errorFEMalone}), the dashed curves in Figure~\ref{errorFEMalone} correspond to the same cases shown as dashed curves in Figure~\ref{errorRatFEMcomparison}. Figure~\ref{errorRatFEMcomparison} compares the two covariance approximation approaches. As can be seen, the FEM-free approximation substantially reduces the error and consistently outperforms the FEM-based approach.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.99\textwidth]{Fig/errorRatFEMcomparison.pdf}
+\caption{Covariance errors in the $L_2(\Gamma\times\Gamma)$-norm (left) and $L_\infty(\Gamma\times\Gamma)$-norm (right) on the tadpole graph for $\rho=0.005$, $\alpha\in(\sfrac{1}{2},3]$, and rational approximation orders $m\in\{1,2,3,4,5\}$. The dashed curves correspond to the same cases shown as dashed curves in Figure~\ref{errorFEMalone}.}
+\label{errorRatFEMcomparison}
+\end{figure}
+
+
+
+Figure~\ref{fem_rat_comp} displays a comparison of approximation errors at the degree-3 vertex of the tadpole graph, where the exact covariance function is available in closed form. The red curve shows the absolute difference between the exact covariance function and the FEM-based approximation introduced in Chapter~\ref{chapter4}. The blue curve shows the corresponding error for the FEM-free construction developed in this section.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.66\textwidth]{Fig/fem_rat_comp.png}
+\caption{Absolute error at the degree-3 vertex of the tadpole graph. The red curve corresponds to the FEM-based covariance approximation from Chapter~\ref{chapter4}, while the blue curve corresponds to the FEM-free approximation introduced in this section.}
+\label{fem_rat_comp}
+\end{figure}
+
+\bibliographystyle{plain}
+\bibliography{references} 
+\end{document}

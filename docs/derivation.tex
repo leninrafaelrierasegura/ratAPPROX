@@ -384,14 +384,6 @@ and
 \end{align}
 
 
-In the code, we have the following functions:
-
- - $\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p(s,t,kappa,p = p, alpha)}.
- 
-  - $\dfrac{d^k}{dh^k}\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p.deriv(s,t,kappa,p = p, alpha, deriv = k)}.
- 
- 
- - $\mathbf{r}_i\left(t_1, t_2\right)=r_i\sigma^2$\texttt{matern.p.joint(s,t,kappa,p,alpha)}.
 
 
 \section{Comparison to rat int paper}
@@ -525,96 +517,14 @@ where the dimensionless coefficients map to
     \varrho_i(h) =  \varrho_i(h) \implies \mathbf{Q}_i= \dfrac{1}{r_i\sigma^2}\left(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e) - f(\texttt{matern.p.joint}(\kappa,p_i,\alpha))\right)
 \end{align}
 
-\section{Integer smoothness case}
+In \texttt{MetricGraph}, we have the following functions:
 
-
-Consider the equation
-\begin{align}
-\label{eq:spde_on_interval}
-L^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \quad \text{on } [0,\ell],
-\end{align}
-
-Assume the equation is posed in $\mathbb{R}$ and let 
-\begin{align}
-\label{eq:u_vector_value_process_on_R}
-    \boldsymbol{u}(t) = [u(t), u^{(1)}(t),\dots, u^{(\alpha-1)}(t)]^\top,\quad t\in\mathbb{R}.
-\end{align}
-Then $\boldsymbol{u}$ has matrix-valued covariance function \cite{Bolin2023Statistical}
-\begin{align}
-\label{eq:multivariate_matern_function}
-	\boldsymbol{\varrho} : \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\alpha \times \alpha}, 
-	\quad \boldsymbol{\varrho}(t_1,t_2) = \left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
-\end{align}
-Consider the vector-valued process
-\begin{align}
-\label{eq:u_vector_value_process_on_int}
-    \boldsymbol{u}_{\ell}(t) = [u_{\ell}(t), u_{\ell}^{(1)}(t), \dots, u_{\ell}^{(\alpha-1)}(t)]^\top, \quad t \in [0,\ell].
-\end{align}
-Then the covariance structure of $\boldsymbol{u}_{\ell}$ is given by $\boldsymbol{\varrho}_{\ell} = \boldsymbol{\varrho}|_{[0,\ell] \times [0,\ell]}$, that is,
-\begin{align}
-\label{eq:covariance_matrix_of_process_restricted_to_interval}
-	\boldsymbol{\varrho}_{\ell} : [0,\ell] \times [0,\ell] \mapsto \mathbb{R}^{\alpha \times \alpha}, 
-	\quad \boldsymbol{\varrho}_{\ell}(t_1,t_2) = \boldsymbol{\varrho}(t_1,t_2). %\left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
-\end{align}   
-Before introducing the Whittle-Matérn bridge process, we set the notation. Let $\boldsymbol{x}(t) = [x(t), x^{(1)}(t), \dots, x^{(\alpha-1)}(t)]^\top$ denote a vector-valued process in $\mathbb{R}^\alpha$, such as \eqref{eq:u_vector_value_process_on_R} or \eqref{eq:u_vector_value_process_on_int}. We introduce the boundary evaluation operator
-\begin{align*}
-    B_{\ell}^\alpha x = [\boldsymbol{x}(0)^\top, \boldsymbol{x}(\ell)^\top]^\top,
-\end{align*}
-that is,
-\begin{align*}
-    B_{\ell}^\alpha x
-    =
-    [x(0), x^{(1)}(0), \dots, x^{(\alpha-1)}(0),
-    x(\ell), x^{(1)}(\ell), \dots, x^{(\alpha-1)}(\ell)]^\top.
-\end{align*}
-\begin{proposition}
-\label{prop:proposition_where_Q_edge}
-    \textnormal{(see \cite[Proposition~7]{Bolin2023Statistical})}
-    The precision matrix of $\left[\widetilde{\boldsymbol{u}}_\ell(0)^\top,\widetilde{\boldsymbol{u}}_\ell(\ell)^\top\right]^\top$ is given by
-\begin{equation}
-\label{eq:Qedge}
-	\widetilde{\mathbf{Q}}_\ell  = \mathbf{Q}_\ell - \frac{1}{2}\begin{bmatrix}
-		\boldsymbol{\varrho}_\ell(0,0)^{-1} & \mathbf{0} \\
-		\mathbf{0} & \boldsymbol{\varrho}_\ell(0,0)^{-1} 
-	\end{bmatrix},
-\end{equation}
-where $\mathbf{Q}_\ell$ is the precision matrix of $\left[\boldsymbol{u}_\ell(0)^\top,\boldsymbol{u}_\ell(\ell)^\top\right]^\top$.
-\end{proposition}
-
-Let $\Gamma = (\mathcal{V}, \mathcal{E})$ be a compact metric graph. We denote by $\underline{e}$ and $\overline{e}$ the initial and terminal vertices of an edge $e \in \mathcal{E}$. Recall also that a function $u = \{u_e\}_{e\in\mathcal{E}}$ on $\Gamma$ can be written in the unified form $u(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)u_e(s)$, $s\in\Gamma$. In the same spirit, the associated vector-valued function $ \boldsymbol{u}(s) = [u(s),u^{(1)}(s),\dots,u^{(\alpha-1)}(s)]^\top$, $s\in\Gamma$ can be written compactly as
-\begin{align}
-\label{eq:notation_for_vector_valued_function}
-    \boldsymbol{u}(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\boldsymbol{u}_e(s),\quad s\in\Gamma,
-\end{align}
-where $\boldsymbol{u}_e(s) = [u_e(s),u_e^{(1)}(s),\dots,u_e^{(\alpha-1)}(s)]^\top$, $s\in e$. Using the notation in \eqref{eq:notation_for_vector_valued_function}, we define the vector collecting the boundary values of $\boldsymbol{u}$ across all edges as
-\begin{align}
-\label{eq:dens_u2}
-   \mathbf{U} =  [\boldsymbol{u}(\underline{e}_1)^\top,
-   \boldsymbol{u}(\bar{e}_1)^\top,
-   \boldsymbol{u}(\underline{e}_2)^\top,
-   \boldsymbol{u}(\bar{e}_2)^\top,
-   \ldots,
-	\boldsymbol{u}(\underline{e}_{|\mathcal{E}|})^\top,
-   \boldsymbol{u}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
-\end{align}
-Since $\boldsymbol{u}(s)  = \boldsymbol{u}_e(s)$, $s\in e$, we might as well write 
-\begin{align}
-\label{eq:dens_u2version2}
-   \mathbf{U} =  [\boldsymbol{u}_1(\underline{e}_1)^\top,
-   \boldsymbol{u}_1(\bar{e}_1)^\top,
-   \boldsymbol{u}_2(\underline{e}_2)^\top,
-   \boldsymbol{u}_2(\bar{e}_2)^\top,
-   \ldots,
-	\boldsymbol{u}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^\top,
-   \boldsymbol{u}_{|\mathcal{E}|}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
-\end{align}
-
-It follows that
-\begin{align}
-\label{eq:distribution_ofU_tilde}
-    \widetilde{\mathbf{U}}\sim\mathsf{N}(\mathbf{0}, \widetilde{\mathbf{Q}}^{-1}), \quad \widetilde{\mathbf{Q}} = \operatorname{diag}(\{\widetilde{\mathbf{Q}}_e\}_{e\in\mathcal{E}}),
-\end{align}
-where $\widetilde{\mathbf{Q}}_e$ denotes the precision matrix given in \eqref{eq:Qedge}. In \eqref{eq:Qedge}, the notation $\widetilde{\mathbf{Q}}_\ell$ emphasizes the dependence on the underlying interval $[0,\ell]$. In the present setting, each edge $e$ is identified with the interval $[\underline{e}, \overline{e}]$, which motivates the notation $\widetilde{\mathbf{Q}}_e$.
+ - $\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p(s,t,kappa,p = p, alpha)}.
+ 
+  - $\dfrac{d^k}{dh^k}\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p.deriv(s,t,kappa,p = p, alpha, deriv = k)}.
+ 
+ 
+ - $\mathbf{r}_i\left(t_1, t_2\right)=r_i\sigma^2$\texttt{matern.p.joint(s,t,kappa,p,alpha)}.
 
 
 \bibliographystyle{plain}

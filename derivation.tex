@@ -383,15 +383,135 @@ and
     \varrho_i(h) = r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor}} \varrho\left(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sqrt{\sfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}}\right) -  \sum_{j=1}^{\lfloor\alpha\rfloor} r_i\sigma^2\dfrac{1}{p_i^{\lfloor\alpha\rfloor+1-j}}\varrho\left(h;\kappa, j-\sfrac{1}{2}, \sqrt{\sfrac{c_\alpha}{c_j}}\right)
 \end{align}
 
+\section{Old Implementation}
 
-In the code, we have the following functions:
+\subsection{Case $\alpha\in(1/2,1)$}
 
- - $\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p(s,t,kappa,p = p, alpha)}.
- 
-  - $\dfrac{d^k}{dh^k}\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p.deriv(s,t,kappa,p = p, alpha, deriv = k)}.
- 
- 
- - $\mathbf{r}_i\left(t_1, t_2\right)=r_i\sigma^2$\texttt{matern.p.joint(s,t,kappa,p,alpha)}.
+\begin{align}
+    \varrho_0(h) = k\sigma^2\dfrac{c_\alpha\sqrt{4\pi}}{\kappa}1_{[h=0]}\implies \mathbf{Q}_0 = \mathbf{I}\cdot \dfrac{1}{(k\sigma^2c_\alpha\sqrt{4\pi})/\kappa}
+\end{align}
+
+\begin{align}
+    \varrho_i(h) = r_i \dfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sigma) \implies \mathbf{Q}_i = \dfrac{1}{(r_i c_\alpha\sqrt{\pi})/\sqrt{1-p_i}}\begin{cases}
+        \overline{\nu} = \sfrac{1}{2}\\
+        \overline{\kappa} = \kappa\sqrt{1-p_i}\\
+        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
+        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
+    \end{cases}
+\end{align}
+\subsection{Case $\alpha\in(1,2)$}
+
+\begin{align}
+   \varrho_0(h)= k\dfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sigma)\implies\mathbf{Q}_0 = \dfrac{1}{kc_\alpha/c_{\lfloor\alpha\rfloor}} \begin{cases}
+        \overline{\nu} = \sfrac{1}{2}\\
+        \overline{\kappa} = \kappa\\
+        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
+        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
+    \end{cases}
+\end{align}
+\begin{align}
+     \varrho_i(h) \implies \mathbf{Q}_i= \dfrac{1}{r_i\sigma^2}\left(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e) - f(\texttt{matern.p.joint}(\kappa,p_i,\alpha))\right)
+\end{align}
+
+\section{Consolidated implementation}
+
+\begin{equation}
+\label{eq:Qedge} \widetilde{\mathbf{Q}}_i = \operatorname{diag}(\{\widetilde{\mathbf{Q}}_i^{\ell_e}\}_{e\in\mathcal{E}})\quad\quad
+	\widetilde{\mathbf{Q}}_i^{\ell_e}  = \mathbf{Q}_i^{\ell_e} - \frac{1}{2}\begin{bmatrix}
+		\boldsymbol{\varrho}_i^{\ell_e}(0,0)^{-1} & \mathbf{0} \\
+		\mathbf{0} & \boldsymbol{\varrho}_i^{\ell_e}(0,0)^{-1} 
+	\end{bmatrix},
+\end{equation}
+
+\subsection{Case $\alpha\in(0.5,1]$}
+
+When $\alpha=1$, then we build the precision matrix as follows:
+\begin{align*}
+    \widetilde{\mathbf{Q}}_\alpha = \texttt{MetricGraph:::Qalpha1(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = 3000,
+      build = TRUE)}
+\end{align*}
+When $\alpha\in(0.5,1)$, then we build the precision matrix as follows: For each $i=1,\ldots,m$, we have
+
+\begin{align}
+	\widetilde{\mathbf{Q}}_i^{\ell_e} & =\dfrac{1}{r_i\sigma^2}\bigg(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+
+while for $i=0$, we have    
+\begin{align}
+	\widetilde{\mathbf{Q}}_0 = \mathbf{I}\cdot \dfrac{1}{(k\sigma^2c_\alpha\sqrt{4\pi})/\kappa}
+\end{align}
+\subsection{Case $\alpha\in(1,2]$}
+
+When $\alpha=2$, then we build the precision matrix as follows:
+\begin{align*}
+    \widetilde{\mathbf{Q}}_\alpha = \texttt{MetricGraph:::Qalpha2(
+      theta = c(tau, kappa),
+      graph = graph,
+      BC = 3000,
+      build = TRUE)}
+\end{align*}
+
+When $\alpha\in(1,2)$, then we build the precision matrix as follows: For each $i=1,\ldots,m$, we have
+
+\begin{align}
+	\widetilde{\mathbf{Q}}_i^{\ell_e} & =\dfrac{1}{r_i\sigma^2}\bigg(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+
+while for $i=0$, we have    
+\begin{align}
+	\widetilde{\mathbf{Q}}_0^{\ell_e}  &=\dfrac{1}{k\sigma^2c_\alpha/c_{\lfloor\alpha\rfloor}}\bigg(\texttt{matern.p.precision}(\kappa,p_i=0,\lfloor\alpha\rfloor, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i=0,\lfloor\alpha\rfloor)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i=0,\lfloor\alpha\rfloor)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+\subsection{Case $\alpha\in(2,3]$}
+
+When $\alpha=3$, then we build the precision matrix as follows:
+
+\begin{align}
+	\widetilde{\mathbf{Q}}_\alpha^{\ell_e}  &=\dfrac{1}{\sigma^2}\bigg(\texttt{matern.p.precision}(\kappa,p_i=0,\alpha, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i=0,\alpha)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i=0,\alpha)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+
+When $\alpha\in(2,3)$, then we build the precision matrix as follows: For each $i=1,\ldots,m$, we have
+
+\begin{align}
+	\widetilde{\mathbf{Q}}_i^{\ell_e} & =\dfrac{1}{r_i\sigma^2}\bigg(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i,\alpha)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+
+while for $i=0$, we have    
+\begin{align}
+	\widetilde{\mathbf{Q}}_0^{\ell_e}  &=\dfrac{1}{k\sigma^2c_\alpha/c_{\lfloor\alpha\rfloor}}\bigg(\texttt{matern.p.precision}(\kappa,p_i=0,\lfloor\alpha\rfloor, \ell_e)\bigg.\\& - \left.\frac{1}{2}\begin{bmatrix}
+       \texttt{matern.p.joint}(\kappa,p_i=0,\lfloor\alpha\rfloor)^{-1} & \mathbf{0} \\
+        \mathbf{0} & \texttt{matern.p.joint}(\kappa,p_i=0,\lfloor\alpha\rfloor)^{-1}
+    \end{bmatrix}\right),
+\end{align}
+
+In \texttt{MetricGraph}, we have the following functions:
+
+\begin{itemize}
+    \item $\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p(s,t,kappa,p = p, alpha)}.
+    \item $\varrho_0(h)$ = $k\sigma^2\dfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}$\texttt{matern.p(s,t,kappa,p = 0, floor(alpha))}.
+    \item $\dfrac{d^k}{dh^k}\varrho_i(h)$ = $r_i\sigma^2$\texttt{matern.p.deriv(s,t,kappa,p = p, alpha, deriv = k)}.
+    \item $\mathbf{r}_i\left(t_1, t_2\right)=r_i\sigma^2$\texttt{matern.p.joint(s,t,kappa,p,alpha)}.
+    \item If \texttt{p==0}, then \texttt{matern.p()} returns $\varrho(h = s-t; \kappa = \kappa, \nu = \alpha-1/2, \sigma = 1) =\dfrac{1}{2^{\nu-1} \Gamma(\nu)}(\kappa|h|)^\nu K_\nu(\kappa|h|)$. So if you want the full matern, just multiply by $\sigma^2$. That is, $\sigma^2*$\texttt{matern.p(s,t,kappa,p = 0, alpha)}$=\varrho(h = s-t; \kappa = \kappa, \nu = \alpha-1/2, \sigma = \sigma)$.
+\end{itemize}
+
+
 
 
 \section{Comparison to rat int paper}
@@ -495,126 +615,6 @@ where the dimensionless coefficients map to
 \end{equation}
 
 
-\section{Implementation}
-
-\subsection{Case $\alpha\in(1/2,1)$}
-
-\begin{align}
-    \varrho_0(h) = k\sigma^2\dfrac{c_\alpha\sqrt{4\pi}}{\kappa}1_{[h=0]}\implies \mathbf{Q}_0 = \mathbf{I}\cdot \dfrac{1}{(k\sigma^2c_\alpha\sqrt{4\pi})/\kappa}
-\end{align}
-
-\begin{align}
-    \varrho_i(h) = r_i \dfrac{c_\alpha\sqrt{\pi}}{\sqrt{1-p_i}}\varrho(h;\kappa\sqrt{1-p_i}, \sfrac{1}{2}, \sigma) \implies \mathbf{Q}_i = \dfrac{1}{(r_i c_\alpha\sqrt{\pi})/\sqrt{1-p_i}}\begin{cases}
-        \overline{\nu} = \sfrac{1}{2}\\
-        \overline{\kappa} = \kappa\sqrt{1-p_i}\\
-        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
-        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
-    \end{cases}
-\end{align}
-\subsection{Case $\alpha\in(1,2)$}
-
-\begin{align}
-   \varrho_0(h)= k\dfrac{c_\alpha}{c_{\lfloor\alpha\rfloor}}\varrho(h;\kappa, \lfloor\alpha\rfloor-\sfrac{1}{2}, \sigma)\implies\mathbf{Q}_0 = \dfrac{1}{kc_\alpha/c_{\lfloor\alpha\rfloor}} \begin{cases}
-        \overline{\nu} = \sfrac{1}{2}\\
-        \overline{\kappa} = \kappa\\
-        \overline{\tau} =  \sqrt{\dfrac{\Gamma(\overline{\nu})}{\Gamma(\overline{\nu}+\sfrac{1}{2})\sqrt{4\pi}\overline{\kappa}^{2\overline{\nu}}\sigma^2}}\\
-        \cdot\texttt{Qalpha1}(\overline{\tau}, \overline{\kappa})
-    \end{cases}
-\end{align}
-\begin{align}
-    \varrho_i(h) =  \varrho_i(h) \implies \mathbf{Q}_i= \dfrac{1}{r_i\sigma^2}\left(\texttt{matern.p.precision}(\kappa,p_i,\alpha, \ell_e) - f(\texttt{matern.p.joint}(\kappa,p_i,\alpha))\right)
-\end{align}
-
-\section{Integer smoothness case}
-
-
-Consider the equation
-\begin{align}
-\label{eq:spde_on_interval}
-L^{\sfrac{\alpha}{2}} (\tau u) = \mathcal{W}, \quad \text{on } [0,\ell],
-\end{align}
-
-Assume the equation is posed in $\mathbb{R}$ and let 
-\begin{align}
-\label{eq:u_vector_value_process_on_R}
-    \boldsymbol{u}(t) = [u(t), u^{(1)}(t),\dots, u^{(\alpha-1)}(t)]^\top,\quad t\in\mathbb{R}.
-\end{align}
-Then $\boldsymbol{u}$ has matrix-valued covariance function \cite{Bolin2023Statistical}
-\begin{align}
-\label{eq:multivariate_matern_function}
-	\boldsymbol{\varrho} : \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}^{\alpha \times \alpha}, 
-	\quad \boldsymbol{\varrho}(t_1,t_2) = \left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
-\end{align}
-Consider the vector-valued process
-\begin{align}
-\label{eq:u_vector_value_process_on_int}
-    \boldsymbol{u}_{\ell}(t) = [u_{\ell}(t), u_{\ell}^{(1)}(t), \dots, u_{\ell}^{(\alpha-1)}(t)]^\top, \quad t \in [0,\ell].
-\end{align}
-Then the covariance structure of $\boldsymbol{u}_{\ell}$ is given by $\boldsymbol{\varrho}_{\ell} = \boldsymbol{\varrho}|_{[0,\ell] \times [0,\ell]}$, that is,
-\begin{align}
-\label{eq:covariance_matrix_of_process_restricted_to_interval}
-	\boldsymbol{\varrho}_{\ell} : [0,\ell] \times [0,\ell] \mapsto \mathbb{R}^{\alpha \times \alpha}, 
-	\quad \boldsymbol{\varrho}_{\ell}(t_1,t_2) = \boldsymbol{\varrho}(t_1,t_2). %\left[ \frac{\partial^{i-1}}{\partial t_2^{i-1}}\frac{\partial^{j-1}}{\partial t_1^{j-1}}\varrho(t_1-t_2)\right]_{ij\in\{1,2,\ldots, \alpha\}}.
-\end{align}   
-Before introducing the Whittle-Matérn bridge process, we set the notation. Let $\boldsymbol{x}(t) = [x(t), x^{(1)}(t), \dots, x^{(\alpha-1)}(t)]^\top$ denote a vector-valued process in $\mathbb{R}^\alpha$, such as \eqref{eq:u_vector_value_process_on_R} or \eqref{eq:u_vector_value_process_on_int}. We introduce the boundary evaluation operator
-\begin{align*}
-    B_{\ell}^\alpha x = [\boldsymbol{x}(0)^\top, \boldsymbol{x}(\ell)^\top]^\top,
-\end{align*}
-that is,
-\begin{align*}
-    B_{\ell}^\alpha x
-    =
-    [x(0), x^{(1)}(0), \dots, x^{(\alpha-1)}(0),
-    x(\ell), x^{(1)}(\ell), \dots, x^{(\alpha-1)}(\ell)]^\top.
-\end{align*}
-\begin{proposition}
-\label{prop:proposition_where_Q_edge}
-    \textnormal{(see \cite[Proposition~7]{Bolin2023Statistical})}
-    The precision matrix of $\left[\widetilde{\boldsymbol{u}}_\ell(0)^\top,\widetilde{\boldsymbol{u}}_\ell(\ell)^\top\right]^\top$ is given by
-\begin{equation}
-\label{eq:Qedge}
-	\widetilde{\mathbf{Q}}_\ell  = \mathbf{Q}_\ell - \frac{1}{2}\begin{bmatrix}
-		\boldsymbol{\varrho}_\ell(0,0)^{-1} & \mathbf{0} \\
-		\mathbf{0} & \boldsymbol{\varrho}_\ell(0,0)^{-1} 
-	\end{bmatrix},
-\end{equation}
-where $\mathbf{Q}_\ell$ is the precision matrix of $\left[\boldsymbol{u}_\ell(0)^\top,\boldsymbol{u}_\ell(\ell)^\top\right]^\top$.
-\end{proposition}
-
-Let $\Gamma = (\mathcal{V}, \mathcal{E})$ be a compact metric graph. We denote by $\underline{e}$ and $\overline{e}$ the initial and terminal vertices of an edge $e \in \mathcal{E}$. Recall also that a function $u = \{u_e\}_{e\in\mathcal{E}}$ on $\Gamma$ can be written in the unified form $u(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)u_e(s)$, $s\in\Gamma$. In the same spirit, the associated vector-valued function $ \boldsymbol{u}(s) = [u(s),u^{(1)}(s),\dots,u^{(\alpha-1)}(s)]^\top$, $s\in\Gamma$ can be written compactly as
-\begin{align}
-\label{eq:notation_for_vector_valued_function}
-    \boldsymbol{u}(s) = \sum_{e\in\mathcal{E}} \mathbb{I}(s \in e)\boldsymbol{u}_e(s),\quad s\in\Gamma,
-\end{align}
-where $\boldsymbol{u}_e(s) = [u_e(s),u_e^{(1)}(s),\dots,u_e^{(\alpha-1)}(s)]^\top$, $s\in e$. Using the notation in \eqref{eq:notation_for_vector_valued_function}, we define the vector collecting the boundary values of $\boldsymbol{u}$ across all edges as
-\begin{align}
-\label{eq:dens_u2}
-   \mathbf{U} =  [\boldsymbol{u}(\underline{e}_1)^\top,
-   \boldsymbol{u}(\bar{e}_1)^\top,
-   \boldsymbol{u}(\underline{e}_2)^\top,
-   \boldsymbol{u}(\bar{e}_2)^\top,
-   \ldots,
-	\boldsymbol{u}(\underline{e}_{|\mathcal{E}|})^\top,
-   \boldsymbol{u}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
-\end{align}
-Since $\boldsymbol{u}(s)  = \boldsymbol{u}_e(s)$, $s\in e$, we might as well write 
-\begin{align}
-\label{eq:dens_u2version2}
-   \mathbf{U} =  [\boldsymbol{u}_1(\underline{e}_1)^\top,
-   \boldsymbol{u}_1(\bar{e}_1)^\top,
-   \boldsymbol{u}_2(\underline{e}_2)^\top,
-   \boldsymbol{u}_2(\bar{e}_2)^\top,
-   \ldots,
-	\boldsymbol{u}_{|\mathcal{E}|}(\underline{e}_{|\mathcal{E}|})^\top,
-   \boldsymbol{u}_{|\mathcal{E}|}(\bar{e}_{|\mathcal{E}|})^\top]^\top\in\mathbb{R}^{2\alpha|\mathcal{E}|\times1}.
-\end{align}
-
-It follows that
-\begin{align}
-\label{eq:distribution_ofU_tilde}
-    \widetilde{\mathbf{U}}\sim\mathsf{N}(\mathbf{0}, \widetilde{\mathbf{Q}}^{-1}), \quad \widetilde{\mathbf{Q}} = \operatorname{diag}(\{\widetilde{\mathbf{Q}}_e\}_{e\in\mathcal{E}}),
-\end{align}
-where $\widetilde{\mathbf{Q}}_e$ denotes the precision matrix given in \eqref{eq:Qedge}. In \eqref{eq:Qedge}, the notation $\widetilde{\mathbf{Q}}_\ell$ emphasizes the dependence on the underlying interval $[0,\ell]$. In the present setting, each edge $e$ is identified with the interval $[\underline{e}, \overline{e}]$, which motivates the notation $\widetilde{\mathbf{Q}}_e$.
 
 
 \bibliographystyle{plain}
