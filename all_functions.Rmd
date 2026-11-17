@@ -1865,6 +1865,223 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 
 
 ```{r}
+# Construct K directly, without reading or modifying graph$C or graph$CoB.
+# Columns are (u, u', ..., u^(alpha-1)) at each edge end, ordered as
+# start(edge 1), end(edge 1), start(edge 2), end(edge 2), ... .
+buildKirchhoffConstraintMatrix <- function(graph, alpha) {
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      is.na(alpha) || !(alpha %in% 1:3)) {
+    stop("alpha must be one of 1, 2, or 3")
+  }
+  alpha <- as.integer(alpha)
+  E <- graph$E
+  nV <- graph$nV
+  if (!is.numeric(nV) || is.complex(nV) || length(nV) != 1L || !is.finite(nV) ||
+      nV < 0 || nV > .Machine$integer.max || nV != floor(nV)) {
+    stop("graph$nV must be a nonnegative integer")
+  }
+  nV <- as.integer(nV)
+  if (!is.matrix(E) || !is.numeric(E) || is.complex(E) || ncol(E) != 2L ||
+      any(!is.finite(E)) || any(E != floor(E)) ||
+      any(E < 1 | E > nV)) {
+    stop("graph$E must be a two-column matrix of vertex indices in 1:graph$nV")
+  }
+
+  # Stable radix ordering groups incidences while retaining their endpoint
+  # order within each vertex. A loop contributes two distinct incidences.
+  endpoints <- as.integer(c(t(E)))
+  ordered <- order(endpoints, method = "radix")
+  left <- head(ordered, -1L)
+  right <- tail(ordered, -1L)
+  same_vertex <- endpoints[left] == endpoints[right]
+  left <- left[same_vertex]
+  right <- right[same_vertex]
+  n_continuity <- length(left)
+  continuity_rows <- rep(seq_len(n_continuity), 2L)
+  continuity_values <- rep(c(1, -1), each = n_continuity)
+
+  # Equality between consecutive incidences gives d_v - 1 independent
+  # continuity rows at a vertex of degree d_v, with no rows at degree one.
+  i <- continuity_rows
+  j <- alpha * (c(left, right) - 1L) + 1L
+  x <- continuity_values
+  n_constraints <- n_continuity
+
+  if (alpha >= 2L) {
+    # Kirchhoff rows include degree-one vertices (Neumann conditions).
+    # Isolated vertices contribute no rows because they have no edge ends.
+    active_vertices <- which(tabulate(endpoints, nbins = nV) > 0L)
+    vertex_rows <- integer(nV)
+    vertex_rows[active_vertices] <- seq_along(active_vertices)
+    i <- c(i, n_constraints + vertex_rows[endpoints])
+    j <- c(j, alpha * (seq_along(endpoints) - 1L) + 2L)
+    x <- c(x, rep(c(1, -1), times = nrow(E)))
+    n_constraints <- n_constraints + length(active_vertices)
+  }
+
+  if (alpha == 3L) {
+    # Even derivatives have the same orientation at both edge ends.
+    i <- c(i, n_constraints + continuity_rows)
+    j <- c(j, 3L * (c(left, right) - 1L) + 3L)
+    x <- c(x, continuity_values)
+    n_constraints <- n_constraints + n_continuity
+  }
+
+  return(Matrix::sparseMatrix(
+    i = i, j = j, x = x,
+    dims = c(n_constraints, alpha * length(endpoints))
+  ))
+}
+```
+
+`buildKirchhoffConstraintMatrix(graph, alpha)` is a new, read-only
+alternative to the existing constraint helpers. It requires only `E`
+and `nV`, and uses `Matrix` to construct the sparse result. For alpha 1
+it imposes continuity of `u`; alpha 2 additionally imposes the Kirchhoff
+condition on `u'`; alpha 3 additionally imposes continuity of `u''`.
+First derivatives use a plus sign at edge starts and a minus sign at
+edge ends. Row ordering can differ from `buildC()`, while encoding the
+same constraint space. The constructor validates endpoint indices and
+handles loops, multiple edges, disconnected graphs, and zero-row matrices.
+Grouping integer endpoint indices by radix order avoids scanning all edge
+ends separately for every vertex; triplet assembly and output storage
+are linear in the numbers of edge ends and vertices.
+
+The existing `buildConstraintMatrices()` below is retained unchanged;
+it still uses the original helpers and updates `graph$C` and `graph$CoB`.
+The new constructor is used by `buildConstraintMatricesStandalone()`
+below, which provides the read-only alternative.
+
+```{r}
+buildConstraintMatrices <- function(graph) {
+  if (is.null(graph$PtV)) {
+    stop("graph$PtV is NULL, please run graph$observation_to_vertex() first")
+  }
+
+  # Rebuild alpha=2 explicitly: graph$C may contain a different alpha case.
+  # This updates graph$C and graph$CoB, just as a direct buildC() call does.
+  K1 <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+  graph$buildC(alpha = 2, edge_constraint = TRUE)
+  K2 <- graph$C
+  CoB2 <- graph$CoB
+  K3 <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+
+  build_case <- function(K, alpha, CoB = NULL) {
+    if (nrow(K) == 0L) {
+      # No constraints (e.g. alpha=1 on a single interval).
+      T <- Matrix::Diagonal(ncol(K))
+      S <- numeric(0)
+    } else {
+      if (is.null(CoB)) {
+        CoB <- MetricGraph:::c_basis2(K)
+        # c_basis2 returns the basis in columns; use rows as in the theory.
+        CoB$T <- t(CoB$T)
+      }
+      # graph$CoB from buildC() already uses the row-basis convention.
+      T <- CoB$T
+      S <- CoB$S
+    }
+
+    keep <- setdiff(seq_len(nrow(T)), seq_along(S))
+    Tc <- T[keep, , drop = FALSE]
+    indices <- indicesForOrderedVertices(graph, alpha = alpha)
+    A <- t(Tc)[indices, , drop = FALSE]
+
+    return(list(K = K, T = T, S = S, keep = keep,
+                Tc = Tc, indices = indices, A = A))
+  }
+
+  return(list(
+    alpha1 = build_case(K1, alpha = 1),
+    alpha2 = build_case(K2, alpha = 2, CoB = CoB2),
+    alpha3 = build_case(K3, alpha = 3)
+  ))
+}
+```
+
+`buildConstraintMatrices(graph)` returns a list with entries `alpha1`,
+`alpha2`, and `alpha3`, ready for later storage as `graph$constraints`.
+For example, `constraints <- buildConstraintMatrices(graph)` followed by
+`constraints$alpha3$Tc` retrieves the free rows of the alpha-three basis.
+Here `T` is the full row-basis transformation, `S` is the basis metadata
+returned by MetricGraph (its length counts constrained coordinates), and
+`A` maps free coordinates to values in `graph$PtV` order. Rebuild the list
+after changing the graph topology, vertex constraints, or `graph$PtV`.
+
+```{r}
+# Read-only setup for all integer cases. No graph methods or cached
+# constraint objects are used, and the result is returned rather than stored.
+buildConstraintMatricesStandalone <- function(graph) {
+  # Also validates the topology before using it to select endpoint values.
+  K1 <- buildKirchhoffConstraintMatrix(graph, alpha = 1)
+  K2 <- buildKirchhoffConstraintMatrix(graph, alpha = 2)
+  K3 <- buildKirchhoffConstraintMatrix(graph, alpha = 3)
+
+  vertices <- graph$PtV
+  if (is.null(vertices)) {
+    stop("graph$PtV must be initialized before building the vertex maps")
+  }
+  if (!is.numeric(vertices) || is.complex(vertices) ||
+      !is.null(dim(vertices)) || any(!is.finite(vertices)) ||
+      any(vertices != floor(vertices)) ||
+      any(vertices < 1 | vertices > graph$nV)) {
+    stop("graph$PtV must be a vector of vertex indices in 1:graph$nV")
+  }
+
+  # Match the existing vertex ordering: prefer a start endpoint and fall
+  # back to an end endpoint. Compute the incidences once for all alphas.
+  E <- graph$E
+  start_edges <- match(vertices, E[, 1])
+  endpoints <- 2L * start_edges - 1L
+  use_end <- is.na(start_edges)
+  endpoints[use_end] <- 2L * match(vertices[use_end], E[, 2])
+  if (anyNA(endpoints)) {
+    stop("Every vertex in graph$PtV must be incident to an edge")
+  }
+
+  build_case <- function(K, alpha) {
+    if (nrow(K) == 0L) {
+      T <- Matrix::Diagonal(ncol(K))
+      S <- numeric(0)
+    } else {
+      CoB <- MetricGraph:::c_basis2(K)
+      # The native routine returns basis columns; T uses basis rows.
+      T <- t(CoB$T)
+      S <- CoB$S
+    }
+    keep <- setdiff(seq_len(nrow(T)), seq_along(S))
+    Tc <- T[keep, , drop = FALSE]
+    indices <- alpha * (endpoints - 1L) + 1L
+    A <- t(Tc)[indices, , drop = FALSE]
+
+    return(list(K = K, T = T, S = S, keep = keep,
+                Tc = Tc, indices = indices, A = A))
+  }
+
+  return(list(
+    alpha1 = build_case(K1, alpha = 1),
+    alpha2 = build_case(K2, alpha = 2),
+    alpha3 = build_case(K3, alpha = 3)
+  ))
+}
+```
+
+Use `constraints <- buildConstraintMatricesStandalone(graph)` to obtain
+`constraints$alpha1`, `constraints$alpha2`, and `constraints$alpha3`.
+Each entry contains `K`, `T`, `S`, `keep`, `Tc`, `indices`, and `A`,
+using the same conventions as the earlier builder. This function uses
+only the new direct constraint constructor and MetricGraph's basis
+routine; it does not call `buildC()`, the original constraint helpers,
+or `indicesForOrderedVertices()`. It neither reads nor writes `graph$C`
+or `graph$CoB`, and does not assign `graph$constraints`.
+
+The vertex maps follow the current `graph$PtV` order, including repeated
+vertices. `graph$PtV` must already be initialized and contain only
+vertices incident to edges; an empty numeric vector is allowed. Rebuild
+the returned list when the topology or vertex selection changes. The
+existing functions remain available unchanged.
+
+```{r}
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))

@@ -520,6 +520,270 @@ In \texttt{MetricGraph}, we have the following functions:
 
 
 
+\section{The integer case \texorpdfstring{$\alpha=3$}{alpha = 3} and the vertex sampling formula}
+\label{sec:alpha3_sample_Uv}
+
+The branch \texttt{if(alpha == 3)} in the function
+{\small
+\begin{verbatim}
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree()
+\end{verbatim}
+}
+in \texttt{all\_functions.R} implements the result labelled
+\texttt{cor:sample\_Uv} in \texttt{Chapter\_7.tex} (stated there as a
+proposition). We restate its covariance formula below so that the
+correspondence can be read independently of that chapter. At this integer
+value, the target covariance operator is exactly
+$\tau^{-2}(\kappa^2-\Delta_\Gamma)^{-3}$; the branch returns before
+computing any rational approximation coefficients, so $m$ and the
+interpolation options do not enter this calculation.
+
+\subsection{Boundary variables and the normalization of the edge precision}
+
+For $\alpha=3$, each endpoint carries the three components
+$\boldsymbol{u}_e(s)=(u_e(s),u'_e(s),u''_e(s))^\top$. With every edge
+parametrized by $[0,\ell_e]$, stack the boundaryless edge variables as
+\begin{equation}
+\widetilde{\mathbf U}
+=\big(\widetilde{\boldsymbol{u}}_e(0)^\top,
+       \widetilde{\boldsymbol{u}}_e(\ell_e)^\top\big)_{e\in\mathcal E}^\top
+\in\mathbb R^N,\qquad N=6|\mathcal E|.
+\end{equation}
+Here derivatives are taken in the edge coordinate; signs for outward
+derivatives are incorporated into the vertex constraints.
+The code first calls
+\begin{verbatim}
+Qtilde <- computesListOfMatricesQTildeUnconstraint(
+  p = 0, kappa = kappa, alpha = alpha,
+  edgeLengths = edgeLengths)[[1]]
+\end{verbatim}
+Write $\widehat{\mathbf Q}$ for this returned matrix. The hat distinguishes
+the unit-variance normalization used by the helper from the physical
+precision $\widetilde{\mathbf Q}$ in Chapter~7. In fact,
+\begin{align}
+\widehat{\mathbf Q}
+&=\operatorname{diag}\big(\{\widehat{\mathbf Q}_e\}_{e\in\mathcal E}\big),\\
+\widehat{\mathbf Q}_e
+&=\mathbf R_e^{-1}
+ -\frac12\operatorname{diag}(\mathbf R_0^{-1},\mathbf R_0^{-1}),
+\label{eq:alpha3_unit_edge_precision}
+\end{align}
+where $\mathbf R_e$ is the stationary joint covariance of the two endpoint
+triples for the unit-variance Mat\'ern covariance with $\nu=5/2$, and
+$\mathbf R_0$ is its $3\times3$ same-point covariance. In the helper,
+$\mathbf R_e^{-1}$ is supplied by \texttt{matern.p.precision()} and
+$\mathbf R_0$ by \texttt{matern.p.joint()}, both with $p=0$ and
+$\alpha=3$. Equation~\eqref{eq:alpha3_unit_edge_precision} is precisely
+the boundary correction in \eqref{eq:Qedge}, before restoring the
+variance scale.
+
+The function computes that scale from $\tau$ as
+\begin{equation}
+\sigma^2
+=\frac{\Gamma(5/2)}{\tau^2\kappa^5\sqrt{4\pi}\,\Gamma(3)}
+=\frac{3}{16\tau^2\kappa^5}.
+\label{eq:alpha3_sigma_scale}
+\end{equation}
+Consequently, the boundaryless vector has precision
+\begin{equation}
+\widetilde{\mathbf Q}=\sigma^{-2}\widehat{\mathbf Q}.
+\label{eq:alpha3_physical_precision}
+\end{equation}
+The parameter $\sigma^2$ is the stationary variance on the real line;
+the variances at graph vertices are obtained after conditioning and
+need not equal $\sigma^2$.
+
+\subsection{Vertex constraints and the free coordinates}
+
+At $\alpha=3$, the conditions defining $\mathcal K_\alpha$ in Chapter~7
+specialize to
+\begin{equation}
+\begin{split}
+u_e(v)&=u_f(v),\qquad u''_e(v)=u''_f(v)
+       \quad\text{for all incident edge ends }e,f,\\
+\sum_{e\sim v}\partial_e u_e(v)&=0,
+\end{split}
+\label{eq:alpha3_vertex_conditions}
+\end{equation}
+where the sum counts both ends of a loop and $\partial_e$ denotes the
+outward derivative. At a degree-one vertex, the last condition is the
+Neumann condition; the two continuity conditions impose no restrictions.
+
+The call
+\begin{verbatim}
+buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+\end{verbatim}
+builds the matrix $\mathbf K$ encoding
+\eqref{eq:alpha3_vertex_conditions}. It embeds the $\alpha=2$ matrix
+\texttt{graph\$C}, which imposes continuity of $u$ and the first-derivative
+Kirchhoff condition, into the $u,u'$ columns of the endpoint triples.
+It then adds the continuity matrix built by
+\begin{verbatim}
+buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+\end{verbatim}
+in the $u''$ columns. Thus
+\begin{equation}
+\mathbf U=\widetilde{\mathbf U}\mid
+\{\mathbf K\widetilde{\mathbf U}=\mathbf0\}.
+\end{equation}
+This correspondence presumes that \texttt{graph\$C} contains the
+$\alpha=2$ constraints: the helper builds it with
+\texttt{edge\_constraint = TRUE} when it is absent, and otherwise reuses it.
+
+The next lines form the change of basis and retain its free rows:
+\begin{verbatim}
+CoB <- MetricGraph:::c_basis2(K)
+CoB$T <- t(CoB$T)
+keep <- setdiff(seq_len(nrow(CoB$T)), seq_along(CoB$S))
+Tc <- CoB$T[keep, , drop = FALSE]
+\end{verbatim}
+With the orthogonal constraint basis used here, the matrix stored in
+\texttt{CoB\$T} \emph{after} the explicit transpose corresponds to
+$\mathbf T$ in Chapter~7. Let $k_c=\operatorname{length}(\texttt{CoB\$S})$
+be the number of constrained coordinates and let $\mathcal U$ index the
+remaining coordinates. Then
+\begin{equation}
+\texttt{Tc}=\mathbf T_{\mathcal U}\in\mathbb R^{(N-k_c)\times N},
+\qquad
+\mathbf K\mathbf T_{\mathcal U}^\top=\mathbf0.
+\end{equation}
+Orthogonality matters: for a general invertible basis transformation,
+the transformed precision is
+$\mathbf T^{-\top}\widetilde{\mathbf Q}\mathbf T^{-1}$; here this reduces
+to $\mathbf T\widetilde{\mathbf Q}\mathbf T^\top$.
+
+Writing $\mathbf U=\mathbf T_{\mathcal U}^\top\mathbf z$ on the constraint
+space, its Gaussian density has quadratic form
+\begin{equation}
+\mathbf z^\top\mathbf Q_{\mathcal U}\mathbf z,
+\qquad
+\mathbf Q_{\mathcal U}
+=\mathbf T_{\mathcal U}\widetilde{\mathbf Q}
+ \mathbf T_{\mathcal U}^\top
+=\sigma^{-2}\mathbf T_{\mathcal U}\widehat{\mathbf Q}
+ \mathbf T_{\mathcal U}^\top.
+\end{equation}
+This is the principal block
+$\widetilde{\mathbf Q}^{*}_{\mathcal U\mathcal U}$ of Chapter~7, and is
+exactly the matrix computed by
+\begin{verbatim}
+Q <- 1/sigma^2 * Tc %*% Qtilde %*% t(Tc)
+\end{verbatim}
+Conditioning fixes the constrained coordinates to zero, so the free
+precision is this principal block, without a Schur complement.
+
+\subsection{Vertex extraction and the covariance returned by the code}
+
+Let $\mathbf A_v$ denote the vertex extraction matrix called
+$\mathbf A$ in Chapter~7. In the implementation,
+\texttt{indicesForOrderedVertices(graph, alpha = 3)} selects one
+zeroth-derivative endpoint coordinate for each requested vertex, in the
+order stored in \texttt{graph\$PtV}. Continuity makes the choice of
+incident edge end immaterial. The helper requires \texttt{graph\$PtV}
+to be initialized by \texttt{graph\$observation\_to\_vertex()}.
+The lines
+\begin{verbatim}
+indices <- indicesForOrderedVertices(graph, alpha = alpha)
+A <- t(Tc)[indices, ]
+\end{verbatim}
+therefore construct the combined map
+\begin{equation}
+\mathbf A_{\mathrm{code}}=\mathbf A_v\mathbf T_{\mathcal U}^\top,
+\qquad \mathbf U_v=\mathbf A_{\mathrm{code}}\mathbf z.
+\end{equation}
+In particular, the code's \texttt{A} already includes the return from
+free coordinates to endpoint coordinates. It is not just the selector
+$\mathbf A_v$.
+
+The formula in the result labelled \texttt{cor:sample\_Uv} is consequently
+\begin{equation}
+\boxed{\quad
+\operatorname{Cov}(\mathbf U_v)
+=\mathbf A_v\mathbf T_{\mathcal U}^\top
+ \left(\widetilde{\mathbf Q}^{*}_{\mathcal U\mathcal U}\right)^{-1}
+ \mathbf T_{\mathcal U}\mathbf A_v^\top
+=\mathbf A_{\mathrm{code}}\mathbf Q_{\mathcal U}^{-1}
+ \mathbf A_{\mathrm{code}}^\top.
+\quad}
+\label{eq:alpha3_sample_Uv_code}
+\end{equation}
+This is the return value \texttt{A \%*\% solve(Q, t(A))} when
+\texttt{build\_cov = TRUE}: \texttt{solve(Q, t(A))} solves the linear
+system with right-hand side $\mathbf A_{\mathrm{code}}^\top$.
+When \texttt{build\_cov = FALSE}, the returned \texttt{list(A = A, Q = Q)}
+instead specifies the same field through
+$\mathbf z\sim\mathsf N(\mathbf0,\mathbf Q_{\mathcal U}^{-1})$ and
+$\mathbf U_v=\mathbf A_{\mathrm{code}}\mathbf z$, as in the sampling
+construction following that proposition.
+
+\subsection{Object-by-object correspondence between code and theory}
+\label{sec:alpha3_code_dictionary}
+
+The following dictionary uses the notation of Chapter~7, with
+$\mathbf A_v$ denoting its vertex selector $\mathbf A$. Expressions
+marked ``not stored'' are implicit in the implementation; the code
+forms only the matrices needed for the final covariance.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{@{}p{0.43\textwidth}p{0.53\textwidth}@{}}
+\hline
+Code object or expression & Object in the theory \\
+\hline
+\texttt{sigma\^{}2}
+& $\sigma^2=3/(16\tau^2\kappa^5)$, the real-line variance scale \\
+\texttt{Qtilde}
+& $\widehat{\mathbf Q}=\sigma^2\widetilde{\mathbf Q}$, the unit-variance
+boundaryless edge precision \\
+\texttt{Qtilde / sigma\^{}2} (not stored)
+& $\widetilde{\mathbf Q}$, the boundaryless precision in Chapter~7 \\
+\texttt{K}
+& $\mathbf K$, imposing $\mathbf K\widetilde{\mathbf U}=\mathbf0$ \\
+\texttt{CoB\$T}, after transposition
+& $\mathbf T$, the full change of basis \\
+\texttt{seq\_along(CoB\$S)}
+& $\mathcal C=\{1,\ldots,k_c\}$, the constrained coordinate indices \\
+\texttt{keep}
+& $\mathcal U$, the free coordinate indices \\
+\texttt{Tc}
+& $\mathbf T_{\mathcal U}$, the free rows of $\mathbf T$ \\
+\texttt{t(Tc)}
+& $\mathbf T_{\mathcal U}^\top$, mapping free coordinates to endpoint
+coordinates satisfying the constraints \\
+\texttt{indices}
+& The endpoint value coordinates selected by $\mathbf A_v$ \\
+\texttt{A}
+& $\mathbf A_v\mathbf T_{\mathcal U}^\top$ \\
+\texttt{Q}
+& $\widetilde{\mathbf Q}^{*}_{\mathcal U\mathcal U}
+=\sigma^{-2}\mathbf T_{\mathcal U}\widehat{\mathbf Q}
+ \mathbf T_{\mathcal U}^\top$ \\
+\texttt{solve(Q, t(A))}
+& $\left(\widetilde{\mathbf Q}^{*}_{\mathcal U\mathcal U}\right)^{-1}
+\mathbf T_{\mathcal U}\mathbf A_v^\top$ \\
+\texttt{A \%*\% solve(Q, t(A))}
+& $\operatorname{Cov}(\mathbf U_v)$ in the result labelled
+\texttt{cor:sample\_Uv} \\
+\hline
+\end{tabular}
+\end{center}
+
+In particular, the exact correspondence for the precision appearing
+inside the inverse in that result is
+\begin{equation}
+\boxed{\;
+\widetilde{\mathbf Q}^{*}_{\mathcal U\mathcal U}
+\quad\longleftrightarrow\quad \texttt{Q}
+=\texttt{1/sigma\^{}2 * Tc \%*\% Qtilde \%*\% t(Tc)}.
+\;}
+\end{equation}
+The full transformed matrix
+$\widetilde{\mathbf Q}^{*}=\mathbf T\widetilde{\mathbf Q}\mathbf T^\top$
+is not stored: its free principal block is computed directly as
+\texttt{Q}. Likewise, $\mathbf A_v$ is not stored separately, because
+row selection from \texttt{t(Tc)} directly produces
+$\mathbf A_v\mathbf T_{\mathcal U}^\top$.
+
 \section{Comparison to rat int paper}
 
 The calculation above is a detailed derivation of the partial-fraction
