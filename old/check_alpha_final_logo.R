@@ -1,7 +1,8 @@
 # this is one is ok the next is to see what Alex says
 
 library(Matrix)
-pkgload::load_all("/home/rierasl/Desktop/MetricGraph") #library(MetricGraph)
+pkgload::load_all("/home/rierasl/Desktop/MetricGraph") 
+#library(MetricGraph)
 library(viridis)
 
 # get the functions from the Rmd files
@@ -50,6 +51,11 @@ graph$add_observations(
 graph$observation_to_vertex()
 
 
+# graph$build_constraints()
+# K1 <- graph$constraints$alpha3$K
+# K2 <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+# Tc <- graph$constraints$alpha3$Tc
+# max(abs(K2 %*% t(Tc)))
 
 
 data <- graph$get_data()
