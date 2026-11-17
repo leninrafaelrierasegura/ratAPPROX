@@ -87,7 +87,7 @@ captioner <- function(caption) {
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
-library(MetricGraph)
+# pkgload::load_all("/home/rierasl/Desktop/MetricGraph") #library(MetricGraph)
 library(grateful)
 library(Matrix)
 

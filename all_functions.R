@@ -1,8 +1,8 @@
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # remotes::install_github("davidbolin/rspde", ref = "devel")
 # remotes::install_github("davidbolin/metricgraph", ref = "devel")
 library(rSPDE)
-library(MetricGraph)
+#pkgload::load_all("/home/rierasl/Desktop/MetricGraph")
 library(grateful)
 
 library(ggplot2)
@@ -10,7 +10,7 @@ library(reshape2)
 library(plotly)
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to build a tadpole graph and create a mesh
 gets.graph.tadpole <- function(flip_edge = FALSE){
   if(flip_edge) {
@@ -27,7 +27,7 @@ gets.graph.tadpole <- function(flip_edge = FALSE){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Eigenfunctions for the tadpole graph
 tadpole.eig <- function(k,graph){
   x1 <- c(0,graph$get_edge_lengths()[1]*graph$mesh$PtE[graph$mesh$PtE[,1]==1,2]) 
@@ -76,7 +76,7 @@ gets_true_cov_mat <- function(graph, kappa, tau, alpha, n.overkill){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
   
   kappa <- theta[2]
@@ -155,7 +155,7 @@ Qalpha1 <- function(theta, graph, BC = 1, build = TRUE) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Typically, factor = 4, constant = 3
 gives.indices <- function(graph, factor, constant){
   # Here, after doing graph$observation_to_vertex() 
@@ -237,7 +237,7 @@ conditioning <- function(graph, alpha = 1){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     # r00 <- r00 + 1e-8*max(r00)*diag(nrow(r00))
     # r00_reg <- r00/min(diag(r00))
@@ -294,7 +294,7 @@ computesListOfMatricesQTildeUnconstraint <- function(p,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
     graph, 
@@ -411,7 +411,7 @@ gets_cov_mat_rat_approx_alpha_1_to_2 <- function(
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
     graph, 
     kappa, 
@@ -505,7 +505,7 @@ gets_cov_mat_rat_approx_alpha_0_to_1 <- function(
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- function(
     graph,
@@ -616,7 +616,7 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree <- functi
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This is the correct version, it is corrected the constants
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function(
     graph,
@@ -731,7 +731,7 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo <- function
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- function(
     graph, 
     kappa, 
@@ -822,7 +822,181 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- functio
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdated <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  # The exact alpha-one path already avoids constructing constraint bases.
+  if (alpha == 1) {
+    Q <- MetricGraph:::Qalpha1(
+      theta = c(tau, kappa), graph = graph, BC = 3000, build = TRUE)
+    A <- graph$.__enclos_env__$private$A()
+    if (build_cov) return(A %*% solve(Q, t(A)))
+    return(list(A = A, Q = Q))
+  }
+
+  if (is.null(graph$constraints)) graph$build_constraints()
+  setup <- graph$constraints$alpha1
+  Tc <- setup$Tc
+  A_i <- setup$A
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+
+  # The zeroth component is white noise on the graph vertices, so it
+  # retains its vertex precision and observation map rather than an edge basis.
+  Q_0 <- Matrix::Diagonal(graph$nV) /
+    (coeff$k * c_alpha * sqrt(4*pi) * sigma2 / kappa)
+  A_0 <- graph$.__enclos_env__$private$A()
+
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Q_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Tc %*% Qtilde_i[[i]] %*% t(Tc) / (coeff$r[i] * sigma2)
+  })
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), length(Q_i))))
+  Q <- Matrix::bdiag(c(list(Q_0), Q_i))
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdated <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  if (is.null(graph$constraints)) graph$build_constraints()
+  constraints <- graph$constraints
+
+  if (alpha == 2) {
+    setup <- constraints$alpha2
+    Tc <- setup$Tc
+    A <- setup$A
+    Qtilde <- MetricGraph:::Qalpha2(
+      theta = c(tau, kappa), graph = graph, BC = 3000, build = TRUE)
+    Q <- Tc %*% Qtilde %*% t(Tc)
+    if (build_cov) return(A %*% solve(Q, t(A)))
+    return(list(A = A, Q = Q))
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+  c_1 <- gamma(1) / gamma(1/2)
+
+  setup_0 <- constraints$alpha1
+  Tc_0 <- setup_0$Tc
+  A_0 <- setup_0$A
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0, kappa = kappa, alpha = 1,
+    edgeLengths = graph$edge_lengths)[[1]]
+  Q_0 <- Tc_0 %*% Qtilde_0 %*% t(Tc_0) /
+    (coeff$k * c_alpha * sigma2 / c_1)
+
+  setup_i <- constraints$alpha2
+  Tc_i <- setup_i$Tc
+  A_i <- setup_i$A
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Q_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Tc_i %*% Qtilde_i[[i]] %*% t(Tc_i) / (coeff$r[i] * sigma2)
+  })
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), length(Q_i))))
+  Q <- Matrix::bdiag(c(list(Q_0), Q_i))
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdated <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  if (is.null(graph$constraints)) graph$build_constraints()
+  constraints <- graph$constraints
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+
+  if (alpha == 3) {
+    setup <- constraints$alpha3
+    Tc <- setup$Tc
+    A <- setup$A
+    Qtilde <- computesListOfMatricesQTildeUnconstraint(
+      p = 0, kappa = kappa, alpha = 3,
+      edgeLengths = graph$edge_lengths)[[1]]
+    Q <- Tc %*% Qtilde %*% t(Tc) / sigma2
+    if (build_cov) return(A %*% solve(Q, t(A)))
+    return(list(A = A, Q = Q))
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+  c_2 <- gamma(2) / gamma(3/2)
+
+  setup_0 <- constraints$alpha2
+  Tc_0 <- setup_0$Tc
+  A_0 <- setup_0$A
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0, kappa = kappa, alpha = 2,
+    edgeLengths = graph$edge_lengths)[[1]]
+  Q_0 <- Tc_0 %*% Qtilde_0 %*% t(Tc_0) /
+    (coeff$k * c_alpha * sigma2 / c_2)
+
+  setup_i <- constraints$alpha3
+  Tc_i <- setup_i$Tc
+  A_i <- setup_i$A
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Q_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Tc_i %*% Qtilde_i[[i]] %*% t(Tc_i) / (coeff$r[i] * sigma2)
+  })
+  A <- cbind(A_0, do.call(cbind, rep(list(A_i), length(Q_i))))
+  Q <- Matrix::bdiag(c(list(Q_0), Q_i))
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -837,7 +1011,7 @@ rat_covariance <- function(graph,
   else if(alpha > 0.5 && alpha <= 1){
     # gets_cov_mat_rat_approx_alpha_0_to_1
     # getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne(
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdated(
       graph = graph,
       kappa = kappa,
       tau = tau,
@@ -850,7 +1024,7 @@ rat_covariance <- function(graph,
   else if(alpha > 1 && alpha <= 2){
     # gets_cov_mat_rat_approx_alpha_1_to_2
     # getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo(
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdated(
       graph = graph,
       kappa = kappa,
       tau = tau,
@@ -861,7 +1035,7 @@ rat_covariance <- function(graph,
       build_cov = build_cov))
   }
   else if(alpha > 2 && alpha <= 3){
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree(
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdated(
       graph = graph,
       kappa = kappa,
       tau = tau,
@@ -874,7 +1048,7 @@ rat_covariance <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # comment
 lazy_likelihood_alpha_rat <- function(graph,
                                             kappa,
@@ -913,7 +1087,7 @@ lazy_likelihood_alpha_rat <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rat_loglikelihood <- function(graph,
                               theta,
                               alpha,
@@ -944,7 +1118,7 @@ rat_loglikelihood <- function(graph,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov) {
   m <- object$m
 
@@ -1001,7 +1175,7 @@ FEM_loglikelihood <- function(object, y, X_cov, repl, A_list, sigma_e, beta_cov)
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_De_from_Uv <- function(graph, alpha){
   E  <- graph$E
   nV <- graph$nV
@@ -1024,7 +1198,7 @@ gets_De_from_Uv <- function(graph, alpha){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gets_De_from_U <- function(graph, alpha){
   nE <- graph$nE 
   
@@ -1046,7 +1220,7 @@ gets_De_from_U <- function(graph, alpha){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
   edgeMatrix <- graph$E
   degrees <- graph$get_degrees()
@@ -1109,7 +1283,7 @@ buildKirchooffConditioningMatrixCaseAlphaEqualOne <- function(graph) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
   alpha <- 2
   n <- 2*alpha*graph$nE
@@ -1137,7 +1311,182 @@ buildKirchooffConditioningMatrixCaseAlphaEqualThree <- function(graph) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Construct K directly, without reading or modifying graph$C or graph$CoB.
+# Columns are (u, u', ..., u^(alpha-1)) at each edge end, ordered as
+# start(edge 1), end(edge 1), start(edge 2), end(edge 2), ... .
+buildKirchhoffConstraintMatrix <- function(graph, alpha) {
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      is.na(alpha) || !(alpha %in% 1:3)) {
+    stop("alpha must be one of 1, 2, or 3")
+  }
+  alpha <- as.integer(alpha)
+  E <- graph$E
+  nV <- graph$nV
+  if (!is.numeric(nV) || is.complex(nV) || length(nV) != 1L || !is.finite(nV) ||
+      nV < 0 || nV > .Machine$integer.max || nV != floor(nV)) {
+    stop("graph$nV must be a nonnegative integer")
+  }
+  nV <- as.integer(nV)
+  if (!is.matrix(E) || !is.numeric(E) || is.complex(E) || ncol(E) != 2L ||
+      any(!is.finite(E)) || any(E != floor(E)) ||
+      any(E < 1 | E > nV)) {
+    stop("graph$E must be a two-column matrix of vertex indices in 1:graph$nV")
+  }
+
+  # Stable radix ordering groups incidences while retaining their endpoint
+  # order within each vertex. A loop contributes two distinct incidences.
+  endpoints <- as.integer(c(t(E)))
+  ordered <- order(endpoints, method = "radix")
+  left <- head(ordered, -1L)
+  right <- tail(ordered, -1L)
+  same_vertex <- endpoints[left] == endpoints[right]
+  left <- left[same_vertex]
+  right <- right[same_vertex]
+  n_continuity <- length(left)
+  continuity_rows <- rep(seq_len(n_continuity), 2L)
+  continuity_values <- rep(c(1, -1), each = n_continuity)
+
+  # Equality between consecutive incidences gives d_v - 1 independent
+  # continuity rows at a vertex of degree d_v, with no rows at degree one.
+  i <- continuity_rows
+  j <- alpha * (c(left, right) - 1L) + 1L
+  x <- continuity_values
+  n_constraints <- n_continuity
+
+  if (alpha >= 2L) {
+    # Kirchhoff rows include degree-one vertices (Neumann conditions).
+    # Isolated vertices contribute no rows because they have no edge ends.
+    active_vertices <- which(tabulate(endpoints, nbins = nV) > 0L)
+    vertex_rows <- integer(nV)
+    vertex_rows[active_vertices] <- seq_along(active_vertices)
+    i <- c(i, n_constraints + vertex_rows[endpoints])
+    j <- c(j, alpha * (seq_along(endpoints) - 1L) + 2L)
+    x <- c(x, rep(c(1, -1), times = nrow(E)))
+    n_constraints <- n_constraints + length(active_vertices)
+  }
+
+  if (alpha == 3L) {
+    # Even derivatives have the same orientation at both edge ends.
+    i <- c(i, n_constraints + continuity_rows)
+    j <- c(j, 3L * (c(left, right) - 1L) + 3L)
+    x <- c(x, continuity_values)
+    n_constraints <- n_constraints + n_continuity
+  }
+
+  return(Matrix::sparseMatrix(
+    i = i, j = j, x = x,
+    dims = c(n_constraints, alpha * length(endpoints))
+  ))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+buildConstraintMatrices <- function(graph) {
+  if (is.null(graph$PtV)) {
+    stop("graph$PtV is NULL, please run graph$observation_to_vertex() first")
+  }
+
+  # Rebuild alpha=2 explicitly: graph$C may contain a different alpha case.
+  # This updates graph$C and graph$CoB, just as a direct buildC() call does.
+  K1 <- buildKirchooffConditioningMatrixCaseAlphaEqualOne(graph)
+  graph$buildC(alpha = 2, edge_constraint = TRUE)
+  K2 <- graph$C
+  CoB2 <- graph$CoB
+  K3 <- buildKirchooffConditioningMatrixCaseAlphaEqualThree(graph)
+
+  build_case <- function(K, alpha, CoB = NULL) {
+    if (nrow(K) == 0L) {
+      # No constraints (e.g. alpha=1 on a single interval).
+      T <- Matrix::Diagonal(ncol(K))
+      S <- numeric(0)
+    } else {
+      if (is.null(CoB)) {
+        CoB <- MetricGraph:::c_basis2(K)
+        # c_basis2 returns the basis in columns; use rows as in the theory.
+        CoB$T <- t(CoB$T)
+      }
+      # graph$CoB from buildC() already uses the row-basis convention.
+      T <- CoB$T
+      S <- CoB$S
+    }
+
+    keep <- setdiff(seq_len(nrow(T)), seq_along(S))
+    Tc <- T[keep, , drop = FALSE]
+    indices <- indicesForOrderedVertices(graph, alpha = alpha)
+    A <- t(Tc)[indices, , drop = FALSE]
+
+    return(list(K = K, T = T, S = S, keep = keep,
+                Tc = Tc, indices = indices, A = A))
+  }
+
+  return(list(
+    alpha1 = build_case(K1, alpha = 1),
+    alpha2 = build_case(K2, alpha = 2, CoB = CoB2),
+    alpha3 = build_case(K3, alpha = 3)
+  ))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Read-only setup for all integer cases. No graph methods or cached
+# constraint objects are used, and the result is returned rather than stored.
+buildConstraintMatricesStandalone <- function(graph) {
+  # Also validates the topology before using it to select endpoint values.
+  K1 <- buildKirchhoffConstraintMatrix(graph, alpha = 1)
+  K2 <- buildKirchhoffConstraintMatrix(graph, alpha = 2)
+  K3 <- buildKirchhoffConstraintMatrix(graph, alpha = 3)
+
+  vertices <- graph$PtV
+  if (is.null(vertices)) {
+    stop("graph$PtV must be initialized before building the vertex maps")
+  }
+  if (!is.numeric(vertices) || is.complex(vertices) ||
+      !is.null(dim(vertices)) || any(!is.finite(vertices)) ||
+      any(vertices != floor(vertices)) ||
+      any(vertices < 1 | vertices > graph$nV)) {
+    stop("graph$PtV must be a vector of vertex indices in 1:graph$nV")
+  }
+
+  # Match the existing vertex ordering: prefer a start endpoint and fall
+  # back to an end endpoint. Compute the incidences once for all alphas.
+  E <- graph$E
+  start_edges <- match(vertices, E[, 1])
+  endpoints <- 2L * start_edges - 1L
+  use_end <- is.na(start_edges)
+  endpoints[use_end] <- 2L * match(vertices[use_end], E[, 2])
+  if (anyNA(endpoints)) {
+    stop("Every vertex in graph$PtV must be incident to an edge")
+  }
+
+  build_case <- function(K, alpha) {
+    if (nrow(K) == 0L) {
+      T <- Matrix::Diagonal(ncol(K))
+      S <- numeric(0)
+    } else {
+      CoB <- MetricGraph:::c_basis2(K)
+      # The native routine returns basis columns; T uses basis rows.
+      T <- t(CoB$T)
+      S <- CoB$S
+    }
+    keep <- setdiff(seq_len(nrow(T)), seq_along(S))
+    Tc <- T[keep, , drop = FALSE]
+    indices <- alpha * (endpoints - 1L) + 1L
+    A <- t(Tc)[indices, , drop = FALSE]
+
+    return(list(K = K, T = T, S = S, keep = keep,
+                Tc = Tc, indices = indices, A = A))
+  }
+
+  return(list(
+    alpha1 = build_case(K1, alpha = 1),
+    alpha2 = build_case(K2, alpha = 2),
+    alpha3 = build_case(K3, alpha = 3)
+  ))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 buildMatrixAWhichMapsUToUv <- function(graph, alpha){
   edgeMatrix <- graph$E
   edgeMatrixFlattened <- c(t(edgeMatrix))
@@ -1158,7 +1507,7 @@ buildMatrixAWhichMapsUToUv <- function(graph, alpha){
 
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 getsSmallCovarianceMatrices <- function(D_matrix,
                                         kappa,
                                         tau,
@@ -1205,7 +1554,7 @@ getsSmallCovarianceMatrices <- function(D_matrix,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualOnePrecompute <- function(theta, 
                                                     graph, 
                                                     precomputeddata,
@@ -1359,7 +1708,7 @@ loglikelihoodForAlphaEqualOnePrecompute <- function(theta,
 
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 loglikelihoodForAlphaEqualTwoPrecompute <- function(theta, 
                                                     precomputed_data, 
                                                     BC = 1, 
@@ -1591,7 +1940,7 @@ loglikelihoodForAlphaEqualTwoPrecompute <- function(theta,
 
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This was just updated
 myggsave <- function(plot,
                      width = 9.22,
@@ -1680,7 +2029,7 @@ myggsave <- function(plot,
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 save_dual_for_presentation <- function(obj) {
   obj_name <- deparse(substitute(obj))
   filename <- paste0(obj_name, ".RData")
@@ -1700,7 +2049,7 @@ save_dual_for_presentation <- function(obj) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 save_plotly_figure_fixed <- function(fig,
                                      dpi = 600,
                                      scale = 2,
@@ -1789,7 +2138,7 @@ save_plotly_figure_fixed <- function(fig,
 
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # function to combine
 combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
   
@@ -1830,7 +2179,7 @@ combine_pngs_with_gap <- function(png_files, output_file, gap = 20) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to order the vertices for plotting
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
@@ -1839,7 +2188,7 @@ plotting.order <- function(v, graph){
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to set the scene for 3D plots
 global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
   
@@ -1858,7 +2207,7 @@ global.scene.setter <- function(x_range, y_range, z_range, z_aspectratio = 4) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to plot a single 3D line for 
 graph.plotter.3d.single <- function(graph, U_true, time_seq) {
   x <- graph$mesh$V[, 1]; y <- graph$mesh$V[, 2]
@@ -1932,7 +2281,7 @@ graph.plotter.3d.single <- function(graph, U_true, time_seq) {
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Function to plot the 3D comparison of U_true and U_approx
 
 # some
@@ -2150,7 +2499,7 @@ p <- p %>%
 }
 
 
-## --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 plotting.order <- function(v, graph){
   edge_number <- graph$mesh$VtE[, 1]
   pos <- sum(edge_number == 1)+1

@@ -1,7 +1,8 @@
 # this is one is ok the next is to see what Alex says
 
 library(Matrix)
-library(MetricGraph)
+pkgload::load_all("/home/rierasl/Desktop/MetricGraph") 
+#library(MetricGraph)
 library(viridis)
 library(dplyr)
 
@@ -26,7 +27,7 @@ n.overkill <- 1000
 type_rational_approx = "brasil"
 type_interp = "spline"
 
-FLIPPED <- FALSE
+FLIPPED <- TRUE
 
 
 # build a graph with a mesh

@@ -1,7 +1,7 @@
 # this is one is ok the next is to see what Alex says
 
 library(Matrix)
-library(MetricGraph)
+pkgload::load_all("/home/rierasl/Desktop/MetricGraph") #library(MetricGraph)
 library(viridis)
 
 # get the functions from the Rmd files
