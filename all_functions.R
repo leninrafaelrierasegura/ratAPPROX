@@ -823,6 +823,126 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- functio
 
 
 ## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsRawPrecisionMatricesForAlphaBetweenZeroAndOne <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline") {
+
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 0.5 || alpha >= 1) {
+    stop("alpha must be strictly between 0.5 and 1")
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+
+  Qraw_0 <- Matrix::Diagonal(graph$nV) /
+    (coeff$k * c_alpha * sqrt(4*pi) * sigma2 / kappa)
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Qraw_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Qtilde_i[[i]] / (coeff$r[i] * sigma2)
+  })
+
+  Qraw <- c(list(Qraw_0), Qraw_i)
+  names(Qraw) <- paste0("Q", seq_along(Qraw) - 1L)
+  return(Qraw)
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsRawPrecisionMatricesForAlphaBetweenOneAndTwo <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline") {
+
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 1 || alpha >= 2) {
+    stop("alpha must be strictly between 1 and 2")
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+  c_1 <- gamma(1) / gamma(1/2)
+
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0, kappa = kappa, alpha = 1,
+    edgeLengths = graph$edge_lengths)[[1]]
+  Qraw_0 <- Qtilde_0 / (coeff$k * c_alpha * sigma2 / c_1)
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Qraw_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Qtilde_i[[i]] / (coeff$r[i] * sigma2)
+  })
+
+  Qraw <- c(list(Qraw_0), Qraw_i)
+  names(Qraw) <- paste0("Q", seq_along(Qraw) - 1L)
+  return(Qraw)
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsRawPrecisionMatricesForAlphaBetweenTwoAndThree <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline") {
+
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 2 || alpha >= 3) {
+    stop("alpha must be strictly between 2 and 3")
+  }
+
+  coeff <- rSPDE:::interp_rational_coefficients(
+    order = m, type_rational_approx = type_rational_approx,
+    type_interp = type_interp, alpha = alpha)
+  nu <- alpha - 1/2
+  sigma2 <- gamma(nu) /
+    (tau^2 * kappa^(2*nu) * sqrt(4*pi) * gamma(nu + 1/2))
+  c_alpha <- gamma(alpha) / gamma(alpha - 1/2)
+  c_2 <- gamma(2) / gamma(3/2)
+
+  Qtilde_0 <- computesListOfMatricesQTildeUnconstraint(
+    p = 0, kappa = kappa, alpha = 2,
+    edgeLengths = graph$edge_lengths)[[1]]
+  Qraw_0 <- Qtilde_0 / (coeff$k * c_alpha * sigma2 / c_2)
+  Qtilde_i <- computesListOfMatricesQTildeUnconstraint(
+    p = coeff$p, kappa = kappa, alpha = alpha,
+    edgeLengths = graph$edge_lengths)
+  Qraw_i <- lapply(seq_along(Qtilde_i), function(i) {
+    Qtilde_i[[i]] / (coeff$r[i] * sigma2)
+  })
+
+  Qraw <- c(list(Qraw_0), Qraw_i)
+  names(Qraw) <- paste0("Q", seq_along(Qraw) - 1L)
+  return(Qraw)
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdated <- function(
     graph,
     kappa,
@@ -997,6 +1117,147 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdated <-
 
 
 ## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdatedSpdePrecision <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  if (!inherits(graph, "metric_graph")) {
+    stop("graph must be a metric_graph object")
+  }
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 0.5 || alpha > 1) {
+    stop("alpha must be in (0.5, 1]")
+  }
+  if (!is.logical(build_cov) || length(build_cov) != 1L || is.na(build_cov)) {
+    stop("build_cov must be TRUE or FALSE")
+  }
+
+  Qraw <- MetricGraph::spde_precision(
+    kappa = kappa, tau = tau, alpha = alpha, graph = graph,
+    BC = 0, build = TRUE, m = m,
+    type_rational_approx = type_rational_approx, type_interp = type_interp)
+
+  if (alpha == 1) {
+    Q <- Qraw
+    A <- graph$.__enclos_env__$private$A()
+  } else {
+    if (is.null(graph$constraints)) graph$build_constraints()
+    setup_i <- graph$constraints$alpha1
+    Tc_joint <- Matrix::bdiag(c(
+      list(Matrix::Diagonal(graph$nV)), rep(list(setup_i$Tc), m)))
+    A_0 <- graph$.__enclos_env__$private$A()
+    A <- cbind(A_0, do.call(cbind, rep(list(setup_i$A), m)))
+    Q <- Tc_joint %*% Qraw %*% t(Tc_joint)
+  }
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdatedSpdePrecision <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  if (!inherits(graph, "metric_graph")) {
+    stop("graph must be a metric_graph object")
+  }
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 1 || alpha > 2) {
+    stop("alpha must be in (1, 2]")
+  }
+  if (!is.logical(build_cov) || length(build_cov) != 1L || is.na(build_cov)) {
+    stop("build_cov must be TRUE or FALSE")
+  }
+
+  Qraw <- MetricGraph::spde_precision(
+    kappa = kappa, tau = tau, alpha = alpha, graph = graph,
+    BC = 0, build = TRUE, m = m,
+    type_rational_approx = type_rational_approx, type_interp = type_interp)
+
+  if (is.null(graph$constraints)) graph$build_constraints()
+  constraints <- graph$constraints
+
+  if (alpha == 2) {
+    setup <- constraints$alpha2
+    Tc_joint <- setup$Tc
+    A <- setup$A
+  } else {
+    setup_0 <- constraints$alpha1
+    setup_i <- constraints$alpha2
+    Tc_joint <- Matrix::bdiag(c(
+      list(setup_0$Tc), rep(list(setup_i$Tc), m)))
+    A <- cbind(setup_0$A, do.call(cbind, rep(list(setup_i$A), m)))
+  }
+  Q <- Tc_joint %*% Qraw %*% t(Tc_joint)
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdatedSpdePrecision <- function(
+    graph,
+    kappa,
+    tau,
+    alpha,
+    m,
+    type_rational_approx = "chebfun",
+    type_interp = "spline",
+    build_cov) {
+
+  if (!inherits(graph, "metric_graph")) {
+    stop("graph must be a metric_graph object")
+  }
+  if (!is.numeric(alpha) || is.complex(alpha) || length(alpha) != 1L ||
+      !is.finite(alpha) || alpha <= 2 || alpha > 3) {
+    stop("alpha must be in (2, 3]")
+  }
+  if (!is.logical(build_cov) || length(build_cov) != 1L || is.na(build_cov)) {
+    stop("build_cov must be TRUE or FALSE")
+  }
+
+  Qraw <- MetricGraph::spde_precision(
+    kappa = kappa, tau = tau, alpha = alpha, graph = graph,
+    BC = 0, build = TRUE, m = m,
+    type_rational_approx = type_rational_approx, type_interp = type_interp)
+
+  if (is.null(graph$constraints)) graph$build_constraints()
+  constraints <- graph$constraints
+
+  if (alpha == 3) {
+    setup <- constraints$alpha3
+    Tc_joint <- setup$Tc
+    A <- setup$A
+  } else {
+    setup_0 <- constraints$alpha2
+    setup_i <- constraints$alpha3
+    Tc_joint <- Matrix::bdiag(c(
+      list(setup_0$Tc), rep(list(setup_i$Tc), m)))
+    A <- cbind(setup_0$A, do.call(cbind, rep(list(setup_i$A), m)))
+  }
+  Q <- Tc_joint %*% Qraw %*% t(Tc_joint)
+
+  if (build_cov) return(A %*% solve(Q, t(A)))
+  return(list(A = A, Q = Q))
+}
+
+
+## ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rat_covariance <- function(graph, 
                            kappa, 
                            tau, 
@@ -1011,7 +1272,8 @@ rat_covariance <- function(graph,
   else if(alpha > 0.5 && alpha <= 1){
     # gets_cov_mat_rat_approx_alpha_0_to_1
     # getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdated(
+    # getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdated
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOneUpdatedSpdePrecision(
       graph = graph,
       kappa = kappa,
       tau = tau,
@@ -1024,7 +1286,8 @@ rat_covariance <- function(graph,
   else if(alpha > 1 && alpha <= 2){
     # gets_cov_mat_rat_approx_alpha_1_to_2
     # getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwo
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdated(
+    # getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdated
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenOneAndTwoUpdatedSpdePrecision(
       graph = graph,
       kappa = kappa,
       tau = tau,
@@ -1035,7 +1298,9 @@ rat_covariance <- function(graph,
       build_cov = build_cov))
   }
   else if(alpha > 2 && alpha <= 3){
-    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdated(
+    # getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThree
+    # getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdated
+    return(getsCovarianceMatrixForRationalApproximationForAlphaBetweenTwoAndThreeUpdatedSpdePrecision(
       graph = graph,
       kappa = kappa,
       tau = tau,
