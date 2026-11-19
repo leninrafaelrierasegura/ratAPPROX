@@ -784,6 +784,519 @@ is not stored: its free principal block is computed directly as
 row selection from \texttt{t(Tc)} directly produces
 $\mathbf A_v\mathbf T_{\mathcal U}^\top$.
 
+\section{Numerical conditioning on short edges}
+\label{sec:short_edge_conditioning}
+
+The covariance formula \eqref{eq:alpha3_sample_Uv_code} is an exact
+identity. Its numerical evaluation, however, can become unstable when
+an edge is short relative to the correlation length. There are two
+distinct sources of difficulty: inversion of the stationary endpoint
+covariance, and cancellation when the boundaryless precision is
+assembled and transformed. We describe them using the notation of
+Section~\ref{sec:alpha3_sample_Uv}, with $\kappa,\tau>0$ fixed and
+$\ell=\ell_e\downarrow0$.
+
+\subsection{The stationary endpoint covariance approaches a singular matrix}
+
+For $\alpha=3$, the unit-variance stationary covariance is
+\begin{equation}
+r(h)=\left(1+\kappa|h|+\frac{\kappa^2h^2}{3}\right)e^{-\kappa|h|},
+\qquad
+\mathbf R_0=
+\begin{pmatrix}
+1&0&-\kappa^2/3\\
+0&\kappa^2/3&0\\
+-\kappa^2/3&0&\kappa^4
+\end{pmatrix}.
+\end{equation}
+Writing $\mathbf R_{0\ell}$ for the cross-covariance of the endpoint
+triples, we have
+\begin{equation}
+\mathbf R_e=
+\begin{pmatrix}
+\mathbf R_0&\mathbf R_{0\ell}\\
+\mathbf R_{0\ell}^{\top}&\mathbf R_0
+\end{pmatrix}
+\longrightarrow
+\begin{pmatrix}
+\mathbf R_0&\mathbf R_0\\
+\mathbf R_0&\mathbf R_0
+\end{pmatrix}.
+\label{eq:short_edge_covariance_limit}
+\end{equation}
+The limiting matrix has rank three rather than six: the two endpoint
+triples become identical. For every positive $\ell$ the covariance is
+positive definite, but its smallest eigenvalues approach zero.
+
+To state the conditioning independently of the units of the
+derivatives, set $z=\kappa\ell$ and
+\begin{equation}
+\mathbf S_\kappa=\operatorname{diag}(1,\kappa^{-1},\kappa^{-2}),
+\qquad
+\overline{\mathbf R}_e=
+\operatorname{diag}(\mathbf S_\kappa,\mathbf S_\kappa)
+\mathbf R_e
+\operatorname{diag}(\mathbf S_\kappa,\mathbf S_\kappa).
+\end{equation}
+Three eigenvalues of $\overline{\mathbf R}_e$ remain bounded away from
+zero; the other three have orders $z$, $z^3$, and $z^5$. Consequently,
+\begin{equation}
+\operatorname{cond}_2(\overline{\mathbf R}_e)\asymp z^{-5},
+\qquad z\downarrow0.
+\label{eq:short_edge_covariance_condition}
+\end{equation}
+Thus a small matrix can still be numerically almost singular. For
+$\kappa=1$ and $\ell=10^{-3}$, the reciprocal one-norm condition
+number of $\mathbf R_e$ is approximately $1.4\times10^{-18}$, below
+double-precision roundoff. Rounding the covariance entries can already
+destroy information needed by its inverse. The short-edge dependence
+enters through $\mathbf R_e$; the same-point matrix $\mathbf R_0$
+does not depend on $\ell$.
+
+\subsection{Transition and innovation coordinates}
+
+An equivalent representation identifies which quantities need stable
+evaluation. Introduce the physically scaled stationary covariances
+\begin{equation}
+\mathbf C_0=\sigma^2\mathbf R_0,\qquad
+\mathbf C_e=\sigma^2\mathbf R_e,\qquad
+\mathbf P_0=\mathbf C_0^{-1},
+\end{equation}
+where $\sigma^2$ is given by \eqref{eq:alpha3_sigma_scale}.
+The stationary reference process with this covariance has state
+$\boldsymbol v(s)=(v(s),v'(s),v''(s))^\top$ satisfying
+\begin{equation}
+d\boldsymbol v(s)=\mathbf F\boldsymbol v(s)\,ds
+                  +\tau^{-1}\mathbf e_3\,dW(s),
+\qquad
+\mathbf F=
+\begin{pmatrix}
+0&1&0\\0&0&1\\-\kappa^3&-3\kappa^2&-3\kappa
+\end{pmatrix},
+\label{eq:short_edge_state_equation}
+\end{equation}
+with $\mathbf e_3=(0,0,1)^\top$. This is the causal representation
+$(\partial_s+\kappa)^3v=\tau^{-1}\mathcal W$ of the stationary
+Mat\'ern field. It is a reference process for constructing the edge
+precision, before the boundary correction and graph constraints.
+
+Its endpoint transition and innovation covariance are
+\begin{align}
+\boldsymbol\Phi_\ell&=e^{\ell\mathbf F},\\
+\mathbf V_\ell&=\tau^{-2}\int_0^\ell
+ e^{s\mathbf F}\mathbf e_3\mathbf e_3^\top e^{s\mathbf F^\top}\,ds,
+\label{eq:short_edge_innovation}
+\end{align}
+so that $\boldsymbol v(\ell)=\boldsymbol\Phi_\ell\boldsymbol v(0)
++\boldsymbol\eta_\ell$, where
+$\boldsymbol\eta_\ell\sim\mathsf N(0,\mathbf V_\ell)$ is independent
+of $\boldsymbol v(0)$. The joint density gives the exact identity
+\begin{equation}
+\mathbf C_e^{-1}=
+\begin{pmatrix}
+\mathbf P_0+\boldsymbol\Phi_\ell^\top\mathbf V_\ell^{-1}\boldsymbol\Phi_\ell
+&-\boldsymbol\Phi_\ell^\top\mathbf V_\ell^{-1}\\
+-\mathbf V_\ell^{-1}\boldsymbol\Phi_\ell&\mathbf V_\ell^{-1}
+\end{pmatrix}.
+\label{eq:short_edge_transition_precision}
+\end{equation}
+Subtracting $\frac12\operatorname{diag}(\mathbf P_0,\mathbf P_0)$
+then yields the physical boundaryless precision
+$\widetilde{\mathbf Q}_e=\sigma^{-2}\widehat{\mathbf Q}_e$ of
+\eqref{eq:alpha3_unit_edge_precision}.
+
+The innovation covariance also needs scaling. Define
+$\mathbf D_\ell=\operatorname{diag}(1,\ell,\ell^2)$. Taylor expansion
+of the integral in \eqref{eq:short_edge_innovation} gives
+\begin{equation}
+\mathbf D_\ell\mathbf V_\ell\mathbf D_\ell
+=\tau^{-2}\ell^5\bigl(\mathbf G_3+O(\kappa\ell)\bigr),
+\qquad
+\mathbf G_3=
+\begin{pmatrix}
+1/20&1/8&1/6\\1/8&1/3&1/2\\1/6&1/2&1
+\end{pmatrix}.
+\label{eq:short_edge_scaled_innovation}
+\end{equation}
+Here $\mathbf G_3$ is positive definite and independent of the edge
+length. A local construction can therefore evaluate the scaled integral
+or its small-length series and solve with a matrix approaching
+$\mathbf G_3$. Although stationarity also gives
+$\mathbf V_\ell=\mathbf C_0-
+\boldsymbol\Phi_\ell\mathbf C_0\boldsymbol\Phi_\ell^\top$,
+evaluating this difference directly reintroduces cancellation between
+nearly equal matrices.
+
+\subsection{A second difficulty: cancellation in the assembled precision}
+
+Accurately computing the local innovation does not guarantee that an
+explicitly assembled precision preserves all quadratic forms. Indeed,
+\begin{equation}
+\mathbf D_\ell\boldsymbol\Phi_\ell\mathbf D_\ell^{-1}
+\longrightarrow
+\mathbf E_0=
+\begin{pmatrix}1&1&1/2\\0&1&1\\0&0&1\end{pmatrix},
+\qquad
+\mathbf G_3^{-1}=
+\begin{pmatrix}720&-360&60\\-360&192&-36\\60&-36&9\end{pmatrix}.
+\end{equation}
+With $\mathcal D_\ell=\operatorname{diag}(\mathbf D_\ell,\mathbf D_\ell)$,
+the resulting precision satisfies the balanced limit
+\begin{equation}
+\frac{\ell^5}{\tau^2}\mathcal D_\ell^{-1}
+ \widetilde{\mathbf Q}_e\mathcal D_\ell^{-1}
+\longrightarrow
+\begin{pmatrix}
+\mathbf E_0^\top\mathbf G_3^{-1}\mathbf E_0&-\mathbf E_0^\top\mathbf G_3^{-1}\\
+-\mathbf G_3^{-1}\mathbf E_0&\mathbf G_3^{-1}
+\end{pmatrix}.
+\label{eq:short_edge_precision_limit}
+\end{equation}
+In particular, the entries coupling endpoint values have magnitude of
+order $\tau^2\ell^{-5}$, with
+$(\widetilde{\mathbf Q}_e)_{11}\sim720\tau^2\ell^{-5}$.
+
+Consider the constant endpoint configuration
+$\mathbf x=(\mathbf e_1^\top,\mathbf e_1^\top)^\top$, where
+$\mathbf e_1=(1,0,0)^\top$. From
+\eqref{eq:short_edge_transition_precision} and the boundary correction,
+its exact energy is
+\begin{align}
+\mathbf x^\top\widetilde{\mathbf Q}_e\mathbf x
+&=\boldsymbol\delta_\ell^\top\mathbf V_\ell^{-1}
+  \boldsymbol\delta_\ell,
+\qquad
+\boldsymbol\delta_\ell=(\mathbf I-\boldsymbol\Phi_\ell)\mathbf e_1,\\
+\mathbf D_\ell\boldsymbol\delta_\ell
+&=(\kappa\ell)^3
+ \begin{pmatrix}1/6\\1/2\\1\end{pmatrix}
+ +O((\kappa\ell)^4).
+\end{align}
+For $\mathbf d=(1/6,1/2,1)^\top$,
+$\mathbf d^\top\mathbf G_3^{-1}\mathbf d=1$. Hence
+\begin{equation}
+\boxed{\quad
+\mathbf x^\top\widetilde{\mathbf Q}_e\mathbf x
+=\tau^2\kappa^6\ell\bigl(1+O(\kappa\ell)\bigr).
+\quad}
+\label{eq:short_edge_constant_energy}
+\end{equation}
+Thus terms of order $\ell^{-5}$ must cancel to leave a quantity of
+order $\ell$. If the assembled entries have relative errors of order
+$\epsilon_{\mathrm{fp}}$, the resulting absolute error in this
+quadratic form can be of order
+$\epsilon_{\mathrm{fp}}\tau^2\ell^{-5}$. Relative to the true energy,
+this permits amplification of order
+\begin{equation}
+\epsilon_{\mathrm{fp}}(\kappa\ell)^{-6}.
+\label{eq:short_edge_energy_roundoff}
+\end{equation}
+This is an error scale, rather than a claim that every evaluation
+attains it. For $\kappa=\tau=1$ and $\ell=10^{-3}$, however, entries
+of size approximately $7.2\times10^{17}$ must recover an energy of
+approximately $10^{-3}$. Accurate individual entries in double
+precision are therefore insufficient to guarantee an accurate energy.
+
+For general endpoint vectors $\mathbf x_0,\mathbf x_\ell$, the exact
+quadratic form can instead be written as
+\begin{align}
+\begin{pmatrix}\mathbf x_0\\\mathbf x_\ell\end{pmatrix}^{\!\top}
+\widetilde{\mathbf Q}_e
+\begin{pmatrix}\mathbf x_0\\\mathbf x_\ell\end{pmatrix}
+&=\boldsymbol\delta^\top\mathbf V_\ell^{-1}\boldsymbol\delta
+ +\frac12(\mathbf x_0-\mathbf x_\ell)^\top
+ \mathbf P_0(\mathbf x_0+\mathbf x_\ell),\\
+\boldsymbol\delta
+&=(\mathbf x_\ell-\mathbf x_0)
+ -(\boldsymbol\Phi_\ell-\mathbf I)\mathbf x_0.
+\label{eq:short_edge_factored_energy}
+\end{align}
+This identity retains the innovation structure before combining large
+precision entries. Its stable evaluation also requires computing
+$\boldsymbol\Phi_\ell-\mathbf I$ without subtracting nearly equal
+diagonal entries, for example through its series.
+
+\subsection{Consequences for the graph and fractional components}
+
+The graph calculation subsequently forms
+\begin{equation}
+\mathbf Q_{\mathcal U}
+=\mathbf T_{\mathcal U}\widetilde{\mathbf Q}
+ \mathbf T_{\mathcal U}^{\top},
+\qquad
+\operatorname{Cov}(\mathbf U_v)
+=\mathbf A_{\mathrm{code}}\mathbf Q_{\mathcal U}^{-1}
+ \mathbf A_{\mathrm{code}}^\top.
+\end{equation}
+Multiplication by the constraint basis can combine the large entries
+whose cancellation was illustrated above. The exact constraint formula
+remains valid, but it cannot recover terms already lost when
+$\widetilde{\mathbf Q}$ was assembled. A stable local endpoint
+construction therefore addresses only the first part of the problem;
+accurate graph inference also requires controlling scaling and
+cancellation during the constraint transformation and subsequent solve,
+potentially by retaining innovation coordinates or another factored
+representation.
+
+The same mechanism affects fractional components carrying derivatives.
+For a derivative state of dimension $n$, driven in its highest
+derivative with noise variance $\beta$, set
+\begin{equation}
+\mathbf D_{\ell,n}=\operatorname{diag}(1,\ell,\ldots,\ell^{n-1}).
+\end{equation}
+The corresponding small-length innovation limit is
+\begin{equation}
+\mathbf D_{\ell,n}\mathbf V_\ell\mathbf D_{\ell,n}
+=\beta\ell^{2n-1}\bigl(\mathbf G_n+O(\ell)\bigr),
+\qquad
+(\mathbf G_n)_{ij}
+=\frac{1}{(n-1-i)!(n-1-j)!(2n-1-i-j)},
+\label{eq:short_edge_general_innovation}
+\end{equation}
+where $i,j\in\{0,\ldots,n-1\}$ and the drift parameters are fixed.
+The shifted rational components have $n=2$ for $1<\alpha<2$ and
+$n=3$ for $2<\alpha<3$, so the small innovation scales include
+$\ell^3$ and $\ell^5$, respectively. The issue is consequently not
+restricted to the integer $\alpha=3$ branch.
+
+Finally, replacing an explicit inverse by a solve against the identity
+still asks for the same inverse matrix. It does not remove the
+conditioning in \eqref{eq:short_edge_covariance_condition} or the
+cancellation in \eqref{eq:short_edge_energy_roundoff}. Likewise,
+relaxing a numerical singularity tolerance changes the acceptance
+criterion, without restoring information lost through rounding.
+
+\subsection{A stable local construction from the scaled innovation}
+\label{sec:short_edge_local_solution}
+
+The first remedy is to compute the transition and innovation directly,
+without constructing and inverting $\mathbf R_e$. For $z=\kappa\ell$,
+define
+\begin{equation}
+\mathbf B_z=\ell\mathbf D_\ell\mathbf F\mathbf D_\ell^{-1}
+=\begin{pmatrix}0&1&0\\0&0&1\\-z^3&-3z^2&-3z\end{pmatrix},
+\qquad
+\mathbf H_z=\int_0^1e^{t\mathbf B_z}\mathbf e_3\mathbf e_3^\top
+ e^{t\mathbf B_z^\top}\,dt.
+\end{equation}
+Then the following identities are exact:
+\begin{equation}
+\boldsymbol\Phi_\ell=\mathbf D_\ell^{-1}e^{\mathbf B_z}\mathbf D_\ell,
+\qquad
+\mathbf V_\ell=\tau^{-2}\ell^5
+ \mathbf D_\ell^{-1}\mathbf H_z\mathbf D_\ell^{-1}.
+\label{eq:short_edge_scaled_construction}
+\end{equation}
+In particular, $\mathbf H_z\to\mathbf G_3$ as $z\to0$.
+For short edges it can be evaluated by a convergent series that never
+subtracts nearly equal stationary covariances. Specifically, set
+\begin{equation}
+\mathbf M_0=\mathbf e_3\mathbf e_3^\top,\qquad
+\mathbf M_{j+1}=\frac{\mathbf B_z\mathbf M_j+
+ \mathbf M_j\mathbf B_z^\top}{j+1}.
+\end{equation}
+Expanding the integrand gives
+\begin{equation}
+\mathbf H_z=\sum_{j=0}^{\infty}\frac{\mathbf M_j}{j+1},
+\qquad
+e^{\mathbf B_z}-\mathbf I
+=\sum_{j=1}^{\infty}\frac{\mathbf B_z^j}{j!}.
+\label{eq:short_edge_series_solution}
+\end{equation}
+Truncation must control the remainder relative to the scaled quantities;
+the second series computes the transition increment directly.
+If $\mathbf H_z=\mathbf L_z\mathbf L_z^\top$ is its Cholesky
+factorization, the innovation energy becomes
+\begin{equation}
+\boldsymbol\delta^\top\mathbf V_\ell^{-1}\boldsymbol\delta
+=\tau^2\ell^{-5}
+ \left\|\mathbf L_z^{-1}\mathbf D_\ell\boldsymbol\delta\right\|_2^2.
+\label{eq:short_edge_whitened_innovation}
+\end{equation}
+Only triangular solves with the scaled factor are required. This
+resolves the near-singular endpoint inversion, but forming
+$\widetilde{\mathbf Q}_e$ from these factors would still expose the
+second cancellation problem. The factors should therefore be retained
+until the constraints have been incorporated.
+
+\subsection{Eliminating boundary cancellation before graph assembly}
+\label{sec:short_edge_graph_solution}
+
+For $\alpha=3$, there is a positive energy representation that makes
+this last instruction concrete. Given endpoint triples
+$\mathbf x_0,\mathbf x_\ell$, let $w$ minimize
+\begin{equation}
+\mathcal J_e(w)=\int_0^\ell
+ \left\{(w''')^2+3\kappa^2(w'')^2
+             +3\kappa^4(w')^2+\kappa^6w^2\right\}\,ds
+\label{eq:short_edge_positive_energy}
+\end{equation}
+over functions in $H^3(0,\ell)$ with these endpoint triples.
+The minimizer exists uniquely and solves
+$(\kappa^2-\partial_s^2)^3w=0$ in the edge interior.
+It is the same interpolant obtained by minimizing the causal action
+$\int_0^\ell((\partial_s+\kappa)^3w)^2\,ds$, since integration by
+parts shows that the two actions differ only by endpoint terms.
+Using the physical stationary precision $\mathbf P_0$ gives
+\begin{align}
+\begin{pmatrix}\mathbf x_0\\\mathbf x_\ell\end{pmatrix}^{\!\top}
+\widetilde{\mathbf Q}_e
+\begin{pmatrix}\mathbf x_0\\\mathbf x_\ell\end{pmatrix}
+&=\tau^2\mathcal J_e(w)
+ +6\tau^2\kappa^2
+   \left[w'(w''+\kappa^2w)\right]_0^\ell.
+\label{eq:short_edge_edge_energy_identity}
+\end{align}
+Indeed, the stationary endpoint density contributes
+$\mathbf x_0^\top\mathbf P_0\mathbf x_0$ in addition to the minimum
+causal action; subtracting the half-endpoint corrections leaves exactly
+the boundary term displayed in
+\eqref{eq:short_edge_edge_energy_identity}.
+
+Now impose the constraints \eqref{eq:alpha3_vertex_conditions} and sum
+over edges. At each vertex, $w(v)$ and $w''(v)$ are common to all
+incident ends, whereas the signed first derivatives sum to zero.
+Consequently,
+\begin{equation}
+\sum_{e\in\mathcal E}
+ \left[w'_e(w''_e+\kappa^2w_e)\right]_0^{\ell_e}=0.
+\label{eq:short_edge_boundary_cancellation}
+\end{equation}
+This identity includes degree-one vertices and both ends of loops.
+It is an exact algebraic cancellation that can be performed
+\emph{before} floating-point matrix assembly.
+
+To express the resulting precision in the existing free coordinates,
+let $d=N-k_c$ and write
+\begin{equation}
+w_{e,\mathbf z}(s)=\boldsymbol\psi_e(s)\mathbf z,
+\qquad \boldsymbol\psi_e(s)\in\mathbb R^{1\times d},
+\end{equation}
+where the endpoint triples of $w_{e,\mathbf z}$ are the corresponding
+rows of $\mathbf T_{\mathcal U}^\top\mathbf z$, and each edge uses the
+minimizer in \eqref{eq:short_edge_positive_energy}. Equations
+\eqref{eq:short_edge_edge_energy_identity}--\eqref{eq:short_edge_boundary_cancellation}
+give the exact alternative to projecting an assembled raw precision:
+\begin{equation}
+\boxed{\quad
+\mathbf Q_{\mathcal U}
+=\tau^2\sum_{e\in\mathcal E}\int_0^{\ell_e}
+ \left\{
+ (\boldsymbol\psi_e''')^\top\boldsymbol\psi_e'''
+ +3\kappa^2(\boldsymbol\psi_e'')^\top\boldsymbol\psi_e''
+ +3\kappa^4(\boldsymbol\psi_e')^\top\boldsymbol\psi_e'
+ +\kappa^6\boldsymbol\psi_e^\top\boldsymbol\psi_e
+ \right\}\,ds.
+\quad}
+\label{eq:short_edge_positive_graph_precision}
+\end{equation}
+Every contribution is a positive Gram form. In particular, the
+constant mode receives its small mass contribution directly, instead
+of through subtraction of entries of order $\ell_e^{-5}$.
+
+The interpolants themselves must also be evaluated stably. On
+$t=s/\ell_e\in[0,1]$, their equation becomes
+\begin{equation}
+\left(-\partial_t^6+3z_e^2\partial_t^4
+            -3z_e^4\partial_t^2+z_e^6\right)w=0,
+\qquad z_e=\kappa\ell_e.
+\end{equation}
+The endpoint data in these coordinates are
+$(w,\ell_ew',\ell_e^2w'')$.
+At $z_e=0$ the solution is the quintic Hermite interpolant; a
+small-$z_e$ expansion can be computed by solving successive polynomial
+boundary-value problems, with zero endpoint data for the correction
+terms. This avoids a nearly singular fit to six exponential modes.
+Linear combinations imposed by the constraints, including constant
+modes, should be combined in this scaled representation before
+evaluating derivatives. The exact interpolant or a controlled series
+approximation is needed; using only its limiting quintic polynomial
+would introduce an approximation to the covariance model.
+
+\subsection{Square-root solves and a precision safeguard}
+
+The Gram representation also specifies how to avoid forming an
+ill-conditioned normal matrix. For example, use a sufficiently
+accurate quadrature with positive weights $\omega_{ea}$ and stack the
+following rows into a matrix $\mathbf B$:
+\begin{equation}
+\tau\sqrt{\omega_{ea}}\,
+\begin{pmatrix}
+\boldsymbol\psi_e'''(s_{ea})\\
+\sqrt{3}\kappa\boldsymbol\psi_e''(s_{ea})\\
+\sqrt{3}\kappa^2\boldsymbol\psi_e'(s_{ea})\\
+\kappa^3\boldsymbol\psi_e(s_{ea})
+\end{pmatrix}.
+\end{equation}
+Then $\mathbf B^\top\mathbf B$ approximates
+\eqref{eq:short_edge_positive_graph_precision} to the integration
+accuracy. This is a numerical evaluation of the exact edge energy,
+rather than a replacement of the field by a piecewise polynomial model.
+Let $\mathbf W$ be a nonsingular diagonal column scaling and compute
+a thin QR factorization
+\begin{equation}
+\mathbf B\mathbf W=\mathbf O\mathbf R,
+\qquad \mathbf O^\top\mathbf O=\mathbf I.
+\end{equation}
+For the precision represented by these factors,
+\begin{equation}
+\mathbf Q_{\mathcal U}
+=\mathbf W^{-\top}\mathbf R^\top\mathbf R\mathbf W^{-1},
+\qquad
+\operatorname{Cov}(\mathbf U_v)=\mathbf Y\mathbf Y^\top,
+\qquad
+\mathbf R^\top\mathbf Y^\top
+=(\mathbf A_{\mathrm{code}}\mathbf W)^\top.
+\label{eq:short_edge_square_root_covariance}
+\end{equation}
+Thus the final covariance is obtained by triangular solves without
+forming $\mathbf Q_{\mathcal U}$ or its inverse. With exact edge
+integration these identities recover precisely the covariance in
+\eqref{eq:alpha3_sample_Uv_code}. The identity
+$\operatorname{cond}_2(\mathbf B^\top\mathbf B)
+=\operatorname{cond}_2(\mathbf B)^2$ explains the advantage of retaining
+the square-root factor.
+
+Scaling and factorization do not remove arbitrarily severe intrinsic
+conditioning. If the scaled factor still cannot support the requested
+accuracy, higher precision is required. A concrete fallback for the
+existing raw-matrix route follows from
+\eqref{eq:short_edge_energy_roundoff}: with $p$ binary digits and
+target relative error $\eta$, the short-edge error scale requires
+\begin{equation}
+p\gtrsim\log_2(\eta^{-1})
+       +6\log_2\!\left((\kappa\ell_{\min})^{-1}\right)
+\label{eq:short_edge_precision_budget}
+\end{equation}
+when $\kappa\ell_{\min}<1$, together with guard digits for constants,
+assembly, and the graph solve. This is a local precision budget, not
+a global error guarantee. Crucially, the covariance or series must be
+evaluated at that precision from the start; promoting already rounded
+double-precision matrices cannot restore lost information. Accuracy
+should be checked by tightening series and integration tolerances and,
+when necessary, increasing arithmetic precision until the requested
+covariance stabilizes.
+
+For a shifted fractional component, the same construction uses its
+positive noise variance $\beta$ and its causal roots
+$\rho_1,\ldots,\rho_n>0$. The positive energy weights are the
+coefficients $c_r>0$ in
+\begin{equation}
+\prod_{j=1}^n(\rho_j^2+t)=\sum_{r=0}^n c_rt^r,
+\qquad
+\mathcal J_e(w)=\beta^{-1}\sum_{r=0}^n c_r
+ \int_0^{\ell_e}(w^{(r)})^2\,ds.
+\end{equation}
+For $1<\alpha<2$ the roots are $\kappa,\kappa_i$; for
+$2<\alpha<3$ they are $\kappa,\kappa,\kappa_i$, where
+$\kappa_i=\kappa\sqrt{1-p_i}$.
+With the corresponding order-two or order-three vertex constraints,
+the endpoint boundary terms cancel as above. The component variance
+and residue scales must be included in $\beta$.
+These formulas specify a mathematical remedy; implementing and
+validating the constrained square-root solver is separate from the
+local endpoint-precision prototype.
+
 \section{Comparison to rat int paper}
 
 The calculation above is a detailed derivation of the partial-fraction

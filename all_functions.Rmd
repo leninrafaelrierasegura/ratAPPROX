@@ -1541,6 +1541,226 @@ getsCovarianceMatrixForRationalApproximationForAlphaBetweenZeroAndOne <- functio
 ```
 
 
+### Direct boundaryless edge precision for $\alpha=3$
+
+`Q00_alpha3(l, kappa, tau)` is the alpha-three analogue of
+`MetricGraph:::Q00(l, kappa, tau)`. It returns a dense $6\times6$ physical
+edge precision, ordered as
+`(u(0), u'(0), u''(0), u(l), u'(l), u''(l))`.
+The normalization includes $\tau$ and the stationary half-endpoint
+subtraction; do **not** divide its output by `sigma2` again.
+It uses base R only and does not call `solve()`, `chol()`, rSPDE, or any
+existing helper in this document.
+
+For the derivation, put $z=\kappa l$, $\rho=e^{-z}$ and
+$J=\operatorname{diag}(1,-1,1)$. In unit $\kappa,\tau$ coordinates the
+same-point covariance is $M_0/16$, and the cross-covariance with the
+reflected endpoint is $\rho M_1(z)/16$, where
+\[
+M_0=\begin{pmatrix}3&0&-1\\0&1&0\\-1&0&3\end{pmatrix},\qquad
+M_1(z)=\begin{pmatrix}
+z^2+3z+3&z^2+z&z^2-z-1\\
+z^2+z&z^2-z-1&z^2-3z\\
+z^2-z-1&z^2-3z&z^2-5z+3
+\end{pmatrix}.
+\]
+The symmetric and antisymmetric endpoint combinations reduce the
+calculation to $M_\pm=M_0\pm\rho M_1$. After the boundary correction,
+the dimensionless precision blocks are
+\[
+A=8(M_+^{-1}+M_-^{-1}-M_0^{-1}),\qquad
+C=8(M_+^{-1}-M_-^{-1}),\qquad
+Q_*(z)=\begin{pmatrix}A&CJ\\JC&JAJ\end{pmatrix}.
+\]
+The function evaluates the explicit adjugate/determinant expressions for
+these blocks, with a common denominator
+\[
+d(z)=1+(-3-12z^2+8z^3-4z^4)e^{-2z}
+       +(3+12z^2+8z^3+4z^4)e^{-4z}-e^{-6z}.
+\]
+Since $d(z)\sim(8/135)z^9$, literal evaluation is unstable for short
+edges. For $z\leq2$, the code instead evaluates power series for
+$e^{3z}d(z)/z^9$ and each similarly factored numerator. The series use
+24 terms in $z^2$ and remove the vanishing powers analytically. For
+$z>2$ it evaluates the exponential-polynomial expressions directly,
+retaining exponential factors separately to avoid premature underflow.
+Physical derivative units are restored by
+\[
+Q(l,\kappa,\tau)=\tau^2\kappa^5
+\mathcal S_\kappa^{-1}Q_*(\kappa l)\mathcal S_\kappa^{-1},\qquad
+\mathcal S_\kappa=\operatorname{diag}(1,\kappa,\kappa^2,
+                                      1,\kappa,\kappa^2).
+\]
+
+This computes the raw edge precision directly and avoids the ill-conditioned
+endpoint covariance inversion. It still returns an ordinary floating-point
+matrix: on extremely short edges, subsequent constraint multiplication or
+covariance solves can lose small quadratic forms through cancellation,
+as discussed in `derivation.tex`.
+
+```{r}
+# Direct physical boundaryless edge precision for alpha = 3.
+# State order: (u(0), u'(0), u''(0), u(l), u'(l), u''(l)).
+# Includes tau/kappa scaling and the stationary half-endpoint subtraction.
+# No graph constraints or additional endpoint boundary conditions are applied.
+Q00_alpha3 <- function(l, kappa, tau) {
+  check_positive_scalar <- function(value, name) {
+    if (!is.numeric(value) || is.complex(value) || length(value) != 1L ||
+        !is.finite(value) || value <= 0) {
+      stop(name, " must be a finite positive numeric scalar", call. = FALSE)
+    }
+  }
+  check_positive_scalar(l, "l")
+  check_positive_scalar(kappa, "kappa")
+  check_positive_scalar(tau, "tau")
+  z <- kappa * l
+  if (!is.finite(z) || z <= 0) {
+    stop("kappa * l must be finite and strictly positive", call. = FALSE)
+  }
+
+  # Each vector is a polynomial in z (constant coefficient first).
+  # Its list name is the exponential rate: multiply by exp(-rate*z).
+  # The common factor 64 has been cancelled from all numerators and den.
+  polynomials <- list(
+    den = list(`0` = 1,
+      `2` = c(-3, 0, -12, 8, -4),
+      `4` = c(3, 0, 12, 8, 4),
+      `6` = -1),
+    A11 = list(`0` = 3,
+      `2` = c(-3, 8, -20, 24, -4),
+      `4` = c(-3, -8, -20, -24, -4),
+      `6` = 3),
+    A12 = list(`2` = c(0, 0, 16, -16, 16),
+      `4` = c(0, 0, -16, -16, -16)),
+    A13 = list(`0` = 1,
+      `2` = c(-1, -8, 4, -8, 4),
+      `4` = c(-1, 8, 4, 8, 4),
+      `6` = 1),
+    A22 = list(`0` = 8,
+      `2` = c(-8, 32, -64),
+      `4` = c(-8, -32, -64),
+      `6` = 8),
+    A23 = list(`2` = c(0, 0, 48, -48, 16),
+      `4` = c(0, 0, -48, -48, -16)),
+    A33 = list(`0` = 3,
+      `2` = c(-3, -24, 12, -8, -4),
+      `4` = c(-3, 24, 12, 8, -4),
+      `6` = 3),
+    C11 = list(`1` = c(-6, -4, -4),
+      `3` = c(12, 0, 48, 0, -8),
+      `5` = c(-6, 4, -4)),
+    C12 = list(`1` = c(0, 0, -8),
+      `3` = c(0, 0, 0, 32),
+      `5` = c(0, 0, 8)),
+    C13 = list(`1` = c(-2, 4, -4),
+      `3` = c(4, 0, 0, 0, 8),
+      `5` = c(-2, -4, -4)),
+    C22 = list(`1` = c(16, 16, -16),
+      `3` = c(-32, 0, -96),
+      `5` = c(16, -16, -16)),
+    C23 = list(`1` = c(0, 16, -8),
+      `3` = c(0, -32, 0, -32),
+      `5` = c(0, 16, 8)),
+    C33 = list(`1` = c(-6, 12, -4),
+      `3` = c(12, 0, -16, 0, -8),
+      `5` = c(-6, -12, -4))
+  )
+
+  if (z <= 2) {
+    # For a numerator N with leading order z^offset, evaluate
+    # exp(3*z) * N(z) / z^offset as a polynomial in z^2.
+    # All retained coefficients have the same sign. Analytic removal
+    # of the vanishing terms prevents subtracting nearly equal values.
+    scaled_series <- function(polynomial, offset) {
+      orders <- offset + 2 * (0:23)
+      numerator <- numeric(length(orders))
+      rates <- as.numeric(names(polynomial))
+      for (term in seq_along(polynomial)) {
+        coefficients <- polynomial[[term]]
+        for (position in which(coefficients != 0)) {
+          degree <- position - 1L
+          falling <- rep(1, length(orders))
+          if (degree > 0L) {
+            for (j in 0:(degree - 1L)) falling <- falling * (orders - j)
+          }
+          numerator <- numerator + coefficients[position] * falling *
+            (3 - rates[term])^(orders - degree)
+        }
+      }
+      coefficients <- numerator / factorial(orders)
+      value <- 0
+      for (j in rev(seq_along(coefficients))) value <- value * z^2 + coefficients[j]
+      value
+    }
+    denominator <- scaled_series(polynomials$den, offset = 9L)
+    if (!is.finite(denominator) || denominator <= 0) {
+      stop("Could not evaluate the scaled alpha-three denominator", call. = FALSE)
+    }
+  } else {
+    # Evaluate N(z) / (exp(-exponential*z) * z^power).
+    # Logarithmic term evaluation avoids overflow of z^4 and premature
+    # underflow of exponentially small couplings before physical scaling.
+    scaled_expression <- function(polynomial, exponential = 0, power = 0) {
+      values <- numeric(0)
+      rates <- as.numeric(names(polynomial))
+      for (term in seq_along(polynomial)) {
+        coefficients <- polynomial[[term]]
+        positions <- which(coefficients != 0)
+        degrees <- positions - 1L
+        values <- c(values, sign(coefficients[positions]) * exp(
+          log(abs(coefficients[positions])) + (degrees - power) * log(z) -
+            (rates[term] - exponential) * z
+        ))
+      }
+      sum(values)
+    }
+    denominator <- scaled_expression(polynomials$den)
+    if (!is.finite(denominator) || denominator <= 0) {
+      stop("Could not evaluate the alpha-three denominator", call. = FALSE)
+    }
+  }
+
+  A <- C <- matrix(0, 3L, 3L)
+  for (i in 1:3) {
+    for (j in i:3) {
+      derivative_order <- i + j - 2L
+      a_polynomial <- polynomials[[paste0("A", i, j)]]
+      c_polynomial <- polynomials[[paste0("C", i, j)]]
+      if (z <= 2) {
+        offset <- 4L + derivative_order
+        a <- scaled_series(a_polynomial, offset) / denominator
+        c <- scaled_series(c_polynomial, offset) / denominator
+        # kappa^(5-order) * z^(order-5) = l^(order-5).
+        a_log_scale <- c_log_scale <-
+          2 * log(tau) + (derivative_order - 5L) * log(l)
+      } else {
+        # Only A12 and A23 lack a nondecaying term as z -> infinity.
+        a_exponential <- if (i != j && j == i + 1L) 2 else 0
+        a_power <- if (a_exponential == 2) 4 else 0
+        a <- scaled_expression(a_polynomial, a_exponential, a_power) / denominator
+        c <- scaled_expression(c_polynomial, exponential = 1, power = 2) / denominator
+        physical_scale <- 2 * log(tau) + (5L - derivative_order) * log(kappa)
+        a_log_scale <- physical_scale - a_exponential * z + a_power * log(z)
+        c_log_scale <- physical_scale - z + 2 * log(z)
+      }
+      # Scaling in logarithms also handles very different derivative units.
+      A[i, j] <- A[j, i] <- sign(a) * exp(log(abs(a)) + a_log_scale)
+      C[i, j] <- C[j, i] <- sign(c) * exp(log(abs(c)) + c_log_scale)
+    }
+  }
+  reflection <- c(1, -1, 1)
+  cross <- sweep(C, 2L, reflection, "*")
+  Q <- rbind(cbind(A, cross),
+             cbind(t(cross), A * outer(reflection, reflection)))
+  if (any(!is.finite(Q)) || any(diag(Q) <= 0)) {
+    stop("The supplied parameters produce an unrepresentable precision matrix",
+         call. = FALSE)
+  }
+  return(Q)
+}
+```
+
+
 ### Raw precision components for strictly fractional alpha
 
 The following auxiliary functions return a flat list `Qraw`, named
